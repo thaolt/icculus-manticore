@@ -52,8 +52,8 @@ entity manticore_fifo is
 
 generic (
   DATA_WIDTH : positive:= 8;                -- width
-  DATA_DEPTH : positive := 640;             --depth
-  ADDR_WIDTH : positive := 10
+  DATA_DEPTH : positive := 16;             --depth
+  ADDR_WIDTH : positive := 4
   );            
 
   port (
@@ -99,13 +99,13 @@ end component;
 
 --  type data_block_type is array (DATA_DEPTH-1 downto 0) of
 --       std_logic_vector(DATA_WIDTH-1 downto 0);
-  
+--  signal data_block : data_block_type;              -- storage 
+
   signal depth : positive range 0 to DATA_DEPTH+1;                -- depth gauge
---  signal data_block : data_block_type;          -- storage
 
   signal start_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);        -- start pointer
   signal end_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);        -- end pointer
-
+  signal wren, rden, full_int : std_logic;  -- write enable and read enable
   
 begin  -- behavioral
 
@@ -114,7 +114,7 @@ begin  -- behavioral
   -- inputs : CLK_I, RST_I, Data_I
   -- outputs: Data_O
 
-  storage: process (CLK_I, RST_I, data_I, clear_I, w_req_I, r_req_I)
+  addressing: process (CLK_I, RST_I, data_I, clear_I, w_req_I, r_req_I)
   begin  -- process storage
     if RST_I = '0' then                 -- asynchronous reset (active low)
 
@@ -123,39 +123,29 @@ begin  -- behavioral
       depth <= 0;
       start_pointer <= (others => '0');
       end_pointer <= (others => '0');
+      full_int <= '0';
 
-      
     elsif CLK_I'event and CLK_I = '1' then  -- rising clock edge
       
+       if depth=0 then
+            empty_O <= '1';
+       else
+            empty_O <= '0';
+       end if;
+
+       if depth=DATA_DEPTH-1 then
+            full_O   <= '1';
+            full_int <= '1';
+       else
+            full_O   <= '0';
+            full_int <= '0';
+       end if;
+
       if clear_I = '1' then               -- Clear
 
         depth <= 0;
         start_pointer <= (others => '0');
         end_pointer <= (others => '0');
-        
-      elsif w_req_I = '1' then          -- Write Request
-
-        if depth < DATA_DEPTH then
-          
-          if depth=DATA_DEPTH-1 then
-            full_O <= '1';
-          else
-            full_O <= '0';
-          end if;
-
-          depth <= depth + 1;    
-        
-          if end_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
-            end_pointer <= (others => '0');
-          else
-            end_pointer <= end_pointer + '1';
-          end if;
-          
-        else
-          
-          full_O <= '1';
-          
-        end if;
         
       elsif r_req_I = '1' then          -- Read Request
 
@@ -163,26 +153,40 @@ begin  -- behavioral
 
           depth  <= depth - 1;
 
-          if depth=1 then
-            empty_O <= '1';
-          else
-            empty_O <= '0';
-          end if;
-
           if start_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
             start_pointer <= (others => '0');
           else
             start_pointer <= start_pointer + '1';
-          end if;
+          end if;                       -- pointer
           
         end if;                         -- depth
         
-      end if;                           -- r_req
-      
+      elsif w_req_I = '1' then          -- Write Request
+
+        if depth < DATA_DEPTH-1 then
+
+          depth <= depth + 1;    
+        
+          if end_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
+            end_pointer <= (others => '0');
+          else
+            end_pointer <= end_pointer + '1';
+          end if;                       -- pointer
+          
+        end if;                         -- depth
+
+       end if;                          -- command
+
     end if;                             -- clock
-  end process storage;
+  end process addressing;
 
   -- purpose: connects to LPM_RAM 
+  write_read_enable: process(w_req_I, r_req_I, full_int)
+   begin
+     wren <= w_req_I AND (NOT full_int);
+     rden <= r_req_I;
+   end process write_read_enable;
+
     
     lpm_ram_inst: lpm_ram_dp
       generic map (
@@ -193,9 +197,9 @@ begin  -- behavioral
       port map (
         RDCLOCK   => CLK_I,
         RDADDRESS => start_pointer,
-        RDEN      => r_req_I,
+        RDEN      => rden,
         DATA      => DATA_I,
-        WREN      => w_req_I,
+        WREN      => wren,
         WRADDRESS => end_pointer, 
         WRCLOCK   => CLK_I,
         Q         => DATA_O);
