@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#ifndef _OGL_ATSANA_H_
+#ifndef OGL_ATSANA_H
 
 typedef struct 
 {
@@ -39,7 +39,7 @@ typedef struct
    
 } oglContext;
         
-#endif // _OGL_ATSANA_H_
+#endif // OGL_ATSANA_H
 
 #if defined (__cplusplus)
 }

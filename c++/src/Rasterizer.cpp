@@ -228,15 +228,24 @@ Rasterizer::Rasterize(Triangle3D &tri){
   P3Y = tri.GetP3D3().GetY();   
   P3Z = tri.GetP3D3().GetZ();
   
-  if((P1Z > 100) || (P2Z > 100) || (P3Z > 100)) return;
+  if((P1Z >= 0) || (P2Z >= 0) || (P3Z >= 0)) return;
   
   // 3D to screen projections
-  P1screenX = (int)(P1X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +m_dx/2);
-  P1screenY = (int)(P1Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +m_dy/2);
-  P2screenX = (int)(P2X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +m_dx/2);
-  P2screenY = (int)(P2Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +m_dy/2);
-  P3screenX = (int)(P3X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +m_dx/2);
-  P3screenY = (int)(P3Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +m_dy/2);
+ // P1screenX = (int)(P1X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +m_dx/2);
+ // P1screenY = (int)(P1Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +m_dy/2);
+ // P2screenX = (int)(P2X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +m_dx/2);
+ // P2screenY = (int)(P2Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +m_dy/2);
+ // P3screenX = (int)(P3X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +m_dx/2);
+ // P3screenY = (int)(P3Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +m_dy/2);
+
+
+  P1screenX = (int)(P1X/(-P1Z/MCORE_FOCALLENGTH) +m_dx/2);
+  P1screenY = (int)(P1Y/(-P1Z/MCORE_FOCALLENGTH) +m_dy/2);
+  P2screenX = (int)(P2X/(-P2Z/MCORE_FOCALLENGTH) +m_dx/2);
+  P2screenY = (int)(P2Y/(-P2Z/MCORE_FOCALLENGTH) +m_dy/2);
+  P3screenX = (int)(P3X/(-P3Z/MCORE_FOCALLENGTH) +m_dx/2);
+  P3screenY = (int)(P3Y/(-P3Z/MCORE_FOCALLENGTH) +m_dy/2);
+
 
   P1fixedZ = (int)tri.GetP3D1().GetZ()*4096; // 12 bits of fraction
   P2fixedZ = (int)tri.GetP3D2().GetZ()*4096;
@@ -291,6 +300,14 @@ Rasterizer::Rasterize(Triangle3D &tri){
   maxx = max(P1.GetX(),P2.GetX());
   maxx = max(maxx,     P3.GetX());
 
+ 
+  if(maxy > m_dy) maxy = m_dy;
+  if(miny < 0) miny = 0;
+  
+  if(maxx > m_dx) maxx = m_dx;
+  if(minx < 0) minx = 0;   
+
+
   yrstart =  (P1.GetR()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*colors[0] + ((maxy+1)-P1.GetY())*colors[1];
   ygstart =  (P1.GetG()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*colors[2] + ((maxy+1)-P1.GetY())*colors[3];
   ybstart =  (P1.GetB()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*colors[4] + ((maxy+1)-P1.GetY())*colors[5];
@@ -304,6 +321,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
   eq1temp = eq[0]*(maxx+1) + eq[1]*(maxy+1) - eq[2]; 
   eq2temp = eq[3]*(maxx+1) + eq[4]*(maxy+1) - eq[5];
   eq3temp = eq[6]*(maxx+1) + eq[7]*(maxy+1) - eq[8];
+
 
   for(int y = maxy; y >= miny; y--){ 
 
@@ -371,156 +389,3 @@ Rasterizer::Rasterize(Triangle3D &tri){
   
 }
 
-/*
-void
-Rasterizer::Rasterizex(Triangle3Dx &tri){
-    
-  short *colors = new short[9];  // short arrays for SIMD array
-  short *eq = new short[9];
-  int *zslopes = new int[3];
-  int temp;
-
-  P1Xx = tri.GetP3D1().GetX();     //  Grab the points' x,y,z values;
-  P1Yx = tri.GetP3D1().GetY();   
-  P1Zx = tri.GetP3D1().GetZ();
-  P2Xx = tri.GetP3D2().GetX();  
-  P2Yx = tri.GetP3D2().GetY();   
-  P2Zx = tri.GetP3D2().GetZ();
-  P3Xx = tri.GetP3D3().GetX();  
-  P3Yx = tri.GetP3D3().GetY();   
-  P3Zx = tri.GetP3D3().GetZ();
-  
-  // 3D to screen projections
-  temp = (P1Xx>>8)*(MCORE_FOCALLENGTH);
-  temp = (temp)/((MCORE_FOCALLENGTH<<8)-(P1Zx>>8));
-  P1screenX = temp+(m_dx)/2;
-
-  P1screenY = ((((P1Yx>>8)*(MCORE_FOCALLENGTH))/((MCORE_FOCALLENGTH<<8)-(P1Zx>>8)))) +(m_dy)/2;
-  P2screenX = ((((P2Xx>>8)*(MCORE_FOCALLENGTH))/((MCORE_FOCALLENGTH<<8)-(P2Zx>>8)))) +(m_dx)/2;
-  P2screenY = ((((P2Yx>>8)*(MCORE_FOCALLENGTH))/((MCORE_FOCALLENGTH<<8)-(P2Zx>>8)))) +(m_dy)/2;
-  P3screenX = ((((P3Xx>>8)*(MCORE_FOCALLENGTH))/((MCORE_FOCALLENGTH<<8)-(P3Zx>>8)))) +(m_dx)/2;
-  P3screenY = ((((P3Yx>>8)*(MCORE_FOCALLENGTH))/((MCORE_FOCALLENGTH<<8)-(P3Zx>>8)))) +(m_dy)/2;
-
-  P1fixedZ = (tri.GetP3D1().GetZ())>>4;//<<12; // 12 bits of fraction
-  P2fixedZ = (tri.GetP3D2().GetZ())>>4;//<<12;
-  P3fixedZ = (tri.GetP3D3().GetZ())>>4;//<<12;
-
-  Point2D P1(P1screenX, P1screenY, P1fixedZ, tri.GetP3D1().GetR(), tri.GetP3D1().GetG(), tri.GetP3D1().GetB());  // create some 2d points, (still need to impliment z)
-  Point2D P2(P2screenX, P2screenY, P2fixedZ, tri.GetP3D2().GetR(), tri.GetP3D2().GetG(), tri.GetP3D2().GetB());
-  Point2D P3(P3screenX, P3screenY, P3fixedZ, tri.GetP3D3().GetR(), tri.GetP3D3().GetG(), tri.GetP3D3().GetB());
-
-  s3dGetColorDeltas(P1,P2,P3, colors);   // short array pointers are used to load the SIMD array
-                                         // kept here for consistency
-  s3dGetZDeltas(P1,P2,P3, zslopes);
-
-  Point2D *Sorted1, *Sorted2, *Sorted3;
-
-
-  // Use cross product to make sure triangle orientation is correct
-  int crossz;
-  // Rz = PxQy - PyQx;   P = P1-P2, Q=P1-P3
-  crossz = (P1.GetX() - P2.GetX())*(P1.GetY() - P3.GetY()) - (P1.GetY() - P2.GetY())*(P1.GetX()-P3.GetX());
-  if(crossz >= 0){
-    Sorted1 = &P1;
-    Sorted2 = &P2;
-    Sorted3 = &P3;
-  }else{
-    Sorted1 = &P3;
-    Sorted2 = &P2;
-    Sorted3 = &P1;
-  }
-
-  s3dGetLineEq( *Sorted2, *Sorted1, eq); 
-  s3dGetLineEq( *Sorted3, *Sorted2, eq+3);
-  s3dGetLineEq( *Sorted1, *Sorted3, eq+6);
-
-
-  short red, green, blue;
-  short yrstart, ybstart, ygstart;
-  int color;
-
-  int z, yzstart;
-
-  short miny, minx, maxy, maxx;
-
-  miny = min(P1.GetY(),P2.GetY());
-  miny = min(miny,     P3.GetY());
-  minx = min(P1.GetX(),P2.GetX());
-  minx = min(minx,     P3.GetX());
-
-  maxy = max(P1.GetY(),P2.GetY());
-  maxy = max(maxy,     P3.GetY());
-  maxx = max(P1.GetX(),P2.GetX());
-  maxx = max(maxx,     P3.GetX());
-
-  yrstart =  (P1.GetR()<<8) + ((maxx)-P1.GetX())*colors[0] + ((maxy+1)-P1.GetY())*colors[1];
-  ygstart =  (P1.GetG()<<8) + ((maxx)-P1.GetX())*colors[2] + ((maxy+1)-P1.GetY())*colors[3];
-  ybstart =  (P1.GetB()<<8) + ((maxx)-P1.GetX())*colors[4] + ((maxy+1)-P1.GetY())*colors[5];
-
-  yzstart =  (P1.GetZ()) + ((maxx+1)-P1.GetX())*zslopes[0] + ((maxy+1)-P1.GetY())*zslopes[1];
-
-  short eq1result, eq1temp;
-  short eq2result, eq2temp;
-  short eq3result, eq3temp;
-
-  eq1temp = eq[0]*(maxx+1) + eq[1]*(maxy+1) - eq[2]; 
-  eq2temp = eq[3]*(maxx+1) + eq[4]*(maxy+1) - eq[5];
-  eq3temp = eq[6]*(maxx+1) + eq[7]*(maxy+1) - eq[8];
-
-  for(int y = maxy; y >= miny; y--){ 
-
-      eq1temp -= (int)eq[1];
-      eq2temp -= (int)eq[4];
-      eq3temp -= (int)eq[7];
-
-      eq1result = eq1temp;
-      eq2result = eq2temp;
-      eq3result = eq3temp;
-
-      yrstart -= colors[1];
-      red = yrstart;
-
-      ygstart -= colors[3];
-      green = ygstart;
-
-      ybstart -= colors[5];
-      blue = ybstart;
-
-      yzstart -= zslopes[1];
-      z = yzstart;
-
-
-      for(int x = maxx; x >= minx; x--){
-
-         eq1result -= (int)eq[0];
-         eq2result -= (int)eq[3];
-         eq3result -= (int)eq[6];
-
-         red   -= colors[0]; 
-         green -= colors[2]; 
-         blue  -= colors[4]; 
-         z -= zslopes[0];        
-         
-          if(  (eq1result <= 0)
-            && (eq2result <= 0)
-            && (eq3result <= 0) ){
- //                   PixelData->WriteData(x,y,0xffff, (z));
- //         }else{
-              if(PixelData->Getbpp()==32){
-                color = (red & 0xff00) << 8;
-                color = color | (green & 0xff00);
-                color = color | (blue & 0xff00) >> 8;
-              }else if(PixelData->Getbpp()==16){
-                color = (red & 0x1f00) << 3;
-                color = color | (green & 0x3f00) >> 3;
-                color = color | (blue & 0x1f00) >> 8;
-              }
-              if((z) > PixelData->GetZ(x,y)){
-                    PixelData->WriteData(x,y,color, (z));
-              }
-          }
-      }
-  }
-}
-
-*/
