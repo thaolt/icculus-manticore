@@ -58,34 +58,47 @@ int main(int argc,char * argv[])
   VGAout Video(Surface, PixelData);
   Video.ClearScreen();
 
-  //Point3D P1(-150, 0, -120);
-  //Point3D P2(-100, -100, -120);
-  //Point3D P3(-20, -60, -120);
-  Point3D P1(-0, -100, -120);
-  Point3D P2(-100, -100, -120);
-  Point3D P3(-20, -250, -120);
+  Point3D P1(-350, 0, -120);
+  Point3D P2(-300, -100, -120);
+  Point3D P3(-20, -160, -120);
 
-  
+  Point3D P4(50, 110, -120);
+  Point3D P5(-100, 100, -120);
+  Point3D P6(80, 200, -120);
+  Triangle3D tri1(P1, P2, P3);
+  Triangle3D tri2(P4, P5, P6);  
 
   while(!die){
   
-
+    PixelData->Blank();
     TransformEngine -> Translate(P1,0,0,120 );
     TransformEngine -> Translate(P2,0,0,120 );
     TransformEngine -> Translate(P3,0,0,120 );
 
-    TransformEngine -> RotateY(P1,0.06);
-    TransformEngine -> RotateY(P2,0.06);
-    TransformEngine -> RotateY(P3,0.06);
-    
+    TransformEngine -> RotateZ(P1,0.06f);
+    TransformEngine -> RotateZ(P2,0.06f);
+    TransformEngine -> RotateZ(P3,0.06f);
+
     TransformEngine -> Translate(P1,0,0,-120 );
     TransformEngine -> Translate(P2,0,0,-120 );
     TransformEngine -> Translate(P3,0,0,-120 );
 
+    TransformEngine -> Translate(P4,0,0,120 );
+    TransformEngine -> Translate(P5,0,0,120 );
+    TransformEngine -> Translate(P6,0,0,120 );
 
-    Triangle3D tri1(P1, P2, P3);
+    TransformEngine -> RotateY(P4,0.06f);
+    TransformEngine -> RotateY(P5,0.06f);
+    TransformEngine -> RotateY(P6,0.06f);
+
+    TransformEngine -> Translate(P4,0,0,-120 );
+    TransformEngine -> Translate(P5,0,0,-120 );
+    TransformEngine -> Translate(P6,0,0,-120 );
+    tri1.SetPoints(P1,P2,P3);
+    tri2.SetPoints(P4,P5,P6);
     RasterEngine->Rasterize(tri1);
-   
+    RasterEngine->Rasterize(tri2);
+
     die = process_input();
     Video.DrawScreen();
   }

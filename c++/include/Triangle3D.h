@@ -43,7 +43,7 @@ public:
    Triangle3D&   operator=(const Triangle3D&);     // assignment operator
 
 // Operations
-
+    void SetPoints(const Point3D& inp1, const Point3D& inp2, const Point3D& inp3);
 // Access
 
    Point3D GetP3D1();

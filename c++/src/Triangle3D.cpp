@@ -58,6 +58,15 @@ Triangle3D::operator=(const Triangle3D&rhs)
 }// =
 
 //============================= Operations ===================================
+
+void 
+Triangle3D::SetPoints(const Point3D& inp1, const Point3D& inp2, const Point3D& inp3){
+
+    P3D1 = inp1;
+    P3D2 = inp2;
+    P3D3 = inp3;
+
+}
 //============================= Access      ==================================
 
 Point3D

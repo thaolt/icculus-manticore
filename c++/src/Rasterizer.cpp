@@ -13,7 +13,7 @@
 //
 /////////////////////////////////////////////////////////////////////////
 #include "Rasterizer.h"                                // class implemented
-
+#include <math.h>
 
 /////////////////////////////// Public ///////////////////////////////////////
 
@@ -54,19 +54,8 @@ Rasterizer::operator=(const Rasterizer &rhs)
 
 void
 Rasterizer::Rasterize(Triangle3D &tri){
-
-  Point3D P3D1, P3D2, P3D3;
-  float P1X, P1Y, P1Z;
-  float P2X, P2Y, P2Z;
-  float P3X, P3Y, P3Z;
-  Uint32 P1screenX, P1screenY;
-  Uint32 P2screenX, P2screenY;
-  Uint32 P3screenX, P3screenY;
-  float l, r;
-  int dxleft, dxright, dxclose;
-  bool degenerate = false;
-  float slopeleft, sloperight, slopeclose, dy;
-  Point2D middle, bottom, top, left, right;
+  
+  degenerate = false;
 
   P3D1 = tri.GetP3D1();
   P3D2 = tri.GetP3D2();
@@ -78,12 +67,12 @@ Rasterizer::Rasterize(Triangle3D &tri){
   P3X = P3D3.GetX();  
   P3Y = P3D3.GetY();   P3Z = P3D3.GetZ();
   
-  P1screenX = (Uint32)(P1X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_WIDTH/2);
-  P1screenY = (Uint32)(P1Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_HEIGHT/2);
-  P2screenX = (Uint32)(P2X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +MCORE_WIDTH/2);
-  P2screenY = (Uint32)(P2Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +MCORE_HEIGHT/2);
-  P3screenX = (Uint32)(P3X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_WIDTH/2);
-  P3screenY = (Uint32)(P3Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_HEIGHT/2);
+  P1screenX = P1X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_WIDTH/2;
+  P1screenY = P1Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_HEIGHT/2;
+  P2screenX = P2X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +MCORE_WIDTH/2;
+  P2screenY = P2Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +MCORE_HEIGHT/2;
+  P3screenX = P3X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_WIDTH/2;
+  P3screenY = P3Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_HEIGHT/2;
 
   Point2D P1(P1screenX, P1screenY);
   Point2D P2(P2screenX, P2screenY);
@@ -92,7 +81,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
   Uint32 col1 = 255<<8;               // green
   Uint32 col2 = (255<<16)+(255<<8);   // yellow
   Uint32 col3 = 255<<16;              // red
-
+  Uint32 col4 = col3 - (63<<16);            //orange
   // Slope Calculations
   
   // Handle degenerate cases first
@@ -213,7 +202,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
     }
   }
 
-  else { //if((P3screenY < P2screenY) && (P3screenY < P1screenY)) {
+  else if((P3screenY < P2screenY) && (P3screenY < P1screenY)) {
     top = P3;
     if(P2screenY < P1screenY){
         bottom = P1;
@@ -222,8 +211,8 @@ Rasterizer::Rasterize(Triangle3D &tri){
         bottom = P2;
         middle = P1;
     }
-    if(P2screenX < P1screenX){
-        right=P2;
+    if((P2screenX < P1screenX)){
+        right=P2;  
         left=P1;
     }else{
         right=P1;
@@ -240,44 +229,52 @@ Rasterizer::Rasterize(Triangle3D &tri){
     l=top.GetX();
     r=top.GetX();
     dy = middle.GetY()-bottom.GetY();
-    slopeclose = (float)dxclose/dy;
+    slopeclose = (int)dxclose/dy;
   }
 
   dy = top.GetY()-left.GetY();
-  slopeleft = (float)dxleft/dy;
+  slopeleft = (int)dxleft/dy;
 
   dy = top.GetY()-right.GetY();
-  sloperight = (float)dxright/dy;
+  sloperight = (int)dxright/dy;
 
 
+  float temp;
+  // In some orientations the left and right edges are swapped
+  //  definitions of l and r are not really accurate
+  if(slopeleft < sloperight){  
+       temp=slopeleft;
+       slopeleft=sloperight;
+       sloperight=temp;
+   }
 
-
-
-  PixelData->Blank();
-
-  for(int i=top.GetY(); i < middle.GetY(); i++){
+  for(Uint32 i=(Uint32)top.GetY(); i < (Uint32)middle.GetY(); i++){
       l+=slopeleft;
       r+=sloperight;
-      for(int j=(Uint32)r; j<(Uint32)l; j++){
-         PixelData->WriteData((Uint32)j,i, col1);
+      
+      for(Uint32 j=(Uint32)r; j<(Uint32)l; j++){
+         PixelData->WriteData((Uint32)j,i, col4);
       }    
   }
 
-  for(int i=middle.GetY(); i < bottom.GetY(); i++){
-      if(middle.GetX() > bottom.GetX()){
-        l+=slopeclose;
-        r+=sloperight;
-      }else{
-        r+=slopeclose; 
-        l+=slopeleft;
-      }
-      for(int j=(Uint32)r; j<(Uint32)l; j++){
-         PixelData->WriteData((Uint32)j,i, col1);
+   if(fabs(r - middle.GetX()) < fabs(l - middle.GetX())){
+       r=middle.GetX();
+       sloperight=slopeclose;
+   }else{
+       l=middle.GetX();
+       slopeleft=slopeclose;
+   }
+
+  for(Uint32 i=(Uint32)middle.GetY(); i < (Uint32)bottom.GetY(); i++){
+      l+=slopeleft;
+      r+=sloperight;
+      for(Uint32 j=(Uint32)r; j<(Uint32)l; j++){
+         PixelData->WriteData((Uint32)j,i, col4);
       }     
   }
 
-  for(int i=-2; i < 3; i++){
-    for(int j=-2; j <3; j++){
+  for(int i=-1; i < 1; i++){
+    for(int j=-1; j <1; j++){
       PixelData->WriteData((Uint32)P1.GetX()+i,(Uint32)P1.GetY()+j, col1);
       PixelData->WriteData((Uint32)P2.GetX()+i,(Uint32)P2.GetY()+j, col2);
       PixelData->WriteData((Uint32)P3.GetX()+i,(Uint32)P3.GetY()+j, col3);
