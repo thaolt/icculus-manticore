@@ -938,8 +938,8 @@ begin  -- architecture structural
 
        when "00" =>                     -- bottom left
         color    <= "11100000";
-        tb_x0 <= conv_std_logic_vector(-150, 10)  & "000000";
-        tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
+        tb_x0 <= conv_std_logic_vector(-150, 10)  & "000000"; -- X 0-2-1
+        tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000"; -- Y 2-1-0
         tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";  -- 64
 
         tb_x1 <= conv_std_logic_vector(-100, 10)  & "000000";
@@ -952,9 +952,9 @@ begin  -- architecture structural
 
        when "01" =>                     -- bottom right (trouble, worse)
         color    <= "11111100";
-        tb_x0 <= conv_std_logic_vector(150, 10)   & "000000";
-        tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_z0 <= conv_std_logic_vector(-32, 10)   & "000000";  -- -32
+        tb_x0 <= conv_std_logic_vector(150, 10)   & "000000"; -- X 2-1-0 (l to r)
+        tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000"; -- Y 2-1-0 (t to b)
+        tb_z0 <= conv_std_logic_vector(-32, 10)   & "000000"; -- -32
 
         tb_x1 <= conv_std_logic_vector(100, 10)   & "000000";
         tb_y1 <= conv_std_logic_vector(-100, 10)  & "000000";
@@ -966,8 +966,8 @@ begin  -- architecture structural
 
      when "10" =>                       -- top right (trouble)
         color    <= "11111111";     
-        tb_x0 <= conv_std_logic_vector(10, 10)    & "000000";
-        tb_y0 <= conv_std_logic_vector(100, 10)   & "000000";
+        tb_x0 <= conv_std_logic_vector(10, 10)    & "000000"; -- X 0-2-1 (l to r)
+        tb_y0 <= conv_std_logic_vector(100, 10)   & "000000"; -- Y 1-0-2 (t to b)
         tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";  -- 64 
 
         tb_x1 <= conv_std_logic_vector(100, 10)   & "000000";
@@ -980,8 +980,8 @@ begin  -- architecture structural
 
      when "11" =>                       -- top left
         color    <= "00011100";
-        tb_x0 <= conv_std_logic_vector(-50, 10)   & "000000";
-        tb_y0 <= conv_std_logic_vector(100, 10)   & "000000";
+        tb_x0 <= conv_std_logic_vector(-50, 10)   & "000000"; --X 2-0-1
+        tb_y0 <= conv_std_logic_vector(100, 10)   & "000000"; --Y 0-1-2
         tb_z0 <= conv_std_logic_vector(32, 10)    & "000000";  -- 32
 
         tb_x1 <= conv_std_logic_vector(-100, 10)  & "000000";
