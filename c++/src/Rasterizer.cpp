@@ -22,10 +22,11 @@
 
 //============================= Lifecycle ====================================
 
-Rasterizer::Rasterizer(SDL_Surface *InScreen, PixelRAM  *InPixelData)
+//Rasterizer::Rasterizer(SDL_Surface *InScreen, PixelRAM  *InPixelData)
+Rasterizer::Rasterizer(PixelRAM  *InPixelData)
 {
   PixelData = InPixelData;
-  Screen = InScreen;
+//  Screen = InScreen;
 }// Rasterizer
 
 Rasterizer::Rasterizer(const Rasterizer&)
@@ -273,7 +274,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
                color = color | (green & 0x3f00) >> 3;
                color = color | (blue & 0x1f00) >> 8;
               }
-             PixelData->WriteData((Uint32)x,y, color);
+             PixelData->WriteData(x,y, color);
 
           }
       }

@@ -23,7 +23,7 @@
 
 // Forward References
 //
-using namespace std;
+//using namespace std;
 
 /**   
   *    @author 
@@ -44,11 +44,11 @@ public:
    PixelRAM&   operator=(const PixelRAM&);     // assignment operator
 
 // Operations
-	void WriteData(Uint32 x, Uint32 y, Uint32 col);
+	void WriteData(int x, int y, int col);
 	void Blank();
 
 // Access
-	Uint8* GetLine(Uint32 row);
+	unsigned char* GetLine(int row);
     int Getbpp();
 // Inquiry
 
@@ -57,7 +57,7 @@ protected:
 private:
 // Private Methods
 
-	Uint8 *PixelData;
+	unsigned char *PixelData;
     int bpp;
 
 //////////////////Removed

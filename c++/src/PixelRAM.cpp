@@ -23,8 +23,8 @@ PixelRAM::PixelRAM(const int& bppin)
 {
   bpp = bppin;  // bits per pixel
 
-  PixelData = new Uint8[MCORE_HEIGHT*MCORE_WIDTH*(bpp/8)];
-  for(Uint32 i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*(bpp/8); i+=(bpp/8)){
+  PixelData = new unsigned char[MCORE_HEIGHT*MCORE_WIDTH*(bpp/8)];
+  for(int i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*(bpp/8); i+=(bpp/8)){
     int row = i/(MCORE_WIDTH*(bpp/8));
 
     PixelData[i]=255;  // This garbage is for loving memories
@@ -63,8 +63,8 @@ PixelRAM::operator=(const PixelRAM &rhs)
 
 }// =
 
-Uint8 *
-PixelRAM::GetLine(Uint32 row){
+unsigned char *
+PixelRAM::GetLine(int row){
 
   return &PixelData[row*MCORE_WIDTH*(bpp/8)];
 
@@ -74,19 +74,19 @@ PixelRAM::GetLine(Uint32 row){
 //============================= Operations ===================================
 
 void
-PixelRAM::WriteData(Uint32 x, Uint32 y, Uint32 col){
-  Uint8 *p;
+PixelRAM::WriteData(int x, int y, int col){
+  unsigned char *p;
 
   if(bpp == 32){
     if((y<MCORE_HEIGHT) && (x>0) && (x < MCORE_WIDTH) && (y > 0)){
 
         p = &PixelData[(y*MCORE_WIDTH+x)*(bpp/8)];
-        *(Uint32 *)p = col;
+        *(int *)p = col;
     }
   }else if( bpp == 16 ){
 
         p = &PixelData[(y*MCORE_WIDTH+x)*(bpp/8)];
-        *(Uint16 *)p = col;
+        *(unsigned short *)p = col;
   }
 
 }
@@ -95,7 +95,7 @@ void
 PixelRAM::Blank(){
 
 
-  for(Uint32 i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*(bpp/8); i+=(bpp/8)){
+  for(int i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*(bpp/8); i+=(bpp/8)){
     int row = i/(MCORE_WIDTH*(bpp/8));
     PixelData[i]=80; 
 	PixelData[i+1]=80;

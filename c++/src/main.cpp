@@ -59,7 +59,7 @@ int main(int argc,char * argv[])
 
 
   PixelRAM* PixelData = new PixelRAM(bpp);
-  Rasterizer* RasterEngine = new Rasterizer(Surface, PixelData);
+  Rasterizer* RasterEngine = new Rasterizer(PixelData);
   Transformer* TransformEngine = new Transformer();
 
   VGAout Video(Surface, PixelData);

@@ -13,7 +13,7 @@
 // System Includes
 //
 
-#include "SDL.h"
+//#include "SDL.h"
 
 // Project Includes
 //
@@ -39,7 +39,8 @@ public:
 
 // Lifecycle
 
-   Rasterizer(SDL_Surface *, PixelRAM*);
+//   Rasterizer(SDL_Surface *, PixelRAM*);
+   Rasterizer(PixelRAM*);
    Rasterizer(const Rasterizer&);            // copy constructor
    ~Rasterizer();
 
@@ -63,7 +64,7 @@ private:
   void s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colors);
   void s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq);
 
-  SDL_Surface* Screen;
+//  SDL_Surface* Screen;
   PixelRAM* PixelData;
 
    Point2D P2D_world1;
