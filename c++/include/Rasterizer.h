@@ -50,6 +50,7 @@ public:
 // Operations
 
 	void Rasterize(Triangle3D &);
+	void Rasterize2(Triangle3D &);
 // Access
 
 // Inquiry
@@ -59,7 +60,8 @@ protected:
 private:
 // Private Methods
 
-  void s3dGetColorDeltas(Point2D P1, Point2D P2, Point2D P3, short* colors);
+  void s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colors);
+  void s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq);
 
   SDL_Surface* Screen;
   PixelRAM* PixelData;

@@ -78,17 +78,19 @@ Rasterizer::Rasterize(Triangle3D &tri){
   P3screenX = P3X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_WIDTH/2;
   P3screenY = P3Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_HEIGHT/2;
 
-  Point2D P1(P1screenX, P1screenY, 200, 0, 0);  // create some 2d points, (still need to impliment z)
-  Point2D P2(P2screenX, P2screenY, 0, 200, 0);
-  Point2D P3(P3screenX, P3screenY, 0, 0, 200);
+  Point2D P1(P1screenX, P1screenY, 0, 255, 0);  // create some 2d points, (still need to impliment z)
+  Point2D P2(P2screenX, P2screenY, 0, 0, 255);
+  Point2D P3(P3screenX, P3screenY, 255, 0, 0);
 
   s3dGetColorDeltas(P1,P2,P3, colors); 
 
   Uint32 col1 = 255<<8;               // green
-  Uint32 col2 = (255<<16)+(255<<8);   // yellow
+  Uint32 col2 = 255;                 // blue
   Uint32 col3 = 255<<16;              // red
   Uint32 col4 = col3 - (63<<16);      // dark red
 
+
+  int i,j;
   // Slope Calculations & Triangle Sorting
   
   // Handle degenerate cases first
@@ -276,30 +278,39 @@ Rasterizer::Rasterize(Triangle3D &tri){
      }
   }
 
-  int red = colors[6];
-  int green = colors[7];
-  int blue = colors[8];
-  int color;
+  short red = colors[6];
+  short green = colors[7];
+  short blue = colors[8];
+  int color=0;
   // Draw the top half of the triangle
-  for(Uint32 i=(Uint32)top.GetY(); i < (Uint32)middle.GetY(); i++){
+  for( i=top.GetY(); i < middle.GetY(); i++){
 
       red = colors[6];
+      green = colors[7];
+      blue = colors[8];
 
-      red += (i-(Uint32)top.GetY())*colors[1];
-      green += colors[3];
-      blue += colors[5];
+      red += (i-top.GetY()) * colors[1];
+      red += colors[0] *  ((float)(i-top.GetY()) / slopeleft) ;
+
+      green += (i-top.GetY()) * colors[3];
+      green += colors[2] * ((float)(i-top.GetY()) / slopeleft);
+
+      blue += (i-top.GetY()) * colors[5];
+    //  blue -= colors[4] * ((float)(i-top.GetY()) / slopeleft);
 
       l+=slopeleft;
       r+=sloperight;
-      red -= colors[0]*slopeleft*(i-(Uint32)top.GetY());
-//      green += colors[2]*slopeleft;
-//      blue += colors[4]*slopeleft;
-      for(Uint32 j=(Uint32)r; j<(Uint32)l; j++){
-          red +=colors[0];
+
+      for( j=(int)r; j<(int)l; j++){
+
+          red   += colors[0];
           green += colors[2];
-          blue += colors[4];
-          color = ((red & 0x0000ff00)<<8) | (green & 0x0000ff00) | ((blue & 0x0000ff00)>>8);
-          PixelData->WriteData((Uint32)j,i, red&0x0000ff00<<8);
+          blue  += colors[4];
+          color = 0;
+        //  color = ((red & 0x0000ff00)<<8);
+        //  color = color | (green & 0x0000ff00);
+          color = color | ((blue & 0x0000ff00)>>8);
+          PixelData->WriteData((Uint32)j,i, color);
       }    
   }
 
@@ -313,7 +324,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
    }
 
    // Draw the bottom half of the triangle
-  for(Uint32 i=(Uint32)middle.GetY(); i < (Uint32)bottom.GetY(); i++){
+  for(i=middle.GetY(); i < bottom.GetY(); i++){
       l+=slopeleft;
       r+=sloperight;
       for(Uint32 j=(Uint32)r; j<(Uint32)l; j++){
@@ -322,8 +333,8 @@ Rasterizer::Rasterize(Triangle3D &tri){
   }
 
   // draw the vertices, for reference
-  for(int i=-1; i < 1; i++){
-    for(int j=-1; j <1; j++){
+  for( i=-1; i < 1; i++){
+    for( j=-1; j <1; j++){
       PixelData->WriteData((Uint32)P1.GetX()+i,(Uint32)P1.GetY()+j, col1);
       PixelData->WriteData((Uint32)P2.GetX()+i,(Uint32)P2.GetY()+j, col2);
       PixelData->WriteData((Uint32)P3.GetX()+i,(Uint32)P3.GetY()+j, col3);
@@ -333,7 +344,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
 
 
 void 
-Rasterizer::s3dGetColorDeltas(Point2D P1, Point2D P2, Point2D P3, short* colors){
+Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colors){
    int drdx, drdy, dgdx, dgdy, dbdx, dbdy, area;
    int rstart, gstart, bstart;
 
@@ -348,9 +359,11 @@ Rasterizer::s3dGetColorDeltas(Point2D P1, Point2D P2, Point2D P3, short* colors)
 	  dbdx = (((P2.GetB() - P1.GetB()) * (P3.GetY() - P1.GetY()) - (P3.GetB() - P1.GetB()) * (P2.GetY() - P1.GetY())) << 8) / area;
 	  dbdy = (((P3.GetB() - P1.GetB()) * (P2.GetX() - P1.GetX()) - (P2.GetB() - P1.GetB()) * (P3.GetX() - P1.GetX())) << 8) / area;
 
+
       rstart = (P1.GetR()<<8);
       gstart = (P1.GetG()<<8);
       bstart = (P1.GetB()<<8);
+
 
       //rstart += (XPIXELSPERCU-P1.GetX())*drdx;
       //rstart += (YPIXELSPERCU-P1.GetY())*drdy;
@@ -373,3 +386,131 @@ Rasterizer::s3dGetColorDeltas(Point2D P1, Point2D P2, Point2D P3, short* colors)
 
    }
 
+void
+Rasterizer::s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq){
+
+       float dx,dy, m, i;
+
+       dx = (float)(P2.GetX()-P1.GetX());
+       dy = (float)(P2.GetY()-P1.GetY());
+       m = dy/dx;
+       i = (float)P1.GetY()-m*(float)P1.GetX();
+
+       eq[0] = (short)(-m*dx);  // A
+       eq[1] = (short)(dx);     // B
+       eq[2] = (short)(i*dx);   // C
+
+   }
+ 
+
+void
+Rasterizer::Rasterize2(Triangle3D &tri){
+    
+  short *colors = new short[9];
+  short *eq = new short[9];
+
+  P3D1 = tri.GetP3D1();  // Grab the 3 points from the triangle object
+  P3D2 = tri.GetP3D2();
+  P3D3 = tri.GetP3D3();
+  P1X = P3D1.GetX();     //  Grab the points' x,y,z values;
+  P1Y = P3D1.GetY();   P1Z = P3D1.GetZ();
+  P2X = P3D2.GetX();  
+  P2Y = P3D2.GetY();   P2Z = P3D2.GetZ();
+  P3X = P3D3.GetX();  
+  P3Y = P3D3.GetY();   P3Z = P3D3.GetZ();
+  
+  // 3D to screen projections
+  P1screenX = P1X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_WIDTH/2;
+  P1screenY = P1Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_HEIGHT/2;
+  P2screenX = P2X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +MCORE_WIDTH/2;
+  P2screenY = P2Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +MCORE_HEIGHT/2;
+  P3screenX = P3X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_WIDTH/2;
+  P3screenY = P3Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_HEIGHT/2;
+
+  Point2D P1(P1screenX, P1screenY, 0, 255, 0);  // create some 2d points, (still need to impliment z)
+  Point2D P2(P2screenX, P2screenY, 0, 0, 255);
+  Point2D P3(P3screenX, P3screenY, 255, 0, 0);
+
+  s3dGetColorDeltas(P1,P2,P3, colors);   // Short array pointers are used to load the SIMD array
+                                         // kept here for consistency
+  s3dGetLineEq( P2, P1, eq); 
+  s3dGetLineEq( P3, P2, eq+3);
+  s3dGetLineEq( P1, P3, eq+6);
+
+  short red,green,blue;
+  short yrstart, ybstart, ygstart;
+  int color;
+
+  short miny, minx, maxy, maxx;
+
+  miny = __min(P1.GetY(),P2.GetY());
+  miny = __min(miny,     P3.GetY());
+  minx = __min(P1.GetX(),P2.GetX());
+  minx = __min(minx,     P3.GetX());
+
+  maxy = __max(P1.GetY(),P2.GetY());
+  maxy = __max(maxy,     P3.GetY());
+  maxx = __max(P1.GetX(),P2.GetX());
+  maxx = __max(maxx,     P3.GetX());
+
+  red   =  (P1.GetR()<<8) + (maxx-P1.GetX())*colors[0] + (maxy-P1.GetY())*colors[1];
+  green =  (P1.GetG()<<8) + (maxx-P1.GetX())*colors[2] + (maxy-P1.GetY())*colors[3];
+  blue  =  (P1.GetB()<<8) + (maxx-P1.GetX())*colors[4] + (maxy-P1.GetY())*colors[5];
+
+  yrstart = red;
+  ygstart = green;
+  ybstart = blue;
+
+  short eq1result, eq1temp;
+  short eq2result, eq2temp;
+  short eq3result, eq3temp;
+
+  eq1temp = eq[0]*maxx + eq[1]*maxy - eq[2];
+  eq2temp = eq[3]*maxx + eq[4]*maxy - eq[5];
+  eq3temp = eq[6]*maxx + eq[7]*maxy - eq[8];
+
+  for(int y = maxy; y >= miny; y--){           // Treat like one giant PE at the moment
+
+      eq1temp -= eq[1];
+      eq2temp -= eq[4];
+      eq3temp -= eq[7];
+
+      eq1result = eq1temp;
+      eq2result = eq2temp;
+      eq3result = eq3temp;
+
+      yrstart -= colors[1];
+      red = yrstart;
+
+      ygstart -= colors[3];
+      green = ygstart;
+
+      ybstart -= colors[5];
+      blue = ybstart;
+
+      for(int x = maxx; x >= minx; x--){
+
+         eq1result -= eq[0];
+         eq2result -= eq[3];
+         eq3result -= eq[6];
+
+         red   -= colors[0]; 
+         green -= colors[2]; 
+         blue  -= colors[4]; 
+         
+          if(  (eq1result < 0)
+            && (eq2result < 0)
+            && (eq3result < 0) ){
+
+             color = (red & 0xff00) << 8;
+             color = color | (green & 0xff00);
+             color = color | (blue & 0xff00) >> 8;
+
+             PixelData->WriteData((Uint32)x,y, color);
+          }else{
+             PixelData->WriteData((Uint32)x,y, 0x00ffff00);
+          }
+      }
+  }
+
+}

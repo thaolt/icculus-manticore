@@ -53,7 +53,9 @@ Point3D::Point3D(const Point3D&point)
   x = point.GetX();
   y = point.GetY();
   z = point.GetZ();
-
+  r = point.GetR();
+  g = point.GetG();
+  b = point.GetB();
 }// Point3D
 
 Point3D::~Point3D()

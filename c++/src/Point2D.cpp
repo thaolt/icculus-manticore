@@ -48,7 +48,9 @@ Point2D::Point2D(const Point2D&point)
 {
   x = point.GetX();
   y = point.GetY();
-
+  r = point.GetR();
+  g = point.GetG();
+  b = point.GetB();
 }// Point2D
 
 Point2D::~Point2D()

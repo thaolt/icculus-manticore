@@ -107,8 +107,10 @@ PixelRAM::Blank(){
 
   for(Uint32 i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*MCORE_BYTESPERPIXEL; i+=MCORE_BYTESPERPIXEL){
     int row = i/(MCORE_WIDTH*MCORE_BYTESPERPIXEL);
-    PixelData[i]=255;  // This garbage is for loving memories
-    if(row < 60){
+    PixelData[i]=80;  // This garbage is for loving memories
+	PixelData[i+1]=80;
+	PixelData[i+2]=80;
+/*    if(row < 60){
       PixelData[i+1]=0; 
       PixelData[i+2]=0;  
     }else if(row<120){
@@ -133,7 +135,7 @@ PixelRAM::Blank(){
       PixelData[i+1]=255; 
       PixelData[i+2]=255;
     }
-
+*/
   }
 
 
