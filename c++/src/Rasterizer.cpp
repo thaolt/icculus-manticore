@@ -22,7 +22,13 @@
 #define BINARY_PLACES 10
 #define VERTEX_START_SIZE 9
 
-extern 
+const int BITMASK5 = 0x1f<<BINARY_PLACES;
+const int BITMASK6 = 0x3f<<BINARY_PLACES;
+
+
+int frames;
+#include "timer.h"
+#include "stdio.h"
 /////////////////////////////// Public ///////////////////////////////////////
 
 
@@ -399,7 +405,9 @@ Rasterizer::rasterizeArray()
     short eq3result, eq3temp;
           
     short miny, minx, maxy, maxx;
-
+    
+    short yoffset;
+    
        for(unsigned int i=0; i < m_vertexCount; i+=9)   
        {
             
@@ -502,34 +510,39 @@ Rasterizer::rasterizeArray()
              
               yzstart -= m_zslopes[1];
               z = yzstart;
-
+               
+              yoffset = y*m_dx;
+              
               for(int x = maxx; x >= minx; x--)
               {
-   
-                 eq1result -= m_eq[0];
+
+                 eq1result -= m_eq[0]; 
                  eq2result -= m_eq[3];
-                 eq3result -= m_eq[6];;
+                 eq3result -= m_eq[6];
                  
                  red   -= m_colors[0];
                  green -= m_colors[2];
                  blue  -= m_colors[4];             
                  z     -= m_zslopes[0];
                  
-                 if( z > m_pZData[y*m_dx+x])
+                 if( z > m_pZData[yoffset+x])
                  {             
                    if(  (eq1result <= 0)
                      && (eq2result <= 0)
                      && (eq3result <= 0) )
                      {
                         // Hard coded 16bpp!
-                        color = (red   & (0x1f<<BINARY_PLACES)) << (11-BINARY_PLACES)
-                              | (green & (0x3f<<BINARY_PLACES)) >> (BINARY_PLACES-5)
-                              | (blue  & (0x1f<<BINARY_PLACES)) >> (BINARY_PLACES);
+                        color = (red   & (BITMASK5)) << (11-BINARY_PLACES)
+                              | (green & (BITMASK6)) >> (BINARY_PLACES-5)
+                              | (blue  & (BITMASK5)) >> (BINARY_PLACES);
                               
-                        m_pZData[y*m_dx+x]=z;
-                        m_pPixelData  = (unsigned char*)(m_pContext->drawDesc->colorBuffer);
-                        p = &m_pPixelData[(y*m_dx+x)*(m_bpp/8)];
-                        *(unsigned short *)p = color;
+                        m_pZData[yoffset+x]=z;
+                        
+                      //  m_pPixelData  = (unsigned char*)(m_pContext->drawDesc->colorBuffer);
+                      //  p = &m_pPixelData[(yoffset+x)<<1];
+                      //  *(unsigned short *)p = color;
+                        
+                        ((unsigned short*)(m_pContext->drawDesc->colorBuffer))[(yoffset+x)] = color;
                         
                      } // inclusion test
                  } // depth test
@@ -538,7 +551,12 @@ Rasterizer::rasterizeArray()
        } // vertex loop  
 
        m_vertexCount = 0;  // clear it all  
-
+       frames++;
+       if((frames % 50) == 0)
+       {
+           printf("FPS: %6.2f\n", (((float)50*1000)/TimerReadTime(TIMER_ID_TWO)));
+           frames = 0;
+       }
 } 
 
 
