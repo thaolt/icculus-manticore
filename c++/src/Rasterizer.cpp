@@ -15,6 +15,7 @@
 /////////////////////////////////////////////////////////////////////////
 #include "Rasterizer.h"                                // class implemented
 #include "Transformer.h"
+#include "Timer.h"
 
 #include <math.h>
 #include "mcore_types.h"
@@ -38,20 +39,21 @@ extern
  
 Rasterizer::Rasterizer(oglContext* context)
 {
+  m_pContext    = context;
   m_pPixelData  = (unsigned char*)(context->drawDesc->colorBuffer);
   m_pZData      = (int*)(context->drawDesc->depthBuffer);
   m_dx          = context->drawDesc->width;
   m_dy          = context->drawDesc->height;
   m_bpp         = 8*context->drawDesc->colorBytes;
   
-  colors        = new short[9];  // short arrays for SIMD array
-  eq            = new short[9];
-  zslopes       = new int[3];
+  m_colors      = new short[9];  // short arrays for SIMD array
+  m_eq          = new short[9];
+  m_zslopes     = new int[3];
   
   m_vertexCount = 0;
   m_vertexSize  = VERTEX_START_SIZE;
-  m_vertexArray = new float[VERTEX_START_SIZE];
-  m_colorArray  = new unsigned char[VERTEX_START_SIZE];
+  m_pVertexArray = new float[VERTEX_START_SIZE];
+  m_pColorArray  = new unsigned char[VERTEX_START_SIZE];
 
   TransformEngine = new Transformer();
 
@@ -82,10 +84,12 @@ Rasterizer::Rasterizer(const Rasterizer&)
 Rasterizer::~Rasterizer()
 {
 
-  delete[] colors;
-  delete[] eq;
-  delete[] zslopes;
-  delete[] m_vertexArray;
+  delete[] m_colors;
+  delete[] m_eq;
+  delete[] m_zslopes;
+  delete[] m_pVertexArray;
+  delete[] m_pColorArray;  
+  delete   TransformEngine;
   
 }// ~Rasterizer
 
@@ -127,6 +131,7 @@ Rasterizer::operator=(const Rasterizer &rhs)
 void
 Rasterizer::blank(){
 
+  m_pPixelData  = (unsigned char*)(m_pContext->drawDesc->colorBuffer); 
   unsigned short* p = (unsigned short *)m_pPixelData;
   
   for(int x=0; x < m_dx; x++){
@@ -148,7 +153,7 @@ Rasterizer::blank(){
  **************************************************************************/
 
 void 
-Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colors){
+Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* m_colors){
    int drdx, drdy, dgdx, dgdy, dbdx, dbdy, area;
    int rstart, gstart, bstart;
 
@@ -168,7 +173,7 @@ Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colo
       // Find the red slopes, 8 binary places after point
       if(area == 0){
           for(int i=0; i<9; i++){
-              colors[i]=0;
+              m_colors[i]=0;
               return;
           }
       }
@@ -186,15 +191,15 @@ Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colo
       gstart = (P1G<<BINARY_PLACES);
       bstart = (P1B<<BINARY_PLACES);
 
-      colors[0]=(short)drdx;
-      colors[1]=(short)drdy;
-      colors[2]=(short)dgdx;
-      colors[3]=(short)dgdy;
-      colors[4]=(short)dbdx;
-      colors[5]=(short)dbdy;
-      colors[6]=(short)rstart;
-      colors[7]=(short)gstart;
-      colors[8]=(short)bstart;
+      m_colors[0]=(short)drdx;
+      m_colors[1]=(short)drdy;
+      m_colors[2]=(short)dgdx;
+      m_colors[3]=(short)dgdy;
+      m_colors[4]=(short)dbdx;
+      m_colors[5]=(short)dbdy;
+      m_colors[6]=(short)rstart;
+      m_colors[7]=(short)gstart;
+      m_colors[8]=(short)bstart;
 
    }
 
@@ -208,7 +213,7 @@ Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colo
  **************************************************************************/
 
 void 
-Rasterizer::s3dGetZDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* zslopes){
+Rasterizer::s3dGetZDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* m_zslopes){
 
   int dzdx, dzdy, area;
   int zstart;
@@ -218,7 +223,7 @@ Rasterizer::s3dGetZDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* zslopes){
 
    if(area == 0){
        for(int i=0; i<3; i++){
-           zslopes[i]=0;
+           m_zslopes[i]=0;
            return;
        }
    }
@@ -228,9 +233,9 @@ Rasterizer::s3dGetZDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* zslopes){
 
   zstart = (P1.GetZ());
 
-  zslopes[0]=dzdx;
-  zslopes[1]=dzdy;
-  zslopes[2]=zstart;
+  m_zslopes[0]=dzdx;
+  m_zslopes[1]=dzdy;
+  m_zslopes[2]=zstart;
 
 }
 
@@ -326,42 +331,42 @@ Rasterizer::vertex3P(Point3D P1, Point3D P2, Point3D P3)
         float* tempArray = new float[m_vertexSize*2];
         for(int i = 0; i <m_vertexCount; i++)
         {
-            tempArray[i] = m_vertexArray[i];
+            tempArray[i] = m_pVertexArray[i];
         }
-        delete[] m_vertexArray;
-        m_vertexArray = tempArray;  
+        delete[] m_pVertexArray;
+        m_pVertexArray = tempArray;  
         
         unsigned char* tempcArray = new unsigned char[m_vertexSize*2];
         for(int i = 0; i <m_vertexCount; i++)
         {
-            tempcArray[i] = m_colorArray[i];
+            tempcArray[i] = m_pColorArray[i];
         } 
-        delete[] m_colorArray;
-        m_colorArray = tempcArray;        
+        delete[] m_pColorArray;
+        m_pColorArray = tempcArray;        
                
         m_vertexSize = m_vertexSize*2;     
      }
 
-     m_colorArray[m_vertexCount] = P1.GetR();
-     m_vertexArray[m_vertexCount++] = P1.GetX();
-     m_colorArray[m_vertexCount] = P1.GetG();
-     m_vertexArray[m_vertexCount++] = P1.GetY();
-     m_colorArray[m_vertexCount] = P1.GetB();
-     m_vertexArray[m_vertexCount++] = P1.GetZ();          
+     m_pColorArray[m_vertexCount] = P1.GetR();
+     m_pVertexArray[m_vertexCount++] = P1.GetX();
+     m_pColorArray[m_vertexCount] = P1.GetG();
+     m_pVertexArray[m_vertexCount++] = P1.GetY();
+     m_pColorArray[m_vertexCount] = P1.GetB();
+     m_pVertexArray[m_vertexCount++] = P1.GetZ();          
 
-     m_colorArray[m_vertexCount] = P2.GetR();
-     m_vertexArray[m_vertexCount++] = P2.GetX();
-     m_colorArray[m_vertexCount] = P2.GetG();     
-     m_vertexArray[m_vertexCount++] = P2.GetY();
-     m_colorArray[m_vertexCount] = P2.GetB();     
-     m_vertexArray[m_vertexCount++] = P2.GetZ();          
+     m_pColorArray[m_vertexCount] = P2.GetR();
+     m_pVertexArray[m_vertexCount++] = P2.GetX();
+     m_pColorArray[m_vertexCount] = P2.GetG();     
+     m_pVertexArray[m_vertexCount++] = P2.GetY();
+     m_pColorArray[m_vertexCount] = P2.GetB();     
+     m_pVertexArray[m_vertexCount++] = P2.GetZ();          
 
-     m_colorArray[m_vertexCount] = P3.GetR();
-     m_vertexArray[m_vertexCount++] = P3.GetX();
-     m_colorArray[m_vertexCount] = P3.GetG();     
-     m_vertexArray[m_vertexCount++] = P3.GetY();
-     m_colorArray[m_vertexCount] = P3.GetB();     
-     m_vertexArray[m_vertexCount++] = P3.GetZ();          
+     m_pColorArray[m_vertexCount] = P3.GetR();
+     m_pVertexArray[m_vertexCount++] = P3.GetX();
+     m_pColorArray[m_vertexCount] = P3.GetG();     
+     m_pVertexArray[m_vertexCount++] = P3.GetY();
+     m_pColorArray[m_vertexCount] = P3.GetB();     
+     m_pVertexArray[m_vertexCount++] = P3.GetZ();          
 
 }
 
@@ -376,331 +381,179 @@ Rasterizer::vertex3P(Point3D P1, Point3D P2, Point3D P3)
  **************************************************************************/
 
 void
-Rasterizer::rasterizeArray(){
+Rasterizer::rasterizeArray()
+{
 
-   for(unsigned int i=0; i < m_vertexCount; i+=9)   
-   {
-        
-      P1X = m_vertexArray[i];     //  Grab the points' x,y,z values;
-      P1Y = m_vertexArray[i+1];   
-      P1Z = m_vertexArray[i+2]; 
-      P2X = m_vertexArray[i+3];   
-      P2Y = m_vertexArray[i+4];    
-      P2Z = m_vertexArray[i+5]; 
-      P3X = m_vertexArray[i+6];   
-      P3Y = m_vertexArray[i+7];    
-      P3Z = m_vertexArray[i+8]; 
+    unsigned char *p;
+
+    int crossz;
+
+    int red, green, blue;
+          
+    short yrstart, ybstart, ygstart;
+    int color;
+
+    int z, yzstart;
+
+    short eq1result, eq1temp;
+    short eq2result, eq2temp;
+    short eq3result, eq3temp;
+          
+    short miny, minx, maxy, maxx;
+
+          int time1;
+          int time2; 
+          int delta;
       
-      if((P1Z >= 0) || (P2Z >= 0) || (P3Z >= 0)) return;
-      
-      P1screenX = (int)(((P1X/(-P1Z))*MCORE_FOCALLENGTH) +m_dx/2);
-      P1screenY = (int)(((P1Y/(-P1Z))*MCORE_FOCALLENGTH) +m_dy/2);
-      P2screenX = (int)(((P2X/(-P2Z))*MCORE_FOCALLENGTH) +m_dx/2);
-      P2screenY = (int)(((P2Y/(-P2Z))*MCORE_FOCALLENGTH) +m_dy/2);
-      P3screenX = (int)(((P3X/(-P3Z))*MCORE_FOCALLENGTH) +m_dx/2);
-      P3screenY = (int)(((P3Y/(-P3Z))*MCORE_FOCALLENGTH) +m_dy/2);
-
-      P1fixedZ = (int)(P1Z * 4096); // 12 bits of fraction
-      P2fixedZ = (int)(P2Z * 4096);
-      P3fixedZ = (int)(P3Z * 4096);
-
-      Point2D P1(P1screenX, P1screenY, P1fixedZ, m_colorArray[i], m_colorArray[i+1], m_colorArray[i+2]);  // create some 2d points, (still need to impliment z)
-      Point2D P2(P2screenX, P2screenY, P2fixedZ, m_colorArray[i+3], m_colorArray[i+4], m_colorArray[i+5]);
-      Point2D P3(P3screenX, P3screenY, P3fixedZ, m_colorArray[i+6], m_colorArray[i+7], m_colorArray[i+8]);
-
-      s3dGetColorDeltas(P1,P2,P3, colors);   // short array pointers are used to load the SIMD array
-                                             // kept here for consistency
-      s3dGetZDeltas(P1,P2,P3, zslopes);
-
-      Point2D *Sorted1, *Sorted2, *Sorted3;
-
-      // Use cross product to make sure triangle orientation is correct
-      int crossz;
-      // Rz = PxQy - PyQx;   P = P1-P2, Q=P1-P3
-      crossz = (P1.GetX() - P2.GetX())*(P1.GetY() - P3.GetY()) - (P1.GetY() - P2.GetY())*(P1.GetX()-P3.GetX());
-      if(crossz >= 0){
-        Sorted1 = &P1;
-        Sorted2 = &P2;
-        Sorted3 = &P3;
-      }else{
-        Sorted1 = &P3;
-        Sorted2 = &P2;
-        Sorted3 = &P1;
-      }
-
-      s3dGetLineEq( *Sorted2, *Sorted1, eq); 
-      s3dGetLineEq( *Sorted3, *Sorted2, eq+3);
-      s3dGetLineEq( *Sorted1, *Sorted3, eq+6);
-
-
-      int red, green, blue;
-      
-      short yrstart, ybstart, ygstart;
-      int color;
-
-      int z, yzstart;
-
-      short miny, minx, maxy, maxx;
-
-      miny = min(P1.GetY(),P2.GetY());
-      miny = min(miny,     P3.GetY());
-      minx = min(P1.GetX(),P2.GetX());
-      minx = min(minx,     P3.GetX());
-
-      maxy = max(P1.GetY(),P2.GetY());
-      maxy = max(maxy,     P3.GetY());
-      maxx = max(P1.GetX(),P2.GetX());
-      maxx = max(maxx,     P3.GetX());
-
-     
-      if(maxy > m_dy) maxy = m_dy;
-      if(miny < 0) miny = 0;
-      
-      if(maxx > m_dx) maxx = m_dx;
-      if(minx < 0) minx = 0;   
-
-
-      yrstart =  (P1.GetR()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*colors[0] + ((maxy+1)-P1.GetY())*colors[1];
-      ygstart =  (P1.GetG()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*colors[2] + ((maxy+1)-P1.GetY())*colors[3];
-      ybstart =  (P1.GetB()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*colors[4] + ((maxy+1)-P1.GetY())*colors[5];
-
-      yzstart =  (P1.GetZ()) + ((maxx+1)-P1.GetX())*zslopes[0] + ((maxy+1)-P1.GetY())*zslopes[1];
-
-      short eq1result, eq1temp;
-      short eq2result, eq2temp;
-      short eq3result, eq3temp;
-
-      eq1temp = eq[0]*(maxx+1) + eq[1]*(maxy+1) - eq[2]; 
-      eq2temp = eq[3]*(maxx+1) + eq[4]*(maxy+1) - eq[5];
-      eq3temp = eq[6]*(maxx+1) + eq[7]*(maxy+1) - eq[8];
-
-
-      for(int y = maxy; y >= miny; y--){ 
-
-          eq1temp -= (int)eq[1];
-          eq2temp -= (int)eq[4];
-          eq3temp -= (int)eq[7];
-
-          eq1result = eq1temp;
-          eq2result = eq2temp;
-          eq3result = eq3temp;
-
-          yrstart -= colors[1];
-          red = yrstart;
-        
-          ygstart -= colors[3];
-          green = ygstart;
-         
-          ybstart -= colors[5];
-          blue = ybstart;
-         
-          yzstart -= zslopes[1];
-          z = yzstart;
-
-
-          for(int x = maxx; x >= minx; x--){
-
-             eq1result -= (int)eq[0];
-             eq2result -= (int)eq[3];
-             eq3result -= (int)eq[6];
-
-             red   -= colors[0];
-             
-             green -= colors[2];
-
-             blue -= colors[4];
-             
-             z -= zslopes[0];        
-             
-              if(  (eq1result <= 0)
-                && (eq2result <= 0)
-                && (eq3result <= 0) ){
+       TimerInit(TIMER_ID_TWO);
+       TimerResetRealTime(TIMER_ID_TWO);          
                 
-                    // Hard coded 16bpp!
-                    color = (red & (0x1f<<BINARY_PLACES)) << (11-BINARY_PLACES);
-                    color = color | (green & (0x3f<<BINARY_PLACES)) >> (BINARY_PLACES-5);
-                    color = color | (blue & (0x1f<<BINARY_PLACES)) >> (BINARY_PLACES);
-
-                    if((y<m_dy) && (x>0) && (x < m_dx) && (y > 0)){
-                      if((z) > m_pZData[y*m_dx+x]){
-                          m_pZData[y*m_dx+x]=z;
-                          unsigned char *p;
-                          p = &m_pPixelData[(y*m_dx+x)*(m_bpp/8)];
-                          *(unsigned short *)p = color;
-                      } // depth
-                    } // on screen
-              } // inclusion test
-          } // x
-       } // y
-    } // vertex loop
-    m_vertexCount = 0;  // clear it all
-
-} 
-
-
-
-/***************************************************************************/
-/**
- * : 
- *
- * \param  
- *
- * \return void
- **************************************************************************/
-
-void
-Rasterizer::Rasterize(Triangle3D &tri){
-    
-  P1X = tri.GetP3D1().GetX();     //  Grab the points' x,y,z values;
-  P1Y = tri.GetP3D1().GetY();   
-  P1Z = tri.GetP3D1().GetZ();
-  P2X = tri.GetP3D2().GetX();  
-  P2Y = tri.GetP3D2().GetY();   
-  P2Z = tri.GetP3D2().GetZ();
-  P3X = tri.GetP3D3().GetX();  
-  P3Y = tri.GetP3D3().GetY();   
-  P3Z = tri.GetP3D3().GetZ();
-  
-  if((P1Z >= 0) || (P2Z >= 0) || (P3Z >= 0)) return;
-  
-  P1screenX = (int)(((P1X/(-P1Z))*MCORE_FOCALLENGTH) +m_dx/2);
-  P1screenY = (int)(((P1Y/(-P1Z))*MCORE_FOCALLENGTH) +m_dy/2);
-  P2screenX = (int)(((P2X/(-P2Z))*MCORE_FOCALLENGTH) +m_dx/2);
-  P2screenY = (int)(((P2Y/(-P2Z))*MCORE_FOCALLENGTH) +m_dy/2);
-  P3screenX = (int)(((P3X/(-P3Z))*MCORE_FOCALLENGTH) +m_dx/2);
-  P3screenY = (int)(((P3Y/(-P3Z))*MCORE_FOCALLENGTH) +m_dy/2);
-
-  P1fixedZ = (int)tri.GetP3D1().GetZ()*4096; // 12 bits of fraction
-  P2fixedZ = (int)tri.GetP3D2().GetZ()*4096;
-  P3fixedZ = (int)tri.GetP3D3().GetZ()*4096;
-
-  Point2D P1(P1screenX, P1screenY, P1fixedZ, tri.GetP3D1().GetR(), tri.GetP3D1().GetG(), tri.GetP3D1().GetB());  // create some 2d points, (still need to impliment z)
-  Point2D P2(P2screenX, P2screenY, P2fixedZ, tri.GetP3D2().GetR(), tri.GetP3D2().GetG(), tri.GetP3D2().GetB());
-  Point2D P3(P3screenX, P3screenY, P3fixedZ, tri.GetP3D3().GetR(), tri.GetP3D3().GetG(), tri.GetP3D3().GetB());
-
-  s3dGetColorDeltas(P1,P2,P3, colors);   // short array pointers are used to load the SIMD array
-                                         // kept here for consistency
-  s3dGetZDeltas(P1,P2,P3, zslopes);
-
-  Point2D *Sorted1, *Sorted2, *Sorted3;
-
-  // Use cross product to make sure triangle orientation is correct
-  int crossz;
-  // Rz = PxQy - PyQx;   P = P1-P2, Q=P1-P3
-  crossz = (P1.GetX() - P2.GetX())*(P1.GetY() - P3.GetY()) - (P1.GetY() - P2.GetY())*(P1.GetX()-P3.GetX());
-  if(crossz >= 0){
-    Sorted1 = &P1;
-    Sorted2 = &P2;
-    Sorted3 = &P3;
-  }else{
-    Sorted1 = &P3;
-    Sorted2 = &P2;
-    Sorted3 = &P1;
-  }
-
-  s3dGetLineEq( *Sorted2, *Sorted1, eq); 
-  s3dGetLineEq( *Sorted3, *Sorted2, eq+3);
-  s3dGetLineEq( *Sorted1, *Sorted3, eq+6);
-
-
-  int red, green, blue;
-  
-  short yrstart, ybstart, ygstart;
-  int color;
-
-  int z, yzstart;
-
-  short miny, minx, maxy, maxx;
-
-  miny = min(P1.GetY(),P2.GetY());
-  miny = min(miny,     P3.GetY());
-  minx = min(P1.GetX(),P2.GetX());
-  minx = min(minx,     P3.GetX());
-
-  maxy = max(P1.GetY(),P2.GetY());
-  maxy = max(maxy,     P3.GetY());
-  maxx = max(P1.GetX(),P2.GetX());
-  maxx = max(maxx,     P3.GetX());
-
- 
-  if(maxy > m_dy) maxy = m_dy;
-  if(miny < 0) miny = 0;
-  
-  if(maxx > m_dx) maxx = m_dx;
-  if(minx < 0) minx = 0;   
-
-
-  yrstart =  (P1.GetR()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*colors[0] + ((maxy+1)-P1.GetY())*colors[1];
-  ygstart =  (P1.GetG()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*colors[2] + ((maxy+1)-P1.GetY())*colors[3];
-  ybstart =  (P1.GetB()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*colors[4] + ((maxy+1)-P1.GetY())*colors[5];
-
-  yzstart =  (P1.GetZ()) + ((maxx+1)-P1.GetX())*zslopes[0] + ((maxy+1)-P1.GetY())*zslopes[1];
-
-  short eq1result, eq1temp;
-  short eq2result, eq2temp;
-  short eq3result, eq3temp;
-
-  eq1temp = eq[0]*(maxx+1) + eq[1]*(maxy+1) - eq[2]; 
-  eq2temp = eq[3]*(maxx+1) + eq[4]*(maxy+1) - eq[5];
-  eq3temp = eq[6]*(maxx+1) + eq[7]*(maxy+1) - eq[8];
-
-
-  for(int y = maxy; y >= miny; y--){ 
-
-      eq1temp -= (int)eq[1];
-      eq2temp -= (int)eq[4];
-      eq3temp -= (int)eq[7];
-
-      eq1result = eq1temp;
-      eq2result = eq2temp;
-      eq3result = eq3temp;
-
-      yrstart -= colors[1];
-      red = yrstart;
-    
-      ygstart -= colors[3];
-      green = ygstart;
-     
-      ybstart -= colors[5];
-      blue = ybstart;
-     
-      yzstart -= zslopes[1];
-      z = yzstart;
-
-
-      for(int x = maxx; x >= minx; x--){
-
-         eq1result -= (int)eq[0];
-         eq2result -= (int)eq[3];
-         eq3result -= (int)eq[6];
-
-         red   -= colors[0];
-         
-         green -= colors[2];
-
-         blue -= colors[4];
-         
-         z -= zslopes[0];        
-         
-          if(  (eq1result <= 0)
-            && (eq2result <= 0)
-            && (eq3result <= 0) ){
+       for(unsigned int i=0; i < m_vertexCount; i+=9)   
+       {
             
-                // Hard coded 16bpp!
-                color = (red & (0x1f<<BINARY_PLACES)) << (11-BINARY_PLACES);
-                color = color | (green & (0x3f<<BINARY_PLACES)) >> (BINARY_PLACES-5);
-                color = color | (blue & (0x1f<<BINARY_PLACES)) >> (BINARY_PLACES);
+          m_P1X = m_pVertexArray[i];     //  Grab the points' x,y,z values;
+          m_P1Y = m_pVertexArray[i+1];   
+          m_P1Z = m_pVertexArray[i+2]; 
+          m_P2X = m_pVertexArray[i+3];   
+          m_P2Y = m_pVertexArray[i+4];    
+          m_P2Z = m_pVertexArray[i+5]; 
+          m_P3X = m_pVertexArray[i+6];   
+          m_P3Y = m_pVertexArray[i+7];    
+          m_P3Z = m_pVertexArray[i+8]; 
+          
+          if((m_P1Z >= 0) || (m_P2Z >= 0) || (m_P3Z >= 0)) break;
+          
+          m_P1screenX = (int)(((m_P1X/(-m_P1Z))*MCORE_FOCALLENGTH) +m_dx/2);  // camera projection
+          m_P1screenY = (int)(((m_P1Y/(-m_P1Z))*MCORE_FOCALLENGTH) +m_dy/2);
+          m_P2screenX = (int)(((m_P2X/(-m_P2Z))*MCORE_FOCALLENGTH) +m_dx/2);
+          m_P2screenY = (int)(((m_P2Y/(-m_P2Z))*MCORE_FOCALLENGTH) +m_dy/2);
+          m_P3screenX = (int)(((m_P3X/(-m_P3Z))*MCORE_FOCALLENGTH) +m_dx/2);
+          m_P3screenY = (int)(((m_P3Y/(-m_P3Z))*MCORE_FOCALLENGTH) +m_dy/2);
 
-                if((y<m_dy) && (x>0) && (x < m_dx) && (y > 0)){
-                  if((z) > m_pZData[y*m_dx+x]){
-                      m_pZData[y*m_dx+x]=z;
-                      unsigned char *p;
-                      p = &m_pPixelData[(y*m_dx+x)*(m_bpp/8)];
-                      *(unsigned short *)p = color;
-                  } // depth
-                } // on screen
-          } // inclusion test
-      } // x
-   } // y
+          m_P1fixedZ = (int)(m_P1Z * 4096); // 12 bits of fraction
+          m_P2fixedZ = (int)(m_P2Z * 4096);
+          m_P3fixedZ = (int)(m_P3Z * 4096);
+
+          Point2D P1(m_P1screenX, m_P1screenY, m_P1fixedZ, m_pColorArray[i], m_pColorArray[i+1], m_pColorArray[i+2]);  // create some 2d points, (still need to impliment z)
+          Point2D P2(m_P2screenX, m_P2screenY, m_P2fixedZ, m_pColorArray[i+3], m_pColorArray[i+4], m_pColorArray[i+5]);
+          Point2D P3(m_P3screenX, m_P3screenY, m_P3fixedZ, m_pColorArray[i+6], m_pColorArray[i+7], m_pColorArray[i+8]);
+
+          s3dGetColorDeltas(P1,P2,P3, m_colors);   // short array pointers are used to load the SIMD array
+                                                 // kept here for consistency
+          s3dGetZDeltas(P1,P2,P3, m_zslopes);
+
+          Point2D *Sorted1, *Sorted2, *Sorted3;
+
+          // Use cross product to make sure triangle orientation is correct
+          // Rz = PxQy - PyQx;   P = P1-P2, Q=P1-P3
+          crossz = (P1.GetX() - P2.GetX())*(P1.GetY() - P3.GetY()) - (P1.GetY() - P2.GetY())*(P1.GetX()-P3.GetX());
+          
+          if(crossz >= 0)
+          {
+            Sorted1 = &P1;
+            Sorted2 = &P2;
+            Sorted3 = &P3;
+          }else{
+            Sorted1 = &P3;
+            Sorted2 = &P2;
+            Sorted3 = &P1;
+          }
+
+          s3dGetLineEq( *Sorted2, *Sorted1, m_eq); 
+          s3dGetLineEq( *Sorted3, *Sorted2, m_eq+3);
+          s3dGetLineEq( *Sorted1, *Sorted3, m_eq+6);
+
+          miny = min(P1.GetY(),P2.GetY());
+          miny = min(miny,     P3.GetY());
+          minx = min(P1.GetX(),P2.GetX());
+          minx = min(minx,     P3.GetX());
+
+          maxy = max(P1.GetY(),P2.GetY());
+          maxy = max(maxy,     P3.GetY());
+          maxx = max(P1.GetX(),P2.GetX());
+          maxx = max(maxx,     P3.GetX());
+
+          if(maxy >= m_dy) maxy = m_dy-1;
+          if(miny < 0) miny = 0;
+          
+          if(maxx >= m_dx) maxx = m_dx-1;
+          if(minx < 0) minx = 0;   
+
+          yrstart =  (P1.GetR()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*m_colors[0] + ((maxy+1)-P1.GetY())*m_colors[1];
+          ygstart =  (P1.GetG()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*m_colors[2] + ((maxy+1)-P1.GetY())*m_colors[3];
+          ybstart =  (P1.GetB()<<BINARY_PLACES) + ((maxx+1)-P1.GetX())*m_colors[4] + ((maxy+1)-P1.GetY())*m_colors[5];
+
+          yzstart =  (P1.GetZ()) + ((maxx+1)-P1.GetX())*m_zslopes[0] + ((maxy+1)-P1.GetY())*m_zslopes[1];
+
+          eq1temp = m_eq[0]*(maxx+1) + m_eq[1]*(maxy+1) - m_eq[2]; 
+          eq2temp = m_eq[3]*(maxx+1) + m_eq[4]*(maxy+1) - m_eq[5];
+          eq3temp = m_eq[6]*(maxx+1) + m_eq[7]*(maxy+1) - m_eq[8];
+
+          
+          
+          for(int y = maxy; y >= miny; y--)
+          { 
+              eq1temp -= m_eq[1];
+              eq2temp -= m_eq[4];
+              eq3temp -= m_eq[7];
+
+              eq1result = eq1temp;
+              eq2result = eq2temp;
+              eq3result = eq3temp;
+
+              yrstart -= m_colors[1];
+              red = yrstart;
+            
+              ygstart -= m_colors[3];
+              green = ygstart;
+             
+              ybstart -= m_colors[5];
+              blue = ybstart;
+             
+              yzstart -= m_zslopes[1];
+              z = yzstart;
+
+              for(int x = maxx; x >= minx; x--)
+              {
+                 eq1result -= m_eq[0];
+                 eq2result -= m_eq[3];
+                 eq3result -= m_eq[6];
+
+                 red   -= m_colors[0];             
+                 green -= m_colors[2];
+                 blue  -= m_colors[4];             
+                 z     -= m_zslopes[0];        
+
+                 if( z > m_pZData[y*m_dx+x])
+                 {             
+                   if(  (eq1result <= 0)
+                     && (eq2result <= 0)
+                     && (eq3result <= 0) )
+                     {
+                        // Hard coded 16bpp!
+                        color = (red   & (0x1f<<BINARY_PLACES)) << (11-BINARY_PLACES)
+                              | (green & (0x3f<<BINARY_PLACES)) >> (BINARY_PLACES-5)
+                              | (blue  & (0x1f<<BINARY_PLACES)) >> (BINARY_PLACES);                        
+                        
+                        m_pZData[y*m_dx+x]=z;
+                        m_pPixelData  = (unsigned char*)(m_pContext->drawDesc->colorBuffer);                                         
+                        p = &m_pPixelData[(y*m_dx+x)*(m_bpp/8)];
+                        *(unsigned short *)p = color;
+
+                     } // inclusion test
+                 } // depth test
+              } // x
+           } // y
+       
+   
+         
+       } // vertex loop  
+       
+       TimerReadTime(TIMER_ID_TWO);
+
+       m_vertexCount = 0;  // clear it all  
+
 } 
+
+
 

@@ -24,17 +24,6 @@
 #include "mcore_types.h"
 #include "Transformer.h"
 
-
-// Local Includes
-//
-
-// Forward References
-//
-
-/**   
-  *    @author 
-  *    @date 
-  */
 class Rasterizer
 {
 public:
@@ -44,21 +33,15 @@ public:
    Rasterizer(oglContext* context);
    Rasterizer(const Rasterizer&);    // copy constructor
    ~Rasterizer();
-
-// Operator
    
    Rasterizer&   operator=(const Rasterizer&);    
    
-// Operations
-    void rasterizeArray();
-    void vertex3P(Point3D P1, Point3D P2, Point3D P3);
-	void Rasterize(Triangle3D &);
-	void blank();
+   void rasterizeArray();
+   void vertex3P(Point3D P1, Point3D P2, Point3D P3);
+   void blank();
 
-    Transformer* TransformEngine;
-// Access
+   Transformer* TransformEngine;
 
-// Inquiry
 
 protected:
 // Protected Methods
@@ -69,39 +52,32 @@ private:
   void s3dGetZDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* z);
   void s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq);
 
-  float*         m_vertexArray;
-  unsigned char* m_colorArray;
+  float*         m_pVertexArray;
+  unsigned char* m_pColorArray;
   unsigned int   m_vertexCount;
   unsigned int   m_vertexSize;
-  
+
+  oglContext*    m_pContext;  
   unsigned char* m_pPixelData;
-  int* m_pZData;
-  int m_dx;
-  int m_dy;
-  int m_bpp;
-
-  short *colors;
-  short *eq;
-  int *zslopes;
+  int*           m_pZData;
   
-  Point2D P2D_world1;
-  Point2D P2D_world2;
-  Point2D P2D_world3;
+  int            m_dx;
+  int            m_dy;
+  int            m_bpp;
 
-  Point3D P3D1, P3D2, P3D3;
-  float P1X, P1Y, P1Z;
-  float P2X, P2Y, P2Z;
-  float P3X, P3Y, P3Z;
-  fixed1616 P1Xx, P1Yx, P1Zx;
-  fixed1616 P2Xx, P2Yx, P2Zx;
-  fixed1616 P3Xx, P3Yx, P3Zx;
+  short*         m_colors;
+  short*         m_eq;
+  int*           m_zslopes;
 
-  int P1screenX, P1screenY;
-  int P2screenX, P2screenY;
-  int P3screenX, P3screenY;
-  int P1fixedZ, P2fixedZ, P3fixedZ;
+  float          m_P1X, m_P1Y, m_P1Z;
+  float          m_P2X, m_P2Y, m_P2Z;
+  float          m_P3X, m_P3Y, m_P3Z;
 
-//////////////////Removed
+  int            m_P1screenX, m_P1screenY;
+  int            m_P2screenX, m_P2screenY;
+  int            m_P3screenX, m_P3screenY;
+  int            m_P1fixedZ, m_P2fixedZ, m_P3fixedZ;
+
 };
 
 // Inline Methods
