@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : slope_calc.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002/04/05
+-- Last update: 2002-06-21
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Calculates equations of the form (a +/- b)/(c +/- d)
@@ -101,8 +101,19 @@ architecture structural of slope_calc is
        
   end component lpm_divide;
 
-  component lpm_ff is
+  COMPONENT lpm_compare is
+    GENERIC (LPM_WIDTH: POSITIVE;
+             LPM_REPRESENTATION: STRING := "UNSIGNED";
+             LPM_PIPELINE: INTEGER := 0;
+             LPM_TYPE: STRING := "LPM_COMPARE";
+             LPM_HINT: STRING := "UNUSED");
+    PORT (dataa, datab: IN STD_LOGIC_VECTOR(LPM_WIDTH-1 DOWNTO 0);
+          aclr, clock: IN STD_LOGIC := '0';
+	  clken: IN STD_LOGIC := '1';
+          agb, ageb, aeb, aneb, alb, aleb: OUT STD_LOGIC);
+  END COMPONENT lpm_compare;
 
+  component lpm_ff is
     generic (LPM_WIDTH: POSITIVE;
              LPM_AVALUE: STRING := "UNUSED";
              LPM_SVALUE: STRING := "UNUSED";
@@ -156,10 +167,18 @@ architecture structural of slope_calc is
   signal data_valid_stg2                      : std_logic;
   signal data_type_stg2                       : raster_var_type;
 
+  signal denom_zero : std_logic;
+  signal num_neg    : std_logic;
+  signal zero : std_logic_vector(RASTER_DATAWIDTH-1 downto 0);
+  
+  signal one, num_stg2_hack : std_logic_vector(1 downto 0);
+  
+  signal num_stg3, den_stg3 : std_logic_vector(RASTER_DATAWIDTH-1 downto 0);
+
   -- Divider pipeline stage signals
---  signal data_valid_div_stg1, data_valid_div_stg2, data_valid_div_stg3 : std_logic;    
---  signal data_valid_div_stg4, data_valid_div_stg5, data_valid_div_stg6 : std_logic;    
---  signal data_valid_div_stg7, data_valid_div_stg8 : std_logic;    
+  --  signal data_valid_div_stg1, data_valid_div_stg2, data_valid_div_stg3 : std_logic;    
+  --  signal data_valid_div_stg4, data_valid_div_stg5, data_valid_div_stg6 : std_logic;    
+  --  signal data_valid_div_stg7, data_valid_div_stg8 : std_logic;    
   signal data_valid_div                       : std_logic_vector(DIVIDER_PIPELINE-1 downto 0);
   type data_type_array is array (DIVIDER_PIPELINE-1 downto 0) of raster_var_type;
   signal data_type_div : data_type_array;
@@ -167,6 +186,7 @@ architecture structural of slope_calc is
 begin  -- architecture structural
 
   clear <= not reset;
+  one <= "01";
   
   ----------------------------------------------------------------------------------------------------------------------
   -- Pipeline Stage 1
@@ -302,7 +322,48 @@ begin  -- architecture structural
   ----------------------------------------------------------------------------------------------------------------------
   -- Pipeline Stage 2
   ----------------------------------------------------------------------------------------------------------------------
+  num_stg2_hack <= '0' & num_stg2(RASTER_DATAWIDTH-1);
+  zero <= (others => '0');
+  
+  stg2_numer_check : component lpm_compare
+    generic map (
+       LPM_WIDTH          => 2,
+      LPM_REPRESENTATION => "UNSIGNED")
+    port map (
+      dataa => one,
+      datab => num_stg2_hack,
+      aclr  => clear,
+      aeb   => num_neg);
 
+  stg2_denom_check : component lpm_compare
+    generic map (
+      LPM_WIDTH          => RASTER_DATAWIDTH,
+      LPM_REPRESENTATION => "SIGNED")
+    port map (
+      dataa => zero,
+      datab => den_stg2,
+      aclr  => clear,
+      clken => data_valid_stg1,
+      aeb   => denom_zero);
+
+  -- purpose: Set the numerator and denominator if the denominator is zero.
+  -- type   : combinational
+  -- inputs : denom_zero, num_stg2, num_neg
+  -- outputs: num_stg3, den_stg3
+  normalize: process (denom_zero, num_stg2, num_neg) is
+  begin  -- process normalize
+    if (denom_zero = '1' and num_neg = '1') then
+      den_stg3 <= "0000000001" & "000000";
+      num_stg3 <= "1000000000" & "000001000000";
+    elsif (denom_zero = '1' and num_neg = '0') then
+      den_stg3 <= "0000000001" & "000000";
+      num_stg3 <= "0111111111" & "111111111111";
+    else
+      den_stg3 <= den_stg2;
+      num_stg3 <= num_stg2;
+    end if;
+  end process normalize;
+  
   stg2_div_inst : component lpm_divide
     generic map (
       LPM_WIDTHN   => RASTER_DATAWIDTH+6,
@@ -349,7 +410,6 @@ begin  -- architecture structural
       d     => data_type_div(i),
       q     => data_type_div(i+1)
       );
-  
   end generate;
 
   data_valid_stg2_reg : component dff
