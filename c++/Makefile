@@ -11,7 +11,8 @@ SRCS = src/main.cpp \
        src/Triangle2D.cpp \
        src/Triangle3D.cpp \
        src/Point2D.cpp \
-       src/Point3D.cpp
+       src/Point3D.cpp \
+       src/Transformer.cpp
 
 CFLAGS  = -g -ggdb -Wall  -ansi -DDEBUG  `sdl-config --cflags`
 INCLUDE = -I. -Iinclude

@@ -1,20 +1,21 @@
 /* -*- Mode: C++; tab-width: 3; indent-tabs-mode: t; c-basic-offset: 3 -*- */
 ///////////////////////////////////////////////////////////////////////////
-// Name: Point3D 
+// Name: Transformer 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 // Modifications:
 //
 //
 ///////////////////////////////////////////////////////////////////////////
-#ifndef _Point3D_h_
-#define _Point3D_h_
+#ifndef _Transformer_h_
+#define _Transformer_h_
 
 // System Includes
 //
-#include <iostream>
+
 // Project Includes
 //
+#include "Point3D.h"
 
 // Local Includes
 //
@@ -26,42 +27,37 @@
   *    @author 
   *    @date 
   */
-using namespace std;
-
-class Point3D
+class Transformer
 {
 public:
 
 // Lifecycle
 
-   Point3D();
-	Point3D(const float& x, const float& y, const float& z);
-   Point3D(const Point3D&);            // copy constructor
-   ~Point3D();
+   Transformer();
+   Transformer(const Transformer&);            // copy constructor
+   ~Transformer();
 
 // Operator
    
-   Point3D&   operator=(const Point3D&);     // assignment operator
+   Transformer&   operator=(const Transformer&);     // assignment operator
 
 // Operations
 
-// Access
-	const float& GetX()const;
-	const float& GetY()const;
-	const float& GetZ()const;
+	void RotateX(Point3D &pnt, float angle );
+	void RotateY(Point3D &pnt, float angle );
+	void RotateZ(Point3D &pnt, float angle );
+	void Translate(Point3D &pnt, float dx, float dy, float dz);
+	void Scale(Point3D &pnt, float factor );
 
-	void SetX(float xin);
-	void SetY(float yin);
-	void SetZ(float zin);
+// Access
+
+// Inquiry
 
 protected:
 // Protected Methods
 private:
-
 // Private Methods
-	float x;
-	float y;
-	float z;
+
 
 //////////////////Removed
 };
@@ -71,4 +67,4 @@ private:
 // External References
 //
 
-#endif  // _Point3D_h
+#endif  // _Transformer_h

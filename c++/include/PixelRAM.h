@@ -45,6 +45,7 @@ public:
 
 // Operations
 	void WriteData(Uint32 x, Uint32 y, Uint32 col);
+	void Blank();
 
 // Access
 	Uint8* GetLine(Uint32 row);

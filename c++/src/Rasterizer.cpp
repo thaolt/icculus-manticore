@@ -74,16 +74,16 @@ Rasterizer::Rasterize(Triangle3D &tri){
   P3X = P3D3.GetX();  
   P3Y = P3D3.GetY();   P3Z = P3D3.GetZ();
   
-  P1screenX = P1X*MCORE_FOCALLENGTH/P1Z +MCORE_WIDTH/2;
-  P1screenY = P1Y*MCORE_FOCALLENGTH/P1Z +MCORE_HEIGHT/2;
-  P2screenX = P2X*MCORE_FOCALLENGTH/P2Z +MCORE_WIDTH/2;
-  P2screenY = P2Y*MCORE_FOCALLENGTH/P2Z +MCORE_HEIGHT/2;
-  P3screenX = P3X*MCORE_FOCALLENGTH/P3Z +MCORE_WIDTH/2;
-  P3screenY = P3Y*MCORE_FOCALLENGTH/P3Z +MCORE_HEIGHT/2;
+  P1screenX = P1X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_WIDTH/2;
+  P1screenY = P1Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_HEIGHT/2;
+  P2screenX = P2X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +MCORE_WIDTH/2;
+  P2screenY = P2Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +MCORE_HEIGHT/2;
+  P3screenX = P3X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_WIDTH/2;
+  P3screenY = P3Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_HEIGHT/2;
 
-  Point2D P1(P1ScreenX, P1ScreenY);
-  Point2D P2(P2ScreenX, P2ScreenY);
-  Point2D P3(P3ScreenX, P3ScreenY);
+  Point2D P1(P1screenX, P1screenY);
+  Point2D P2(P2screenX, P2screenY);
+  Point2D P3(P3screenX, P3screenY);
 
   //  cout << "Output: "<<P1screenX << "," <<P1screenY <<endl;
   //  cout << "Output: "<<P2screenX << "," <<P2screenY << endl;
@@ -97,19 +97,19 @@ Rasterizer::Rasterize(Triangle3D &tri){
 
   Point2D topY, leftX, rightX;
   
-  if((P1ScreenY > P2ScreenY) && (P1Screen Y > P3ScreenY)){
+  if((P1screenY > P2screenY) && (P1screenY > P3screenY)){
     topY = P1;
   }
 
-  if((P2ScreenY > P1ScreenY) && (P2Screen Y > P3ScreenY)){
+  if((P2screenY > P1screenY) && (P2screenY > P3screenY)){
     topY = P2;
   }
 
-  if((P3ScreenY > P2ScreenY) && (P3Screen Y > P1ScreenY)) {
+  if((P3screenY > P2screenY) && (P3screenY > P1screenY)) {
     topY = P3;
   }
 
-
+  PixelData->Blank();
   for(int i=-3; i < 4; i++){
     for(int j=-3; j <4; j++){
       PixelData->WriteData((Uint32)P1.GetX()+i,(Uint32)P1.GetY()+j, col1);

@@ -28,7 +28,7 @@ Point3D::Point3D()
 
 }// Point3D
 
-Point3D::Point3D(const double& inx, const double& iny, const double& inz){
+Point3D::Point3D(const float& inx, const float& iny, const float& inz){
 
   x = inx;
   y = iny;
@@ -69,25 +69,47 @@ Point3D::operator=(const Point3D&rhs)
 
 //============================= Operations ===================================
 //============================= Access      ==================================
-const double&
+const float&
 Point3D::GetX()const{
 
   return x;
 
 }
 
-const double&
+const float&
 Point3D::GetY()const{
 
   return y;
 
 }
 
-const double&
+const float&
 Point3D::GetZ()const{
 
   return z;
 
+}
+
+void 
+Point3D::SetX(float xin){
+
+  x = xin;
+  
+}
+
+
+void 
+Point3D::SetY(float yin){
+
+  y = yin;
+  
+}
+
+void 
+Point3D::SetZ(float zin){
+
+  z = zin;
+  
 }
 //============================= Inquiry    ===================================
 /////////////////////////////// Protected Methods ////////////////////////////

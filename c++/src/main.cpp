@@ -11,6 +11,7 @@
 #include "Triangle3D.h"
 #include "Point3D.h"
 #include "Rasterizer.h"
+#include "Transformer.h"
 
 using namespace std;
 
@@ -52,18 +53,36 @@ int main(int argc,char * argv[])
 
   PixelRAM* PixelData = new PixelRAM;
   Rasterizer* RasterEngine = new Rasterizer(Surface, PixelData);
+  Transformer* TransformEngine = new Transformer();
+
   VGAout Video(Surface, PixelData);
   Video.ClearScreen();
 
-  Point3D P1(-150, 0, 120);
-  Point3D P2(-100, -100, 120);
-  Point3D P3(-20, -60, 120);
+  Point3D P1(-150, 0, -120);
+  Point3D P2(-100, -100, -120);
+  Point3D P3(-20, -60, -120);
 
-  Triangle3D tri1(P1, P2, P3);
   
-  RasterEngine->Rasterize(tri1);
 
   while(!die){
+    
+    usleep(10);
+    TransformEngine -> Translate(P1,0,0,120 );
+    TransformEngine -> Translate(P2,0,0,120 );
+    TransformEngine -> Translate(P3,0,0,120 );
+
+    TransformEngine -> RotateY(P1,0.05);
+    TransformEngine -> RotateY(P2,0.05);
+    TransformEngine -> RotateY(P3,0.05);
+    
+    TransformEngine -> Translate(P1,0,0,-120 );
+    TransformEngine -> Translate(P2,0,0,-120 );
+    TransformEngine -> Translate(P3,0,0,-120 );
+
+
+    Triangle3D tri1(P1, P2, P3);
+    RasterEngine->Rasterize(tri1);
+   
     die = process_input();
     Video.DrawScreen();
   }
