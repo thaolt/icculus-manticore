@@ -115,7 +115,7 @@ end component;
 
 begin  -- behavioral
 
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 -- Depth Meter
 ------------------------------------------------------------------------------
 
@@ -174,15 +174,19 @@ end process depth_control;
         if depth > 0 then
 
           if start_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
-            start_pointer <= (others => '0');
+           start_pointer <= (others => '0');
           else
             start_pointer <= start_pointer + '1';
           end if;                       -- pointer
           
         end if;                         -- depth
         
-    end if; -- clock
-  end if;
+        else
+          
+          null;
+          
+      end if; -- r_req_I
+    end if;
   end process read_address;
   
 -------------------------------------------------------------------------------
