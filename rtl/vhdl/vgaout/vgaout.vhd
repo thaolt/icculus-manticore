@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : vgaout.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002/03/06
+-- Last update: 2002-06-12
 -- Platform   : Altera APEX20KE200
 -------------------------------------------------------------------------------
 -- Description: 
@@ -377,7 +377,7 @@ begin  -- process GenerateVideoSignals
            
     if (sHCount = conv_std_logic_vector(H_ACTIVE-10, 10)) and 
        ((sVCount < conv_std_logic_vector(V_ACTIVE, 10)) or 
-         (sVCount = conv_std_logic_vector(V_MAX, 10))) then
+         (sVCount = conv_std_logic_vector(V_MAX-2, 10))) then
 
       Read_Line_Warn <= '1';
 

@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : vgafifo_ctrl.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-03-23
+-- Last update: 2002-06-12
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Generates control signals for fifo & SDRAM
@@ -109,7 +109,8 @@ architecture behavioural of vgafifo_ctrl is
   z_blank_wait, z_blank, z_read_wait, z_read ); --,draw_ready_wait, send_data, error_state);
                       
   signal state       : state_type;
-  signal Word_Count  : integer range 0 to 255;                  -- Tally of words written to buffer
+  signal Word_Count  : integer range 0 to 84; -- Tally of words written to buffer
+  signal blank_Word_Count  : integer range 0 to 84; -- Tally of words written to buffer
   signal Burst_Count : integer range 0 to 7;                   -- Tally of words received in a burst cycle
   signal Row_Number	 : integer range 0 to 485;
   signal Read_FB : std_logic;           -- The active read frame bufffer
@@ -143,6 +144,7 @@ begin  -- behavioural
       state    <= memory_wait;
       Blank_Done <= '0';  
       Word_Count <= 0;
+      blank_word_count <= 0;
       Burst_Count <= 0;
       Row_Number <= 0;
       data_mask <= ( others => '0');
@@ -162,7 +164,8 @@ begin  -- behavioural
       case state is
 
         when memory_wait =>
-		  Data_Enable <= '0';
+          
+          Data_Enable <= '0';
           Blank_Done <= '0'; 
           R_Enable <= '0';
           W_Enable <= '0';
@@ -171,10 +174,12 @@ begin  -- behavioural
           Write_Req <= '0';
           Fifo_Clear <= '0';
           Word_Count <= 0;
+          blank_word_count <= 0;
           Burst_Count <= 0;
           Row_Number <= 0;
           data_mask <= ( others => '0');
- --         Blank_Half <= '1';  -- Whole thing first
+
+          --         Blank_Half <= '1';  -- Whole thing first
 
           if Init_Done ='0' then
             state <= memory_wait;
@@ -191,12 +196,12 @@ begin  -- behavioural
 
           R_Enable   <= '0';
           Address_Enable <= '1';
-
+          Data_Enable <= '1';
           Address_Internal(ADDRESS_COLUMN_WIDTH+ADDRESS_ROW_WIDTH-1 downto ADDRESS_COLUMN_WIDTH+ADDRESS_ROW_WIDTH-3) <= "000";
           Address_Internal(18) <= '0';
           Address_Internal(17 downto ADDRESS_COLUMN_WIDTH)  <= conv_std_logic_vector(Row_Number, 9);
           Address_Internal(ADDRESS_COLUMN_WIDTH-1 downto 0) 
-            <= conv_std_logic_vector(Word_Count, ADDRESS_COLUMN_WIDTH);
+            <= conv_std_logic_vector(blank_Word_Count, ADDRESS_COLUMN_WIDTH);
 
           Write_Req  <= '0';
           Fifo_Clear <= '0';
@@ -243,22 +248,22 @@ begin  -- behavioural
 
           data_mask <= (others => '0');
 
-          if Read_Line_Warn = '1' then
+          if Read_Line_Warn = '1'  then
       	      state <= idle;
               W_Enable <= '0'; 
               word_count <= 0;
-       
+            
           elsif row_number > 479 then
 
-   	        state <= idle;
+            state <= idle;
             word_count <= 0;
             row_number <= 0;
             W_Enable <= '0';       			
             Read_FB <= '0';
 
-          elsif Word_count > 80 then
+          elsif blank_Word_count > 80 then
             row_number <= row_number + 1;
-            Word_Count <= 0;
+            blank_Word_Count <= 0;
             W_Enable <= '0';
 
           elsif (SDRAM_Ready = '1') then
@@ -283,7 +288,7 @@ begin  -- behavioural
                 burst_count <= 1;
                 W_Enable   <= '0';
               else
-			    Data_Enable <= '1';
+                Data_Enable <= '1';
                 burst_count <= 0;
               end if; 
 
@@ -295,7 +300,8 @@ begin  -- behavioural
             when 3 =>
               burst_count <= 0;
 			  Data_Enable <= '1';
-              word_count <= word_count + 4;
+             -- word_count <= word_count + 4;
+              blank_word_count <= blank_word_count + 4;
               state <= blank_ready_wait;
 
             when others => null;	

@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : frame_buffer_test.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-06-11
+-- Last update: 2002-06-12
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Top level file for VGA out & SDRAM test
@@ -514,8 +514,9 @@ architecture structural of frame_buffer_test is
   signal tb_Buffer_Ready : std_logic;
 
 --DEBUGGING SIGNAL:
-signal counter : std_logic_vector(7 downto 0);
-
+signal counter : std_logic_vector(7 downto 0); 
+signal dummy_counter : integer range 0 to 1023;  -- DEBUGGING
+  
 begin  -- architecture structural
   
   clear <= Fifo_Clear or not reset;
@@ -841,7 +842,7 @@ begin  -- architecture structural
 );
   
 --Added By jeff for testing: (Values from Eric's waveforms)
-        tb_Buffer_Ready <= '1';
+
         --tb_x0 <= "0000110010" & "000000"; -- (-220) 100
         --tb_x1 <= "0000011110" & "000000"; -- (-200) 120
         --tb_x2 <= "0000111100" & "000000"; -- (-80)  240
@@ -902,12 +903,24 @@ begin  -- architecture structural
     if reset = '0' then
 --      draw_signal <= '0';
       color    <= "00000000";
+      tb_x0 <= (others => '0');
+      tb_y0 <= (others => '0');
+      tb_z0 <= (others => '0');
+      tb_x1 <= (others => '0');
+      tb_y1 <= (others => '0');
+      tb_z1 <= (others => '0');
+      tb_x2 <= (others => '0');
+      tb_y2 <= (others => '0');
+      tb_z2 <= (others => '0');
+
+      dummy_counter <= 0;
+      
     elsif clock50'event and clock50 ='1' then
 --      if init_done = '1' and rasterizer_done = '1' then
 --        draw_signal <= '1';
 --     else
 --        draw_signal <= '0';
---      end if;
+--      endm if;
 
  --     if BufferPick = '1' then
  --       color    <= "11100000";
@@ -917,12 +930,19 @@ begin  -- architecture structural
 --        tb_x0 <= conv_std_logic_vector(100, 10)  & "000000";
 --      end if;
 
+      dummy_counter <= dummy_counter+1;
+      if dummy_counter >1000 then
+        tb_Buffer_Ready <= '1';
+      else
+        tb_Buffer_Ready <= '0';
+      end if;
 
-triangle_case <= sw1 & sw2;
+      
+      triangle_case <= sw1 & sw2;
 
-case triangle_case is
+      case triangle_case is
 
-     when "00" => 
+       when "00" => 
         color    <= "11100000";
         tb_x0 <= conv_std_logic_vector(-150, 10)  & "000000";
         tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
@@ -1032,6 +1052,7 @@ case triangle_case is
   -- type   : sequential
   -- inputs : reset, clock50, Data_Out
   -- outputs: Data_Buf
+  
   data_latch : process (clock50, reset) is
 
   begin  
