@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : write_fifo.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002/03/26
+-- Last update: 2002-06-18
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Buffers SDRAM memory write requests so that they can be queued
@@ -230,7 +230,8 @@ begin  -- architecture mixed
           if data_full = '1' then
  
             w_state <= full_state;
-
+            data_to_mask <= (others => '0');
+            
           elsif W_Enable = '1' then
 
             -- Every write must be a total of 4 words long (due to burst
@@ -243,7 +244,9 @@ begin  -- architecture mixed
             data_to_mask(B1_START downto B1_END) <= Data_Mask_In; 
             
           else
+            
             w_state <= w_idle;
+            data_to_mask <= (others => '0');
             
           end if;
 
@@ -289,7 +292,7 @@ begin  -- architecture mixed
           end if;
 
         when full_state =>
-
+          
           if data_full = '0' then
             w_state <= w_idle;
           else
