@@ -2,7 +2,8 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
+#include <Windows.h>
 #include "SDL.h"
 
 #include "input.h"
@@ -48,7 +49,7 @@ int main(int argc,char * argv[])
 
   Surface = SDL_SetVideoMode(width, height, bpp, *flags);
 
-  SDL_WM_SetCaption("Manticore Software", NULL);
+  SDL_WM_SetCaption("Software Triangle", NULL);
 
 
   PixelRAM* PixelData = new PixelRAM;
@@ -58,22 +59,25 @@ int main(int argc,char * argv[])
   VGAout Video(Surface, PixelData);
   Video.ClearScreen();
 
-  Point3D P1(-150, 0, -120);
+  //Point3D P1(-150, 0, -120);
+  //Point3D P2(-100, -100, -120);
+  //Point3D P3(-20, -60, -120);
+  Point3D P1(-0, -100, -120);
   Point3D P2(-100, -100, -120);
-  Point3D P3(-20, -60, -120);
+  Point3D P3(-20, -250, -120);
 
   
 
   while(!die){
-    
-    usleep(10);
+  
+
     TransformEngine -> Translate(P1,0,0,120 );
     TransformEngine -> Translate(P2,0,0,120 );
     TransformEngine -> Translate(P3,0,0,120 );
 
-    TransformEngine -> RotateY(P1,0.05);
-    TransformEngine -> RotateY(P2,0.05);
-    TransformEngine -> RotateY(P3,0.05);
+    TransformEngine -> RotateY(P1,0.06);
+    TransformEngine -> RotateY(P2,0.06);
+    TransformEngine -> RotateY(P3,0.06);
     
     TransformEngine -> Translate(P1,0,0,-120 );
     TransformEngine -> Translate(P2,0,0,-120 );

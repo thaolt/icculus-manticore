@@ -28,7 +28,7 @@ Point2D::Point2D()
 
 }// Point2D
 
-Point2D::Point2D(const double& inx, const double& iny){
+Point2D::Point2D(const float& inx, const float& iny){
 
   x = inx;
   y = iny;
@@ -65,14 +65,14 @@ Point2D::operator=(const Point2D&rhs)
 }// =
 
 //============================= Operations ===================================
-const double&
+const float&
 Point2D::GetX()const{
 
   return x;
 
 }
 
-const double&
+const float&
 Point2D::GetY()const{
 
   return y;
