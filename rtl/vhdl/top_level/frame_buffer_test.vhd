@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : frame_buffer_test.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-06-12
+-- Last update: 2002-06-13
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Top level file for VGA out & SDRAM test
@@ -942,7 +942,7 @@ begin  -- architecture structural
 
       case triangle_case is
 
-       when "00" => 
+       when "00" =>                     -- bottom left
         color    <= "11100000";
         tb_x0 <= conv_std_logic_vector(-150, 10)  & "000000";
         tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
@@ -956,7 +956,7 @@ begin  -- architecture structural
         tb_y2 <= conv_std_logic_vector(-60, 10)   & "000000";
         tb_z2 <= conv_std_logic_vector(-32, 10)   & "000000";
 
-       when "01" => 
+       when "01" =>                     -- bottom right
         color    <= "11111100";
         tb_x0 <= conv_std_logic_vector(150, 10)   & "000000";
         tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
@@ -970,8 +970,8 @@ begin  -- architecture structural
         tb_y2 <= conv_std_logic_vector(-30, 10)   & "000000";
         tb_z2 <= conv_std_logic_vector(60, 10)    & "000000";
 
-     when "10" => 
-        color    <= "11000011";
+     when "10" =>                       -- top right (trouble)
+        color    <= "11000011";     
         tb_x0 <= conv_std_logic_vector(10, 10)    & "000000";
         tb_y0 <= conv_std_logic_vector(100, 10)   & "000000";
         tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";
@@ -984,7 +984,7 @@ begin  -- architecture structural
         tb_y2 <= conv_std_logic_vector(0, 10)     & "000000";
         tb_z2 <= conv_std_logic_vector(10, 10)    & "000000";
 
-     when "11" => 
+     when "11" =>                       -- top left
         color    <= "00011100";
         tb_x0 <= conv_std_logic_vector(-50, 10)   & "000000";
         tb_y0 <= conv_std_logic_vector(100, 10)   & "000000";

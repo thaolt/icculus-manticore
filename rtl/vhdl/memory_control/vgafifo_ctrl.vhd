@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : vgafifo_ctrl.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-06-12
+-- Last update: 2002-06-13
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Generates control signals for fifo & SDRAM
@@ -327,7 +327,7 @@ begin  -- behavioural
 
           Read_FB <= '0';
 
-          if Read_line = '1' then
+          if Read_line = '1'  then
             Word_Count <= 0;
             state <= ready_wait; 		
             Fifo_Clear <= '1';
