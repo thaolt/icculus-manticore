@@ -401,8 +401,27 @@ Rasterizer::s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq){
        eq[2] = (short)(i*dx);   // C
 
    }
- 
+#ifndef _MSC_VER
 
+int max(int x, int y)
+{
+    if (x >= y)
+    {
+        return x;
+    }
+    return y;
+}
+
+int min(int x, int y)
+{
+    if (x <= y)
+    {
+        return x;
+    }
+    return y;
+}
+
+#endif
 void
 Rasterizer::Rasterize2(Triangle3D &tri){
     
@@ -442,7 +461,7 @@ Rasterizer::Rasterize2(Triangle3D &tri){
   int color;
 
   short miny, minx, maxy, maxx;
-
+#ifdef _MSC_VER
   miny = __min(P1.GetY(),P2.GetY());
   miny = __min(miny,     P3.GetY());
   minx = __min(P1.GetX(),P2.GetX());
@@ -452,6 +471,17 @@ Rasterizer::Rasterize2(Triangle3D &tri){
   maxy = __max(maxy,     P3.GetY());
   maxx = __max(P1.GetX(),P2.GetX());
   maxx = __max(maxx,     P3.GetX());
+#else
+  miny = min(P1.GetY(),P2.GetY());
+  miny = min(miny,     P3.GetY());
+  minx = min(P1.GetX(),P2.GetX());
+  minx = min(minx,     P3.GetX());
+
+  maxy = max(P1.GetY(),P2.GetY());
+  maxy = max(maxy,     P3.GetY());
+  maxx = max(P1.GetX(),P2.GetX());
+  maxx = max(maxx,     P3.GetX());
+#endif
 
   red   =  (P1.GetR()<<8) + (maxx-P1.GetX())*colors[0] + (maxy-P1.GetY())*colors[1];
   green =  (P1.GetG()<<8) + (maxx-P1.GetX())*colors[2] + (maxy-P1.GetY())*colors[3];
@@ -514,3 +544,5 @@ Rasterizer::Rasterize2(Triangle3D &tri){
   }
 
 }
+
+
