@@ -118,31 +118,31 @@ begin  -- behavioral
   begin  -- process storage
     if RST_I = '0' then                 -- asynchronous reset (active low)
 
-     -- data_O <= (others => '0');
       full_O <= '0';
       empty_O <= '1';
       depth <= 0;
       start_pointer <= (others => '0');
       end_pointer <= (others => '0');
 
-
       
     elsif CLK_I'event and CLK_I = '1' then  -- rising clock edge
-      
       
       if clear_I = '1' then               -- Clear
 
         depth <= 0;
         start_pointer <= (others => '0');
         end_pointer <= (others => '0');
-       -- data_O  <= (others => '0');
         
       elsif w_req_I = '1' then          -- Write Request
 
-        if depth /= DATA_DEPTH then
+        if depth < DATA_DEPTH then
           
-          full_O <= '0';
- --         data_block(end_pointer) <= data_I;
+          if depth=DATA_DEPTH-1 then
+            full_O <= '1';
+          else
+            full_O <= '0';
+          end if;
+
           depth <= depth + 1;    
         
           if end_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
@@ -159,23 +159,21 @@ begin  -- behavioral
         
       elsif r_req_I = '1' then          -- Read Request
 
-        if depth /= 0 then
-
-          empty_O <= '0';
-          
-    --   data_O <= data_block(start_pointer);
+        if depth > 0 then
 
           depth  <= depth - 1;
-        
+
+          if depth=1 then
+            empty_O <= '1';
+          else
+            empty_O <= '0';
+          end if;
+
           if start_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
             start_pointer <= (others => '0');
           else
             start_pointer <= start_pointer + '1';
           end if;
-          
-        else
-          
-          empty_O <= '1';
           
         end if;                         -- depth
         
@@ -185,12 +183,7 @@ begin  -- behavioral
   end process storage;
 
   -- purpose: connects to LPM_RAM 
-  -- type   : combinational
-  -- inputs : w_req_I
-  -- outputs: 
-  --ram_connect: process (w_req_I, r_req_I, start_pointer, end_pointer, data_I)
-  --begin  -- process ram_connect
- 
+    
     lpm_ram_inst: lpm_ram_dp
       generic map (
         LPM_WIDTH    => DATA_WIDTH,
@@ -206,8 +199,5 @@ begin  -- behavioral
         WRADDRESS => end_pointer, 
         WRCLOCK   => CLK_I,
         Q         => DATA_O);
-
-      
-  --end process ram_connect;
 
 end mixed;
