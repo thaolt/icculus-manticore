@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : manticore_fifo.vhd
 -- Author     : Jeff Mrochuk <jmrochuk@ieee.org>
--- Last update: 2002/06/06
+-- Last update: 2002-06-11
 -- Platform   : Altera APEX20K200
 -------------------------------------------------------------------------------
 -- Description: A generic FIFO for the manticore project
@@ -58,7 +58,8 @@ generic (
 
   port (
   
-  CLK_I   : in  std_logic;              -- clock
+  W_CLK_I   : in  std_logic;              -- clock
+  R_CLK_I   : in  std_logic;              -- clock
   RST_I   : in  std_logic;              -- asych reset
   data_I  : in  std_logic_vector(DATA_WIDTH-1 downto 0);  -- Input data
   data_O  : out std_logic_vector(DATA_WIDTH-1 downto 0);  -- Output data
@@ -66,7 +67,8 @@ generic (
   empty_O : out std_logic;              -- high if fifo is empty
   clear_I : in  std_logic;              -- empties the fifo
   w_req_I : in  std_logic;              -- write request
-  r_req_I : in  std_logic              -- read request
+  r_req_I : in  std_logic;              -- read request
+  level_O : out std_logic_vector(ADDR_WIDTH-1 downto 0)
   );
 
 end manticore_fifo;
@@ -98,62 +100,78 @@ component LPM_RAM_DP
 end component;
 
 --  type data_block_type is array (DATA_DEPTH-1 downto 0) of
---       std_logic_vector(DATA_WIDTH-1 downto 0);
+--  std_logic_vector(DATA_WIDTH-1 downto 0);
 --  signal data_block : data_block_type;              -- storage 
 
-  signal depth : positive range 0 to DATA_DEPTH+1;                -- depth gauge
+-------------------------------------------------------------------------------
+-- Signals
+-------------------------------------------------------------------------------
 
+  signal depth : positive range 0 to DATA_DEPTH+1;                -- depth gauge
   signal start_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);        -- start pointer
   signal end_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);        -- end pointer
   signal wren, rden, full_int, empty_int : std_logic;  -- write enable and read enable
-  
+
+
 begin  -- behavioral
 
-  -- purpose: performs the fifo storage
-  -- type   : sequential
-  -- inputs : CLK_I, RST_I, Data_I
-  -- outputs: Data_O
+-------------------------------------------------------------------------------
+-- Depth Meter
+------------------------------------------------------------------------------
 
-  addressing: process (CLK_I, RST_I, data_I, clear_I, w_req_I, r_req_I)
+  depth_control: process (R_CLK_I, W_CLK_I, RST_I, wren, rden, depth)
+  begin
+
+    if RST_I = '0' then                 -- asynchronous reset (active low)
+      depth <= 0;
+      empty_int <= '1';
+      full_int <= '0';
+      
+    elsif (W_CLK_I'event and W_CLK_I = '1') then
+      
+      if wren = '1' and rden = '1' then
+        null;
+      elsif wren = '1' and ( depth < DATA_DEPTH-1 ) then
+        depth <= depth+1;
+      elsif rden='1' and ( depth > 0 ) then
+        depth <= depth-1;
+      end if;
+      
+      if depth=0 then
+        empty_int <= '1';
+       else
+        empty_int <= '0';
+       end if;
+        
+       if depth=DATA_DEPTH-1 then
+         full_int <= '1';
+       else
+         full_int <= '0';
+       end if;
+          
+  end if;
+end process depth_control;
+         
+-------------------------------------------------------------------------------
+-- Read Address Controller
+-------------------------------------------------------------------------------
+  
+  read_address: process (R_CLK_I, RST_I, clear_I, R_REQ_I, depth, start_pointer)
   begin  -- process storage
     if RST_I = '0' then                 -- asynchronous reset (active low)
 
-      full_O <= '0';
-      empty_O <= '1';
-      depth <= 0;
       start_pointer <= (others => '0');
-      end_pointer <= (others => '0');
-      full_int <= '0';
-
-    elsif CLK_I'event and CLK_I = '1' then  -- rising clock edge
       
-       if depth=0 then
-            empty_O <= '1';
-            empty_int <= '1';
-       else
-            empty_O <= '0';
-            empty_int <= '0';
-       end if;
-
-       if depth=DATA_DEPTH-1 then
-            full_O   <= '1';
-            full_int <= '1';
-       else
-            full_O   <= '0';
-            full_int <= '0';
-       end if;
+    elsif R_CLK_I'event and R_CLK_I = '1' then  -- rising clock edge
+ 
 
       if clear_I = '1' then               -- Clear
 
-        depth <= 0;
         start_pointer <= (others => '0');
-        end_pointer <= (others => '0');
         
       elsif r_req_I = '1' then          -- Read Request
 
         if depth > 0 then
-
-          depth  <= depth - 1;
 
           if start_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
             start_pointer <= (others => '0');
@@ -163,32 +181,62 @@ begin  -- behavioral
           
         end if;                         -- depth
         
-      elsif w_req_I = '1' then          -- Write Request
+    end if; -- clock
+  end if;
+  end process read_address;
+  
+-------------------------------------------------------------------------------
+-- Write Address Controller
+-------------------------------------------------------------------------------
 
-        if depth < DATA_DEPTH-1 then
+  write_address: process (W_CLK_I, RST_I, clear_I, W_REQ_I, depth, end_pointer)
+  begin  -- process storage
 
-          depth <= depth + 1;    
+      if RST_I = '0' then
         
+        end_pointer <= (others => '0');
+        
+      elsif  W_CLK_I'event and W_CLK_I = '1' then  -- rising clock edge
+       
+       if clear_I = '1' then               -- Clear
+
+         end_pointer <= (others => '0');
+         
+       elsif w_req_I = '1' then -- Write Request
+         
+         if depth < DATA_DEPTH-1 then
+          
           if end_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
             end_pointer <= (others => '0');
           else
             end_pointer <= end_pointer + '1';
           end if;                       -- pointer
           
+         end if;
+         
         end if;                         -- depth
+  end if;
+  end process write_address;
 
-       end if;                          -- command
-
-    end if;                             -- clock
-  end process addressing;
-
-  -- purpose: connects to LPM_RAM 
-  write_read_enable: process(w_req_I, r_req_I, full_int)
+-------------------------------------------------------------------------------
+-- Enable Controller
+-------------------------------------------------------------------------------
+  
+  write_read_enable: process(w_req_I, r_req_I, full_int, empty_int, depth)
    begin
-     wren <= w_req_I AND (NOT full_int);
-     rden <= r_req_I AND (NOT empty_int);
+ 
+     wren <= w_req_I;
+     rden <= r_req_I;
+
+     level_O <= conv_std_logic_vector(depth, ADDR_WIDTH);
+     full_O <= full_int;
+     empty_O <= empty_int;
+     
    end process write_read_enable;
 
+-------------------------------------------------------------------------------
+-- Wiring to LPM_RAM
+-------------------------------------------------------------------------------
     
     lpm_ram_inst: lpm_ram_dp
       generic map (
@@ -197,13 +245,17 @@ begin  -- behavioral
         LPM_NUMWORDS => DATA_DEPTH)
       
       port map (
-        RDCLOCK   => CLK_I,
+        RDCLOCK   => R_CLK_I,
         RDADDRESS => start_pointer,
         RDEN      => rden,
         DATA      => DATA_I,
         WREN      => wren,
         WRADDRESS => end_pointer, 
-        WRCLOCK   => CLK_I,
+        WRCLOCK   => W_CLK_I,
         Q         => DATA_O);
 
 end mixed;
+
+-------------------------------------------------------------------------------
+-- EOF
+-------------------------------------------------------------------------------

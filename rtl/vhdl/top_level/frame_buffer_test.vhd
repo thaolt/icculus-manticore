@@ -551,7 +551,7 @@ begin  -- architecture structural
       DQM_O             => DQM_O,
       BA_O              => BA_O,
       Data_mask_I       => wf_Mask_to_Ram,
---    chip_select => chip_select,
+--    chip_select       => chip_select,
       r_ack_O           => r_ack,
       w_ack_O           => w_ack
       );
@@ -926,57 +926,58 @@ case triangle_case is
         color    <= "11100000";
         tb_x0 <= conv_std_logic_vector(-150, 10)  & "000000";
         tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_z0 <= conv_std_logic_vector(64, 10)  & "000000";
+        tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";
 
         tb_x1 <= conv_std_logic_vector(-100, 10)  & "000000";
         tb_y1 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_z1 <= conv_std_logic_vector(0, 10) & "000000";
+        tb_z1 <= conv_std_logic_vector(0, 10)     & "000000";
 
-        tb_x2 <= conv_std_logic_vector(-20, 10) & "000000";
-        tb_y2 <= conv_std_logic_vector(-60, 10)  & "000000";
-        tb_z2 <= conv_std_logic_vector(-32, 10) & "000000";
+        tb_x2 <= conv_std_logic_vector(-20, 10)   & "000000";
+        tb_y2 <= conv_std_logic_vector(-60, 10)   & "000000";
+        tb_z2 <= conv_std_logic_vector(-32, 10)   & "000000";
 
        when "01" => 
         color    <= "11111100";
-        tb_x0 <= conv_std_logic_vector(150, 10)  & "000000";
+        tb_x0 <= conv_std_logic_vector(150, 10)   & "000000";
         tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_z0 <= conv_std_logic_vector(-32, 10)  & "000000";
+        tb_z0 <= conv_std_logic_vector(-32, 10)   & "000000";
 
-        tb_x1 <= conv_std_logic_vector(100, 10)  & "000000";
+        tb_x1 <= conv_std_logic_vector(100, 10)   & "000000";
         tb_y1 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_z1 <= conv_std_logic_vector(0, 10) & "000000";
+        tb_z1 <= conv_std_logic_vector(0, 10)     & "000000";
 
-        tb_x2 <= conv_std_logic_vector(20, 10) & "000000";
-        tb_y2 <= conv_std_logic_vector(-30, 10)  & "000000";
-        tb_z2 <= conv_std_logic_vector(60, 10) & "000000";
+        tb_x2 <= conv_std_logic_vector(20, 10)    & "000000";
+        tb_y2 <= conv_std_logic_vector(-30, 10)   & "000000";
+        tb_z2 <= conv_std_logic_vector(60, 10)    & "000000";
 
      when "10" => 
         color    <= "11000011";
-        tb_x0 <= conv_std_logic_vector(10, 10)  & "000000";
-        tb_y0 <= conv_std_logic_vector(100, 10)  & "000000";
-        tb_z0 <= conv_std_logic_vector(64, 10)  & "000000";
+        tb_x0 <= conv_std_logic_vector(10, 10)    & "000000";
+        tb_y0 <= conv_std_logic_vector(100, 10)   & "000000";
+        tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";
 
-        tb_x1 <= conv_std_logic_vector(100, 10)  & "000000";
-        tb_y1 <= conv_std_logic_vector(100, 10)  & "000000";
-        tb_z1 <= conv_std_logic_vector(50, 10) & "000000";
+        tb_x1 <= conv_std_logic_vector(100, 10)   & "000000";
+        tb_y1 <= conv_std_logic_vector(100, 10)   & "000000";
+        tb_z1 <= conv_std_logic_vector(50, 10)    & "000000";
 
-        tb_x2 <= conv_std_logic_vector(30, 10) & "000000";
-        tb_y2 <= conv_std_logic_vector(0, 10)  & "000000";
-        tb_z2 <= conv_std_logic_vector(10, 10) & "000000";
+        tb_x2 <= conv_std_logic_vector(30, 10)    & "000000";
+        tb_y2 <= conv_std_logic_vector(0, 10)     & "000000";
+        tb_z2 <= conv_std_logic_vector(10, 10)    & "000000";
 
      when "11" => 
         color    <= "00011100";
-        tb_x0 <= conv_std_logic_vector(-50, 10)  & "000000";
-        tb_y0 <= conv_std_logic_vector(100, 10)  & "000000";
-        tb_z0 <= conv_std_logic_vector(32, 10)  & "000000";
+        tb_x0 <= conv_std_logic_vector(-50, 10)   & "000000";
+        tb_y0 <= conv_std_logic_vector(100, 10)   & "000000";
+        tb_z0 <= conv_std_logic_vector(32, 10)    & "000000";
 
         tb_x1 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_y1 <= conv_std_logic_vector(100, 10)  & "000000";
-        tb_z1 <= conv_std_logic_vector(0, 10) & "000000";
+        tb_y1 <= conv_std_logic_vector(100, 10)   & "000000";
+        tb_z1 <= conv_std_logic_vector(0, 10)     & "000000";
 
-        tb_x2 <= conv_std_logic_vector(-20, 10) & "000000";
-        tb_y2 <= conv_std_logic_vector(0, 10)  & "000000";
-        tb_z2 <= conv_std_logic_vector(64, 10) & "000000";
+        tb_x2 <= conv_std_logic_vector(-20, 10)   & "000000";
+        tb_y2 <= conv_std_logic_vector(0, 10)     & "000000";
+        tb_z2 <= conv_std_logic_vector(64, 10)    & "000000";
+        
      when others => null;
 
      end case;
