@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : frame_buffer_test.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-06-20
+-- Last update: 2002/06/20
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Top level file for VGA out & SDRAM test
@@ -939,7 +939,7 @@ begin  -- architecture structural
        when "00" =>                     -- 
         color    <= "11100000";
         tb_x0 <= conv_std_logic_vector(-150, 10)  & "000000"; -- X 0-2-1
-        tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000"; -- Y 2-1-0
+        tb_y0 <= conv_std_logic_vector(0, 10)  & "000000"; -- Y 2-1-0
         tb_z0 <= conv_std_logic_vector(-125, 10)    & "000000";  -- 64
 
         tb_x1 <= conv_std_logic_vector(-100, 10)  & "000000";
@@ -948,12 +948,12 @@ begin  -- architecture structural
 
         tb_x2 <= conv_std_logic_vector(-20, 10)   & "000000";
         tb_y2 <= conv_std_logic_vector(-60, 10)   & "000000";
-        tb_z2 <= conv_std_logic_vector(-140, 10)   & "000000";  -- -32
+        tb_z2 <= conv_std_logic_vector(-120, 10)   & "000000";  -- -32
 
        when "01" =>                     -- 
         color    <= "11111100";
         tb_x0 <= conv_std_logic_vector(250, 10)   & "000000"; -- X 2-1-0 (l to r
-        tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000"; -- Y 2-1-0 (t to b)
+        tb_y0 <= conv_std_logic_vector(-150, 10)  & "000000"; -- Y 2-1-0 (t to b)
         tb_z0 <= conv_std_logic_vector(-128, 10)   & "000000"; -- -32
    
         tb_x1 <= conv_std_logic_vector(100, 10)   & "000000";
@@ -961,7 +961,7 @@ begin  -- architecture structural
         tb_z1 <= conv_std_logic_vector(-140, 10)     & "000000";  -- 0 
 
         tb_x2 <= conv_std_logic_vector(20, 10)    & "000000";
-        tb_y2 <= conv_std_logic_vector(-30, 10)   & "000000";  -- -30
+        tb_y2 <= conv_std_logic_vector(-175, 10)   & "000000";  -- -30
         tb_z2 <= conv_std_logic_vector(-110, 10)    & "000000";  -- WAS 60
 
      when "10" =>                       --
@@ -972,7 +972,7 @@ begin  -- architecture structural
         tb_z0 <= conv_std_logic_vector(-145, 10)    & "000000";  -- 64 
 
         tb_x1 <= conv_std_logic_vector(300, 10)   & "000000";
-        tb_y1 <= conv_std_logic_vector(180, 10)   & "000000";
+        tb_y1 <= conv_std_logic_vector(120, 10)   & "000000";
         tb_z1 <= conv_std_logic_vector(-128, 10)    & "000000";  -- 50
 
         tb_x2 <= conv_std_logic_vector(30, 10)    & "000000";
@@ -985,7 +985,7 @@ begin  -- architecture structural
         tb_y0 <= conv_std_logic_vector(50, 10)   & "000000"; --Y 0-1-2
         tb_z0 <= conv_std_logic_vector(-132, 10)    & "000000";  -- 32
 
-        tb_x1 <= conv_std_logic_vector(-100, 10)  & "000000";
+        tb_x1 <= conv_std_logic_vector(-250, 10)  & "000000";
         tb_y1 <= conv_std_logic_vector(150, 10)   & "000000";
         tb_z1 <= conv_std_logic_vector(-128, 10)     & "000000";  -- 0 
 
