@@ -22,7 +22,7 @@
 -- Benj Carson    benjcarson@digitaljunkies.ca
 -----------------------------------------------------------------------
 
--- EE552 Project 'The Hulk' 3D Video Accelerator
+
 -- Triangle Rasterizer Component
 -- Inputs need are the three vertices, and the three slopes that the set of vertices make up.  Assumes
 -- the vertices are sorted starting wih the lowest y-value then going counterclockwise.  Output is the
@@ -31,6 +31,7 @@
 
 -- All values are 16 bit fixed point numbers: 10 digit integer part, 6 digit
 -- decimal part.
+  
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;

@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : raster_ctrl.vhd
 -- Author     : benj  <benj@ns1.digitaljunkies.ca>
--- Last update: 2002/04/07
+-- Last update: 2002-06-20
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Controls rasterizer, slope_calc engine and triangle buffer.
@@ -157,7 +157,10 @@ begin  -- architecture behav
           Num_Add_Sub <= '0';                      -- Subtract A & B
 
           C           <= "0000000001" & "000000";  -- 1
-          D           <= "000000" & (z0(15 downto 6)+ conv_std_logic_vector(128,10)); -- Divide z0 by lambda (which we've decided is 64)
+          D           <= "000000" & (z0(15 downto 6)
+                                  + conv_std_logic_vector(128,10));
+                                 -- Divide z0 by lambda (which we've decided is 64)
+                                      
           Den_Add_Sub <= '0';                      -- Subtract C & D
 
           slope_calc_Enable <= '1';
@@ -171,7 +174,10 @@ begin  -- architecture behav
           Num_Add_Sub <= '0';                      -- Subtract A & B
 
           C           <= "0000000001" & "000000";  -- 1
-          D           <= "000000" & (z1(15 downto 6)+ conv_std_logic_vector(128,10)); -- Divide z0 by lambda (which we've decided is 64)
+          D           <= "000000" & (z1(15 downto 6)
+                            + conv_std_logic_vector(128,10));
+                           -- Divide z0 by lambda (which we've decided is 64)
+                                      
           Den_Add_Sub <= '0';                      -- Subtract C & D
 
           slope_calc_Enable <= '1';
@@ -185,7 +191,10 @@ begin  -- architecture behav
           Num_Add_Sub <= '0';                      -- Subtract A & B
 
           C           <= "0000000001" & "000000";  -- 1
-          D           <= "000000" & (z2(15 downto 6)+ conv_std_logic_vector(128,10)); -- Divide z0 by lambda (which we've decided is 64)
+          D           <= "000000" & (z2(15 downto 6)
+                             + conv_std_logic_vector(128,10));
+                             -- Divide z0 by lambda (which we've decided is 64)
+                                     
           Den_Add_Sub <= '0';                      -- Subtract C & D
 
           slope_calc_Enable <= '1';
@@ -198,8 +207,10 @@ begin  -- architecture behav
           B           <= (others => '0');-- "0011110000" & "000000";  -- 240
           Num_Add_Sub <= '0';                      -- Subtract A & B
 
-          C <= "0000000001" & "000000";  -- 1
-          D <= "000000" & (z0(15 downto 6) + conv_std_logic_vector(128,10)); -- Divide z0 by lambda (which we've decided is 64)
+          C <=          "0000000001" & "000000";  -- 1
+          D <=          "000000" & (z0(15 downto 6)
+                       + conv_std_logic_vector(128,10));
+                      -- Divide z0 by lambda (which we've decided is 64)
 
           Den_Add_Sub       <= '0';     -- Subtract C & D
           slope_calc_Enable <= '1';
@@ -213,7 +224,9 @@ begin  -- architecture behav
           Num_Add_Sub <= '0';                      -- Subtract A & B
 
           C           <= "0000000001" & "000000";  -- 1
-          D <= "0000000" & (z1(15 downto 6) + conv_std_logic_vector(128,10)); -- Divide z0 by lambda (which we've decided is 64)
+          D           <= "000000" & (z1(15 downto 6)
+                             + conv_std_logic_vector(128,10));
+                            -- Divide z0 by lambda (which we've decided is 64)
           Den_Add_Sub <= '0';                      -- Subtract C & D
 
           slope_calc_Enable <= '1';
@@ -227,7 +240,9 @@ begin  -- architecture behav
           Num_Add_Sub <= '0';                      -- Subtract A & B
 
           C           <= "0000000001" & "000000";  -- 1
-          D <= "000000" & (z2(15 downto 6) + conv_std_logic_vector(128,10)); -- Divide z0 by lambda (which we've decided is 64)
+          D           <= "000000" & (z2(15 downto 6)
+                        + conv_std_logic_vector(128,10));
+                       -- Divide z0 by lambda (which we've decided is 64)
           Den_Add_Sub <= '0';                      -- Subtract C & D
 
           slope_calc_Enable <= '1';
