@@ -15,7 +15,6 @@
 /////////////////////////////////////////////////////////////////////////
 #include "Rasterizer.h"                                // class implemented
 #include "Transformer.h"
-#include "Timer.h"
 
 #include <math.h>
 #include "mcore_types.h"
@@ -401,13 +400,6 @@ Rasterizer::rasterizeArray()
           
     short miny, minx, maxy, maxx;
 
-          int time1;
-          int time2; 
-          int delta;
-      
-       TimerInit(TIMER_ID_TWO);
-       TimerResetRealTime(TIMER_ID_TWO);          
-                
        for(unsigned int i=0; i < m_vertexCount; i+=9)   
        {
             
@@ -439,7 +431,7 @@ Rasterizer::rasterizeArray()
           Point2D P3(m_P3screenX, m_P3screenY, m_P3fixedZ, m_pColorArray[i+6], m_pColorArray[i+7], m_pColorArray[i+8]);
 
           s3dGetColorDeltas(P1,P2,P3, m_colors);   // short array pointers are used to load the SIMD array
-                                                 // kept here for consistency
+                                                   // kept here for consistency
           s3dGetZDeltas(P1,P2,P3, m_zslopes);
 
           Point2D *Sorted1, *Sorted2, *Sorted3;
@@ -488,9 +480,7 @@ Rasterizer::rasterizeArray()
           eq1temp = m_eq[0]*(maxx+1) + m_eq[1]*(maxy+1) - m_eq[2]; 
           eq2temp = m_eq[3]*(maxx+1) + m_eq[4]*(maxy+1) - m_eq[5];
           eq3temp = m_eq[6]*(maxx+1) + m_eq[7]*(maxy+1) - m_eq[8];
-
-          
-          
+        
           for(int y = maxy; y >= miny; y--)
           { 
               eq1temp -= m_eq[1];
@@ -515,15 +505,16 @@ Rasterizer::rasterizeArray()
 
               for(int x = maxx; x >= minx; x--)
               {
+   
                  eq1result -= m_eq[0];
                  eq2result -= m_eq[3];
-                 eq3result -= m_eq[6];
-
-                 red   -= m_colors[0];             
+                 eq3result -= m_eq[6];;
+                 
+                 red   -= m_colors[0];
                  green -= m_colors[2];
                  blue  -= m_colors[4];             
-                 z     -= m_zslopes[0];        
-
+                 z     -= m_zslopes[0];
+                 
                  if( z > m_pZData[y*m_dx+x])
                  {             
                    if(  (eq1result <= 0)
@@ -533,23 +524,18 @@ Rasterizer::rasterizeArray()
                         // Hard coded 16bpp!
                         color = (red   & (0x1f<<BINARY_PLACES)) << (11-BINARY_PLACES)
                               | (green & (0x3f<<BINARY_PLACES)) >> (BINARY_PLACES-5)
-                              | (blue  & (0x1f<<BINARY_PLACES)) >> (BINARY_PLACES);                        
-                        
+                              | (blue  & (0x1f<<BINARY_PLACES)) >> (BINARY_PLACES);
+                              
                         m_pZData[y*m_dx+x]=z;
-                        m_pPixelData  = (unsigned char*)(m_pContext->drawDesc->colorBuffer);                                         
+                        m_pPixelData  = (unsigned char*)(m_pContext->drawDesc->colorBuffer);
                         p = &m_pPixelData[(y*m_dx+x)*(m_bpp/8)];
                         *(unsigned short *)p = color;
-
+                        
                      } // inclusion test
                  } // depth test
               } // x
            } // y
-       
-   
-         
        } // vertex loop  
-       
-       TimerReadTime(TIMER_ID_TWO);
 
        m_vertexCount = 0;  // clear it all  
 
