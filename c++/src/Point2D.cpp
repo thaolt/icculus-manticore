@@ -129,6 +129,44 @@ Point2D::GetB()const{
   return b;
 
 }
+
+void 
+Point2D::SetX(const int &xin){
+
+    x = xin;
+}
+
+void 
+Point2D::SetY(const int &yin){
+
+    y = yin;
+}
+
+
+void 
+Point2D::SetZ(const int &zin){
+    z = zin;
+}
+
+
+void 
+Point2D::SetR(const int &rin){
+    r = rin;
+}
+
+
+void 
+Point2D::SetG(const int &gin){
+    g = gin;
+}
+
+
+void 
+Point2D::SetB(const int &bin){
+    b = bin;
+}
+
+
 //============================= Access      ==================================
 //============================= Inquiry    ===================================
 /////////////////////////////// Protected Methods ////////////////////////////

@@ -109,7 +109,7 @@ PixelRAM::Blank(){
   }
 
 
-  for(i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH; i++){
+  for(int i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH; i++){
        ZData[i] = -2147483648;
   }
 }

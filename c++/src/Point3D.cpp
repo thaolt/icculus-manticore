@@ -133,7 +133,7 @@ Point3D::GetB()const{
 }
 
 void
-Point3D::SetX(float xin){
+Point3D::SetX(const float& xin){
 
   x = xin;
   
@@ -141,18 +141,36 @@ Point3D::SetX(float xin){
 
 
 void 
-Point3D::SetY(float yin){
+Point3D::SetY(const float& yin){
 
   y = yin;
   
 }
 
 void 
-Point3D::SetZ(float zin){
+Point3D::SetZ(const float& zin){
 
   z = zin;
   
 }
+
+void 
+Point3D::SetR(const int &rin){
+    r = rin;
+}
+
+
+void 
+Point3D::SetG(const int &gin){
+    g = gin;
+}
+
+
+void 
+Point3D::SetB(const int &bin){
+    b = bin;
+}
+
 //============================= Inquiry    ===================================
 /////////////////////////////// Protected Methods ////////////////////////////
 

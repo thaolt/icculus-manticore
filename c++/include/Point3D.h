@@ -54,10 +54,12 @@ public:
     const int& GetG()const;
     const int& GetB()const;
 
-	void SetX(float xin);
-	void SetY(float yin);
-	void SetZ(float zin);
-
+	void SetX(const float&);
+	void SetY(const float&);
+	void SetZ(const float&);
+	void SetR(const int&);
+	void SetG(const int&);
+	void SetB(const int&);
 protected:
 // Protected Methods
 private:

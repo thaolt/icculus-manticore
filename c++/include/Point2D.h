@@ -52,6 +52,12 @@ public:
     const int& GetG()const;
     const int& GetB()const;
     
+    void SetX(const int &);
+    void SetY(const int &);
+    void SetZ(const int &);
+    void SetR(const int &);
+    void SetG(const int &);
+    void SetB(const int &);
     // Inquiry
 
 protected:
