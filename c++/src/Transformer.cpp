@@ -110,7 +110,7 @@ Transformer::translate3f(const float& x, const float& y, const float& z)
 }
 
 void
-Transformer::rotate3f(const float& x, const float& y, const float& z, const float& angle)
+Transformer::rotate3f(const float& angle, const float& x, const float& y, const float& z)
 {
   // input axis needs to be unit
   float ux, uy, uz, mag;
@@ -120,38 +120,46 @@ Transformer::rotate3f(const float& x, const float& y, const float& z, const floa
   float c, s, t;
   
   mag = sqrt(x*x + y*y + z*z);
+  
+  ux = 0;
+  uy = 0;
+  uz = 0;
+  
+  if(mag == 0.0f) return;
+  
   ux = x/mag;
   uy = y/mag;
   uz = z/mag;
   
-  c = cos(angle);
-  s = sin(angle);
-  t = 1-c;
+   
+  c = cos(angle);  
+  s = sin(angle);  
+  t = 1-c;         
   
-  txx = t*x*x;
-  tyy = t*y*y;
-  tzz = t*z*z;
-  txy = t*x*y;
-  txz = t*x*z;
-  tyz = t*y*z;
+  txx = t*ux*ux;   
+  tyy = t*uy*uy;   
+  tzz = t*uz*uz;   
+  txy = t*ux*uy;   
+  txz = t*ux*uz;   
+  tyz = t*uy*uz; 
   
-  sx = s*x;
-  sy = s*y;
-  sz = s*z;
+  sx = s*ux; 
+  sy = s*uy; 
+  sz = s*uz;   
   
   m_tempMatrix[0][0] = txx + c;
-  m_tempMatrix[0][1] = txy - sz;
-  m_tempMatrix[0][2] = txz + sy;
+  m_tempMatrix[0][1] = txy + sz;  
+  m_tempMatrix[0][2] = txz - sy;  
   m_tempMatrix[0][3] = 0;
   
-  m_tempMatrix[1][0] = txy + sz;
-  m_tempMatrix[1][1] = tyy + c;
-  m_tempMatrix[1][2] = tyz - sx;
+  m_tempMatrix[1][0] = txy - sz;
+  m_tempMatrix[1][1] = tyy + c; 
+  m_tempMatrix[1][2] = tyz + sx; 
   m_tempMatrix[1][3] = 0; 
 
-  m_tempMatrix[2][0] = txz - sy;
-  m_tempMatrix[2][1] = tyz + sx;
-  m_tempMatrix[2][2] = tzz + c;
+  m_tempMatrix[2][0] = txz + sy; 
+  m_tempMatrix[2][1] = tyz - sx;  
+  m_tempMatrix[2][2] = tzz + c;   
   m_tempMatrix[2][3] = 0; 
   
   m_tempMatrix[3][0] = 0;
@@ -166,14 +174,54 @@ void
 Transformer::applyTempMatrix()
 {
 
+    float temp[4][4];
 
+    temp[0][0] = m_tMatrix[0][0]*m_tempMatrix[0][0] + m_tMatrix[0][1]*m_tempMatrix[1][0] + m_tMatrix[0][2]*m_tempMatrix[2][0] + m_tMatrix[0][3]*m_tempMatrix[3][0];
+    temp[0][1] = m_tMatrix[0][0]*m_tempMatrix[0][1] + m_tMatrix[0][1]*m_tempMatrix[1][1] + m_tMatrix[0][2]*m_tempMatrix[2][1] + m_tMatrix[0][3]*m_tempMatrix[3][1];
+    temp[0][2] = m_tMatrix[0][0]*m_tempMatrix[0][2] + m_tMatrix[0][1]*m_tempMatrix[1][2] + m_tMatrix[0][2]*m_tempMatrix[2][2] + m_tMatrix[0][3]*m_tempMatrix[3][2];
+    temp[0][3] = m_tMatrix[0][0]*m_tempMatrix[0][3] + m_tMatrix[0][1]*m_tempMatrix[1][3] + m_tMatrix[0][2]*m_tempMatrix[2][3] + m_tMatrix[0][3]*m_tempMatrix[3][3];
+    
+    temp[1][0] = m_tMatrix[1][0]*m_tempMatrix[0][0] + m_tMatrix[1][1]*m_tempMatrix[1][0] + m_tMatrix[1][2]*m_tempMatrix[2][0] + m_tMatrix[1][3]*m_tempMatrix[3][0];
+    temp[1][1] = m_tMatrix[1][0]*m_tempMatrix[0][1] + m_tMatrix[1][1]*m_tempMatrix[1][1] + m_tMatrix[1][2]*m_tempMatrix[2][1] + m_tMatrix[1][3]*m_tempMatrix[3][1];
+    temp[1][2] = m_tMatrix[1][0]*m_tempMatrix[0][2] + m_tMatrix[1][1]*m_tempMatrix[1][2] + m_tMatrix[1][2]*m_tempMatrix[2][2] + m_tMatrix[1][3]*m_tempMatrix[3][2];
+    temp[1][3] = m_tMatrix[1][0]*m_tempMatrix[0][3] + m_tMatrix[1][1]*m_tempMatrix[1][3] + m_tMatrix[1][2]*m_tempMatrix[2][3] + m_tMatrix[1][3]*m_tempMatrix[3][3];
 
+    temp[2][0] = m_tMatrix[2][0]*m_tempMatrix[0][0] + m_tMatrix[2][1]*m_tempMatrix[1][0] + m_tMatrix[2][2]*m_tempMatrix[2][0] + m_tMatrix[2][3]*m_tempMatrix[3][0];
+    temp[2][1] = m_tMatrix[2][0]*m_tempMatrix[0][1] + m_tMatrix[2][1]*m_tempMatrix[1][1] + m_tMatrix[2][2]*m_tempMatrix[2][1] + m_tMatrix[2][3]*m_tempMatrix[3][1];
+    temp[2][2] = m_tMatrix[2][0]*m_tempMatrix[0][2] + m_tMatrix[2][1]*m_tempMatrix[1][2] + m_tMatrix[2][2]*m_tempMatrix[2][2] + m_tMatrix[2][3]*m_tempMatrix[3][2];
+    temp[2][3] = m_tMatrix[2][0]*m_tempMatrix[0][3] + m_tMatrix[2][1]*m_tempMatrix[1][3] + m_tMatrix[2][2]*m_tempMatrix[2][3] + m_tMatrix[2][3]*m_tempMatrix[3][3];
 
+    temp[3][0] = m_tMatrix[3][0]*m_tempMatrix[0][0] + m_tMatrix[3][1]*m_tempMatrix[1][0] + m_tMatrix[3][2]*m_tempMatrix[2][0] + m_tMatrix[3][3]*m_tempMatrix[3][0];
+    temp[3][1] = m_tMatrix[3][0]*m_tempMatrix[0][1] + m_tMatrix[3][1]*m_tempMatrix[1][1] + m_tMatrix[3][2]*m_tempMatrix[2][1] + m_tMatrix[3][3]*m_tempMatrix[3][1];
+    temp[3][2] = m_tMatrix[3][0]*m_tempMatrix[0][2] + m_tMatrix[3][1]*m_tempMatrix[1][2] + m_tMatrix[3][2]*m_tempMatrix[2][2] + m_tMatrix[3][3]*m_tempMatrix[3][2];
+    temp[3][3] = m_tMatrix[3][0]*m_tempMatrix[0][3] + m_tMatrix[3][1]*m_tempMatrix[1][3] + m_tMatrix[3][2]*m_tempMatrix[2][3] + m_tMatrix[3][3]*m_tempMatrix[3][3];
 
-
+    for(int i=0; i < 4; i++){
+       for(int j=0; j < 4; j++){
+          m_tMatrix[i][j] = temp[i][j];
+       }
+    }
 
 }
+
+void 
+Transformer::applyTransform(Point3D &pnt)
+{
+ 
+
+ 
+   float x = pnt.GetX()*m_tMatrix[0][0] +  pnt.GetY()*m_tMatrix[1][0] + pnt.GetZ()*m_tMatrix[2][0] + m_tMatrix[3][0];
+   float y = pnt.GetX()*m_tMatrix[0][1] +  pnt.GetY()*m_tMatrix[1][1] + pnt.GetZ()*m_tMatrix[2][1] + m_tMatrix[3][1];
+   float z = pnt.GetX()*m_tMatrix[0][2] +  pnt.GetY()*m_tMatrix[1][2] + pnt.GetZ()*m_tMatrix[2][2] + m_tMatrix[3][2];
+   
+   pnt.SetX(x);
+   pnt.SetY(y);
+   pnt.SetZ(z);
+ 
+}
+
 // Old interface
+
 
 void 
 Transformer::RotateX(Point3D &pnt, float angle ){

@@ -228,6 +228,8 @@ Rasterizer::Rasterize(Triangle3D &tri){
   P3Y = tri.GetP3D3().GetY();   
   P3Z = tri.GetP3D3().GetZ();
   
+  if((P1Z > 100) || (P2Z > 100) || (P3Z > 100)) return;
+  
   // 3D to screen projections
   P1screenX = (int)(P1X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +m_dx/2);
   P1screenY = (int)(P1Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +m_dy/2);

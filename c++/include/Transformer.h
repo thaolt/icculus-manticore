@@ -45,7 +45,8 @@ public:
 // Operations
     void loadIdentity();
     void translate3f(const float& x, const float& y, const float& z);
-    void rotate3f(const float& x, const float& y, const float& z, const float& angle);
+    void rotate3f(const float& angle, const float& x, const float& y, const float& z);
+    void applyTransform(Point3D &pnt);
     
     // old interface
 	void RotateX(Point3D &pnt, float angle );
