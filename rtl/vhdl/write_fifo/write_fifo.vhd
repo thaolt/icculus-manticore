@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : write_fifo.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-06-18
+-- Last update: 2002-06-19
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Buffers SDRAM memory write requests so that they can be queued
@@ -135,8 +135,9 @@ architecture mixed of write_fifo is
   -- Tri-State Signals
   signal Data_Internal : std_logic_vector(DATA_WIDTH - 1 downto 0);
   signal Address_Internal : std_logic_vector(ADDRESS_WIDTH-1 downto 0);
- 
-
+  signal Data_Mask_Buf: std_logic_vector(4*DATA_WIDTH/8-1 downto 0);
+  signal Data_Out_Enable_Latch : std_logic;
+  
   -- Mask constants:
   constant B1_START : integer := 31;    -- Mask start for burst 1
   constant B1_END   : integer := 24;    -- Mask End for burst 1
@@ -171,7 +172,7 @@ begin  -- architecture mixed
       rdreq => Send_Address,
       clock => clock,
       aclr  => clear,
-      q     => Data_Mask_Out,
+      q     => Data_Mask_Buf,
       full  => mask_full,
       empty => mask_empty);
 
@@ -189,7 +190,9 @@ begin  -- architecture mixed
   );
 
   Mostly_Empty <= mask_empty;
- 
+
+  
+  
   Full  <= data_full or mask_full or addr_full;
   data_write_en <= W_Enable and data_write_req;
   addr_write_en <= W_Enable and addr_write_req;
@@ -207,7 +210,7 @@ begin  -- architecture mixed
       mask_write_req <= '0';
       addr_write_req <= '0';
       --Mostly_Empty <= '1';
-      
+      Data_Out_Enable_Latch <= '0';
     elsif clock'event and clock = '1' then  -- rising clock edge
 
       --if data_level < conv_std_logic_vector(3,6) then  -- Mostly_empty goes low when we have enough data for a burst
@@ -215,7 +218,8 @@ begin  -- architecture mixed
       --else
 
 --      end if;
-  
+      Data_Out_Enable_Latch <= Data_Out_Enable;
+      
       case w_state is
 
         when w_idle =>
@@ -226,11 +230,12 @@ begin  -- architecture mixed
           data_write_req <= '1';
           addr_write_req <= '1';
           
-          mask_write_en <= '0';      
+          mask_write_en <= '0';
+          
           if data_full = '1' then
  
             w_state <= full_state;
-            data_to_mask <= (others => '0');
+      --     data_to_mask <= (others => '0');
             
           elsif W_Enable = '1' then
 
@@ -241,12 +246,13 @@ begin  -- architecture mixed
             -- masked values (all 1's).  Since the address is only sent
             -- at the beginning of the burst it is only stored once.
             w_state <= write1;
+            
             data_to_mask(B1_START downto B1_END) <= Data_Mask_In; 
             
           else
             
             w_state <= w_idle;
-            data_to_mask <= (others => '0');
+       --     data_to_mask <= (others => '0');
             
           end if;
 
@@ -444,5 +450,20 @@ begin  -- architecture mixed
 
     
   end process tristate_address_bus;
+
+-- Don't send a mask if we're not using the RAM
+  
+  data_mask_control: process ( Data_Out_Enable_Latch, Data_Mask_Buf )
+  begin  -- process
+
+-- Or'ed because this needs to start immediately, and not end immediately
+    
+    if Data_Out_Enable_Latch='1' then
+      Data_Mask_Out <= Data_Mask_Buf;
+    else
+      Data_Mask_Out <= (others => '0');
+    end if;
+    
+  end process;
   
 end architecture mixed;
