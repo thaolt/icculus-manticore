@@ -44,6 +44,7 @@ int main(int argc,char * argv[])
 
   //bpp = info->vfmt->BitsPerPixel;
   bpp=32;
+  //bpp=16;
   atexit(SDL_Quit);
   
   SDL_ShowCursor(0);

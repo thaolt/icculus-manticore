@@ -110,32 +110,7 @@ PixelRAM::Blank(){
     PixelData[i]=80;  // This garbage is for loving memories
 	PixelData[i+1]=80;
 	PixelData[i+2]=80;
-/*    if(row < 60){
-      PixelData[i+1]=0; 
-      PixelData[i+2]=0;  
-    }else if(row<120){
-      PixelData[i+1]=64; 
-      PixelData[i+2]=64;  
-    }else if(row<180){
-      PixelData[i+1]=96; 
-      PixelData[i+2]=96;  
-    }else if(row<240){
-      PixelData[i+1]=128; 
-      PixelData[i+2]=128;  
-    }else if(row<300){
-      PixelData[i+1]=160; 
-      PixelData[i+2]=160;  
-    }else if(row<360){
-      PixelData[i+1]=192; 
-      PixelData[i+2]=192;  
-    }else if(row<420){
-      PixelData[i+1]=224; 
-      PixelData[i+2]=224;  
-    }else if(row<480){
-      PixelData[i+1]=255; 
-      PixelData[i+2]=255;
-    }
-*/
+
   }
 
 

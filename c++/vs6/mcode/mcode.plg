@@ -6,13 +6,14 @@
 --------------------Configuration: mcode - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP6DD.tmp" with contents
+Creating temporary file "C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP8E1.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Fp"c:/jeff/mcode/Debug/mcode.pch" /YX /Fo"c:/jeff/mcode/Debug/" /Fd"c:/jeff/mcode/Debug/" /FD /GZ /c 
+"I:\ECE\manticore\c++\src\main.cpp"
 "I:\ECE\manticore\c++\src\Rasterizer.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP6DD.tmp" 
-Creating temporary file "C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP6DE.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP8E1.tmp" 
+Creating temporary file "C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP8E2.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /incremental:yes /pdb:"c:/jeff/mcode/Debug/mcode.pdb" /debug /machine:I386 /out:"c:/jeff/mcode/Debug/mcode.exe" /pdbtype:sept 
 "c:\jeff\mcode\Debug\input.obj"
@@ -26,18 +27,17 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 "c:\jeff\mcode\Debug\Triangle3D.obj"
 "c:\jeff\mcode\Debug\VGAout.obj"
 ]
-Creating command line "link.exe @C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP6DE.tmp"
+Creating command line "link.exe @C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP8E2.tmp"
 <h3>Output Window</h3>
 Compiling...
+main.cpp
 Rasterizer.cpp
-I:\ECE\manticore\c++\src\Rasterizer.cpp(20) : warning C4005: 'BINARY_POINTS' : macro redefinition
-        i:\ece\manticore\c++\src\rasterizer.cpp(0) : see previous definition of 'BINARY_POINTS'
 Linking...
 
 
 
 <h3>Results</h3>
-mcode.exe - 0 error(s), 1 warning(s)
+mcode.exe - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>
