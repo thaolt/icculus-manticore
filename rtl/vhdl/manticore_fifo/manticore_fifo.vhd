@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : manticore_fifo.vhd
 -- Author     : Jeff Mrochuk <jmrochuk@ieee.org>
--- Last update: 2002/06/05
+-- Last update: 2002-06-05
 -- Platform   : Altera APEX20K200
 -------------------------------------------------------------------------------
 -- Description: A generic FIFO for the manticore project
@@ -95,18 +95,7 @@ begin  -- behavioral
       end_pointer <= DATA_DEPTH;
       
     elsif CLK'event and CLK = '1' then  -- rising clock edge
-
-      if depth = 0 then
-        empty_O <= 1;
-      else
-        empty_O <= 0;
-      end if;
       
-      if depth = DATA_DEPTH then
-        full_O <= 1;
-      else
-        full_O <= 0;
-      end if;
       
       if clear = '1' then               -- Clear
 
@@ -117,30 +106,49 @@ begin  -- behavioral
         
       elsif w_req_I = '1' then          -- Write Request
 
-        data_block(end_pointer) <= data_I;
-        depth <= depth + 1;
+        if depth /= DATA_DEPTH then
+          
+          full_O <= '0';
+          data_block(end_pointer) <= data_I;
+          depth <= depth + 1;    
         
-        if end_pointer = DATA_DEPTH-1 then
-          end_pointer <= 0;
+          if end_pointer = DATA_DEPTH-1 then
+            end_pointer <= 0;
+          else
+            end_pointer <= end_pointer + 1;
+          end if;
+          
         else
-          end_pointer <= end_pointer + 1;
+          
+          full_O <= '1';
+          
         end if;
         
       elsif r_req_I = '1' then          -- Read Request
 
-        data_O <= data_block(start_pointer);
+        if depth /= 0 then
 
-        depth  <= depth - 1;
+          empty_O <= '0';
+          
+          data_O <= data_block(start_pointer);
+
+          depth  <= depth - 1;
         
-        if start_pointer = DATA_DEPTH-1 then
-          start_pointer <= 0;
+          if start_pointer = DATA_DEPTH-1 then
+            start_pointer <= 0;
+          else
+            start_pointer <= start_pointer + 1;
+          end if;
+          
         else
-          start_pointer <= start_pointer + 1;
-        end if;
+          
+          empty_O <= '1';
+          
+        end if;                         -- depth
         
-      end if;
+      end if;                           -- r_req
       
-    end if;
+    end if;                             -- clock
   end process storage;
 
 end behavioral;
