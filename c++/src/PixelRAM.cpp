@@ -91,10 +91,10 @@ PixelRAM::WriteData(int x, int y, int col, int depth){
         p = &PixelData[(y*MCORE_WIDTH+x)*(bpp/8)];
         *(unsigned short *)p = col;
 
-        ZData[(y*MCORE_WIDTH+x)]=depth; // 4 bytes for depth
-
     }
   }
+
+  ZData[(y*MCORE_WIDTH+x)]=depth; // 4 bytes for depth
 }
 
 void

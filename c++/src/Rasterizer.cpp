@@ -138,7 +138,7 @@ Rasterizer::s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq){
     if(dx!=0){
        m = (float)dy/(float)dx;
     }else{
-       m = 1000000;
+       m = 10000000000;
     }
 
     i = (float)P1.GetY()-(m)*((float)P1.GetX());

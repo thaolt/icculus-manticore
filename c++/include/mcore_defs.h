@@ -8,6 +8,6 @@
 const int MCORE_WIDTH = 640;
 const int MCORE_HEIGHT = 480;
 const int MCORE_BYTESPERPIXEL = 4;
-const float MCORE_FOCALLENGTH = 256;
+const float MCORE_FOCALLENGTH = 512;
 
 #endif

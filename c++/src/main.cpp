@@ -96,14 +96,15 @@ int main(int argc,char * argv[])
        P7 = new Point3D(150, -100, -120, 26, 60, 30);
  */
 
-       P1 = new Point3D( 100,  100, -120, 31,  0,  0);
-       P2 = new Point3D(-100,  100, -120,  0, 63,  0);
-       P3 = new Point3D( 100, -100, -120,  0,  0, 31);
-       P4 = new Point3D(-100, -100, -120, 31, 63,  0);
-       P5 = new Point3D( 100,  100, -260,  0, 63, 31);
-       P6 = new Point3D(-100,  100, -260, 31,  0, 31);
-       P7 = new Point3D( 100, -100, -260, 31, 15,  5);
-       P8 = new Point3D(-100, -100, -260,  0, 15, 31);
+       P1 = new Point3D( 100,  100, -120, 30,  2,  2);
+       P2 = new Point3D(-100,  100, -120,  2, 62,  2);
+       P3 = new Point3D( 100, -100, -120,  2,  2, 30);
+       P4 = new Point3D(-100, -100, -120, 30, 62,  2);
+       P5 = new Point3D( 100,  100, -260,  2, 62, 30);
+       P6 = new Point3D(-100,  100, -260, 15,  30, 15);
+       P7 = new Point3D( 100, -100, -260, 30, 50, 30);
+       P8 = new Point3D(-100, -100, -260,  2, 2, 2);
+
 
    }
 
@@ -115,20 +116,30 @@ int main(int argc,char * argv[])
   Triangle3D tri6(*P2, *P8, *P4);  
   Triangle3D tri7(*P1, *P5, *P7);
   Triangle3D tri8(*P1, *P3, *P7);
+  
   while(!die){
   
+   // 
     PixelData->Blank();
 
-
-    TransformEngine -> Translate(*P1,0,0,155 );
-    TransformEngine -> Translate(*P2,0,0,155 );
-    TransformEngine -> Translate(*P3,0,0,155 );
-    TransformEngine -> Translate(*P4,0,0,155 );
-    TransformEngine -> Translate(*P5,0,0,155 );
-    TransformEngine -> Translate(*P6,0,0,155 );
-    TransformEngine -> Translate(*P7,0,0,155 );
-    TransformEngine -> Translate(*P8,0,0,155 );
-
+    TransformEngine -> Translate(*P1,0,0,200 );
+    TransformEngine -> Translate(*P2,0,0,200 );
+    TransformEngine -> Translate(*P3,0,0,200 );
+    TransformEngine -> Translate(*P4,0,0,200 );
+    TransformEngine -> Translate(*P5,0,0,200 );
+    TransformEngine -> Translate(*P6,0,0,200 );
+    TransformEngine -> Translate(*P7,0,0,200 );
+    TransformEngine -> Translate(*P8,0,0,200 );
+/*
+    TransformEngine -> RotateY(*P1,0.08f);
+    TransformEngine -> RotateY(*P2,0.08f);
+    TransformEngine -> RotateY(*P3,0.08f);
+    TransformEngine -> RotateY(*P4,0.08f);
+    TransformEngine -> RotateY(*P5,0.08f);
+    TransformEngine -> RotateY(*P6,0.08f);
+    TransformEngine -> RotateY(*P7,0.08f);
+    TransformEngine -> RotateY(*P8,0.08f);
+*/
     TransformEngine -> RotateX(*P1,0.06f);
     TransformEngine -> RotateX(*P2,0.06f);
     TransformEngine -> RotateX(*P3,0.06f);
@@ -137,6 +148,7 @@ int main(int argc,char * argv[])
     TransformEngine -> RotateX(*P6,0.06f);
     TransformEngine -> RotateX(*P7,0.06f);
     TransformEngine -> RotateX(*P8,0.06f);
+
 /*
     TransformEngine -> RotateZ(*P1,0.02f);
     TransformEngine -> RotateZ(*P2,0.02f);
@@ -147,40 +159,15 @@ int main(int argc,char * argv[])
     TransformEngine -> RotateZ(*P7,0.02f);
     TransformEngine -> RotateZ(*P8,0.02f);
 */
-    TransformEngine -> Translate(*P1,0,0,-155 );
-    TransformEngine -> Translate(*P2,0,0,-155 );
-    TransformEngine -> Translate(*P3,0,0,-155 );
-    TransformEngine -> Translate(*P4,0,0,-155 );
-    TransformEngine -> Translate(*P5,0,0,-155 );
-    TransformEngine -> Translate(*P6,0,0,-155 );
-    TransformEngine -> Translate(*P7,0,0,-155 );
-    TransformEngine -> Translate(*P8,0,0,-155 );
-/*
-    TransformEngine -> Translate(*P4,0,0,120 );
-    TransformEngine -> Translate(*P5,0,0,120 );
-    TransformEngine -> Translate(*P6,0,0,120 );
+    TransformEngine -> Translate(*P1,0,0,-200 );
+    TransformEngine -> Translate(*P2,0,0,-200 );
+    TransformEngine -> Translate(*P3,0,0,-200 );
+    TransformEngine -> Translate(*P4,0,0,-200 );
+    TransformEngine -> Translate(*P5,0,0,-200 );
+    TransformEngine -> Translate(*P6,0,0,-200 );
+    TransformEngine -> Translate(*P7,0,0,-200 );
+    TransformEngine -> Translate(*P8,0,0,-200 );
 
-    TransformEngine -> RotateY(*P4,0.06f);
-    TransformEngine -> RotateY(*P5,0.06f);
-    TransformEngine -> RotateY(*P6,0.06f);
-
-    TransformEngine -> Translate(*P4,0,0,-120 );
-    TransformEngine -> Translate(*P5,0,0,-120 );
-    TransformEngine -> Translate(*P6,0,0,-120 );
-
-    TransformEngine -> Translate(*P7,0,0,280 );
-    TransformEngine -> Translate(*P8,0,0,280 );
-    TransformEngine -> Translate(*P9,0,0,280 );
-
-    TransformEngine -> RotateX(*P7,0.06f);
-    TransformEngine -> RotateX(*P8,0.06f);
-    TransformEngine -> RotateX(*P9,0.06f);
-
-    TransformEngine -> Translate(*P7,0,0,-280 );
-    TransformEngine -> Translate(*P8,0,0,-280 );
-    TransformEngine -> Translate(*P9,0,0,-280 );
-
-    */
     tri1.SetPoints(*P1,*P2,*P3);
     tri2.SetPoints(*P2,*P4,*P3);
     tri3.SetPoints(*P5,*P6,*P7);
