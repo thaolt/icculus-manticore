@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : frame_buffer_test.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-06-16
+-- Last update: 2002-06-18
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Top level file for VGA out & SDRAM test
@@ -930,9 +930,8 @@ begin  -- architecture structural
 --        tb_x0 <= conv_std_logic_vector(100, 10)  & "000000";
 --      end if;
       
-      tb_Buffer_Ready <= '1';
+      tb_Buffer_Ready <= not BUFFERPICK;
 
-      
       triangle_case <= sw1 & sw2;
 
       case triangle_case is
@@ -951,7 +950,7 @@ begin  -- architecture structural
         tb_y2 <= conv_std_logic_vector(-60, 10)   & "000000";
         tb_z2 <= conv_std_logic_vector(-32, 10)   & "000000";  -- -32
 
-       when "01" =>                     -- bottom right ( sorta trouble )
+       when "01" =>                     -- bottom right (trouble )
         color    <= "11111100";
         tb_x0 <= conv_std_logic_vector(150, 10)   & "000000";
         tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
