@@ -66,8 +66,8 @@ private:
    
    void applyTempMatrix();
 
-   float m_tMatrix[4][4];
-   float m_tempMatrix[4][4];
+   float m_tMatrix[16];
+   float m_tempMatrix[16];
 //////////////////Removed
 };
 

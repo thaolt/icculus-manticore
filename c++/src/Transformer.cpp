@@ -16,6 +16,8 @@
 #include <math.h>
 #include "mcore_defs.h"
 /////////////////////////////// Public ///////////////////////////////////////
+#define MX 4
+#define MY 4
 
 //============================= Lifecycle ====================================
 
@@ -57,26 +59,26 @@ void
 Transformer::loadIdentity()
 {
 
-   m_tMatrix[0][0] = 1;
-   m_tMatrix[1][1] = 1;
-   m_tMatrix[2][2] = 1;
-   m_tMatrix[3][3] = 1;
+   m_tMatrix[0*MX+0] = 1;
+   m_tMatrix[1*MX+1] = 1;
+   m_tMatrix[2*MX+2] = 1;
+   m_tMatrix[3*MX+3] = 1;
 
-   m_tMatrix[0][1] = 0;
-   m_tMatrix[0][2] = 0;
-   m_tMatrix[0][3] = 0;
+   m_tMatrix[0*MX+1] = 0;
+   m_tMatrix[0*MX+2] = 0;
+   m_tMatrix[0*MX+3] = 0;
    
-   m_tMatrix[1][0] = 0;
-   m_tMatrix[1][2] = 0;
-   m_tMatrix[1][3] = 0;
+   m_tMatrix[1*MX+0] = 0;
+   m_tMatrix[1*MX+2] = 0;
+   m_tMatrix[1*MX+3] = 0;
    
-   m_tMatrix[2][0] = 0;
-   m_tMatrix[2][1] = 0;
-   m_tMatrix[2][3] = 0;   
+   m_tMatrix[2*MX+0] = 0;
+   m_tMatrix[2*MX+1] = 0;
+   m_tMatrix[2*MX+3] = 0;   
    
-   m_tMatrix[3][0] = 0;
-   m_tMatrix[3][1] = 0;
-   m_tMatrix[3][2] = 0;
+   m_tMatrix[3*MX+0] = 0;
+   m_tMatrix[3*MX+1] = 0;
+   m_tMatrix[3*MX+2] = 0;
       
 }
 
@@ -84,26 +86,26 @@ void
 Transformer::translate3f(const float& x, const float& y, const float& z)
 {
 
-   m_tempMatrix[0][0] = 1;
-   m_tempMatrix[1][1] = 1;
-   m_tempMatrix[2][2] = 1;
-   m_tempMatrix[3][3] = 1;
+   m_tempMatrix[0*MX+0] = 1;
+   m_tempMatrix[1*MX+1] = 1;
+   m_tempMatrix[2*MX+2] = 1;
+   m_tempMatrix[3*MX+3] = 1;
 
-   m_tempMatrix[0][1] = 0;
-   m_tempMatrix[0][2] = 0;
-   m_tempMatrix[0][3] = 0;
+   m_tempMatrix[0*MX+1] = 0;
+   m_tempMatrix[0*MX+2] = 0;
+   m_tempMatrix[0*MX+3] = 0;
    
-   m_tempMatrix[1][0] = 0;
-   m_tempMatrix[1][2] = 0;
-   m_tempMatrix[1][3] = 0;
+   m_tempMatrix[1*MX+0] = 0;
+   m_tempMatrix[1*MX+2] = 0;
+   m_tempMatrix[1*MX+3] = 0;
    
-   m_tempMatrix[2][0] = 0;
-   m_tempMatrix[2][1] = 0;
-   m_tempMatrix[2][3] = 0; 
+   m_tempMatrix[2*MX+0] = 0;
+   m_tempMatrix[2*MX+1] = 0;
+   m_tempMatrix[2*MX+3] = 0; 
 
-   m_tempMatrix[3][0] = x;
-   m_tempMatrix[3][1] = y;
-   m_tempMatrix[3][2] = z;
+   m_tempMatrix[3*MX+0] = x;
+   m_tempMatrix[3*MX+1] = y;
+   m_tempMatrix[3*MX+2] = z;
    
    applyTempMatrix();
 
@@ -147,25 +149,25 @@ Transformer::rotate3f(const float& angle, const float& x, const float& y, const 
   sy = s*uy; 
   sz = s*uz;   
   
-  m_tempMatrix[0][0] = txx + c;
-  m_tempMatrix[0][1] = txy + sz;  
-  m_tempMatrix[0][2] = txz - sy;  
-  m_tempMatrix[0][3] = 0;
+  m_tempMatrix[0*MX+0] = txx + c;
+  m_tempMatrix[0*MX+1] = txy + sz;  
+  m_tempMatrix[0*MX+2] = txz - sy;  
+  m_tempMatrix[0*MX+3] = 0;
   
-  m_tempMatrix[1][0] = txy - sz;
-  m_tempMatrix[1][1] = tyy + c; 
-  m_tempMatrix[1][2] = tyz + sx; 
-  m_tempMatrix[1][3] = 0; 
+  m_tempMatrix[1*MX+0] = txy - sz;
+  m_tempMatrix[1*MX+1] = tyy + c; 
+  m_tempMatrix[1*MX+2] = tyz + sx; 
+  m_tempMatrix[1*MX+3] = 0; 
 
-  m_tempMatrix[2][0] = txz + sy; 
-  m_tempMatrix[2][1] = tyz - sx;  
-  m_tempMatrix[2][2] = tzz + c;   
-  m_tempMatrix[2][3] = 0; 
+  m_tempMatrix[2*MX+0] = txz + sy; 
+  m_tempMatrix[2*MX+1] = tyz - sx;  
+  m_tempMatrix[2*MX+2] = tzz + c;   
+  m_tempMatrix[2*MX+3] = 0; 
   
-  m_tempMatrix[3][0] = 0;
-  m_tempMatrix[3][1] = 0;
-  m_tempMatrix[3][2] = 0;
-  m_tempMatrix[3][3] = 1;   
+  m_tempMatrix[3*MX+0] = 0;
+  m_tempMatrix[3*MX+1] = 0;
+  m_tempMatrix[3*MX+2] = 0;
+  m_tempMatrix[3*MX+3] = 1;   
   
   applyTempMatrix();
 }
@@ -174,31 +176,31 @@ void
 Transformer::applyTempMatrix()
 {
 
-    float temp[4][4];
+    float temp[4*MX+4];
 
-    temp[0][0] = m_tMatrix[0][0]*m_tempMatrix[0][0] + m_tMatrix[0][1]*m_tempMatrix[1][0] + m_tMatrix[0][2]*m_tempMatrix[2][0] + m_tMatrix[0][3]*m_tempMatrix[3][0];
-    temp[0][1] = m_tMatrix[0][0]*m_tempMatrix[0][1] + m_tMatrix[0][1]*m_tempMatrix[1][1] + m_tMatrix[0][2]*m_tempMatrix[2][1] + m_tMatrix[0][3]*m_tempMatrix[3][1];
-    temp[0][2] = m_tMatrix[0][0]*m_tempMatrix[0][2] + m_tMatrix[0][1]*m_tempMatrix[1][2] + m_tMatrix[0][2]*m_tempMatrix[2][2] + m_tMatrix[0][3]*m_tempMatrix[3][2];
-    temp[0][3] = m_tMatrix[0][0]*m_tempMatrix[0][3] + m_tMatrix[0][1]*m_tempMatrix[1][3] + m_tMatrix[0][2]*m_tempMatrix[2][3] + m_tMatrix[0][3]*m_tempMatrix[3][3];
+    temp[0*MX+0] = m_tMatrix[0*MX+0]*m_tempMatrix[0*MX+0] + m_tMatrix[0*MX+1]*m_tempMatrix[1*MX+0] + m_tMatrix[0*MX+2]*m_tempMatrix[2*MX+0] + m_tMatrix[0*MX+3]*m_tempMatrix[3*MX+0];
+    temp[0*MX+1] = m_tMatrix[0*MX+0]*m_tempMatrix[0*MX+1] + m_tMatrix[0*MX+1]*m_tempMatrix[1*MX+1] + m_tMatrix[0*MX+2]*m_tempMatrix[2*MX+1] + m_tMatrix[0*MX+3]*m_tempMatrix[3*MX+1];
+    temp[0*MX+2] = m_tMatrix[0*MX+0]*m_tempMatrix[0*MX+2] + m_tMatrix[0*MX+1]*m_tempMatrix[1*MX+2] + m_tMatrix[0*MX+2]*m_tempMatrix[2*MX+2] + m_tMatrix[0*MX+3]*m_tempMatrix[3*MX+2];
+    temp[0*MX+3] = m_tMatrix[0*MX+0]*m_tempMatrix[0*MX+3] + m_tMatrix[0*MX+1]*m_tempMatrix[1*MX+3] + m_tMatrix[0*MX+2]*m_tempMatrix[2*MX+3] + m_tMatrix[0*MX+3]*m_tempMatrix[3*MX+3];
     
-    temp[1][0] = m_tMatrix[1][0]*m_tempMatrix[0][0] + m_tMatrix[1][1]*m_tempMatrix[1][0] + m_tMatrix[1][2]*m_tempMatrix[2][0] + m_tMatrix[1][3]*m_tempMatrix[3][0];
-    temp[1][1] = m_tMatrix[1][0]*m_tempMatrix[0][1] + m_tMatrix[1][1]*m_tempMatrix[1][1] + m_tMatrix[1][2]*m_tempMatrix[2][1] + m_tMatrix[1][3]*m_tempMatrix[3][1];
-    temp[1][2] = m_tMatrix[1][0]*m_tempMatrix[0][2] + m_tMatrix[1][1]*m_tempMatrix[1][2] + m_tMatrix[1][2]*m_tempMatrix[2][2] + m_tMatrix[1][3]*m_tempMatrix[3][2];
-    temp[1][3] = m_tMatrix[1][0]*m_tempMatrix[0][3] + m_tMatrix[1][1]*m_tempMatrix[1][3] + m_tMatrix[1][2]*m_tempMatrix[2][3] + m_tMatrix[1][3]*m_tempMatrix[3][3];
+    temp[1*MX+0] = m_tMatrix[1*MX+0]*m_tempMatrix[0*MX+0] + m_tMatrix[1*MX+1]*m_tempMatrix[1*MX+0] + m_tMatrix[1*MX+2]*m_tempMatrix[2*MX+0] + m_tMatrix[1*MX+3]*m_tempMatrix[3*MX+0];
+    temp[1*MX+1] = m_tMatrix[1*MX+0]*m_tempMatrix[0*MX+1] + m_tMatrix[1*MX+1]*m_tempMatrix[1*MX+1] + m_tMatrix[1*MX+2]*m_tempMatrix[2*MX+1] + m_tMatrix[1*MX+3]*m_tempMatrix[3*MX+1];
+    temp[1*MX+2] = m_tMatrix[1*MX+0]*m_tempMatrix[0*MX+2] + m_tMatrix[1*MX+1]*m_tempMatrix[1*MX+2] + m_tMatrix[1*MX+2]*m_tempMatrix[2*MX+2] + m_tMatrix[1*MX+3]*m_tempMatrix[3*MX+2];
+    temp[1*MX+3] = m_tMatrix[1*MX+0]*m_tempMatrix[0*MX+3] + m_tMatrix[1*MX+1]*m_tempMatrix[1*MX+3] + m_tMatrix[1*MX+2]*m_tempMatrix[2*MX+3] + m_tMatrix[1*MX+3]*m_tempMatrix[3*MX+3];
 
-    temp[2][0] = m_tMatrix[2][0]*m_tempMatrix[0][0] + m_tMatrix[2][1]*m_tempMatrix[1][0] + m_tMatrix[2][2]*m_tempMatrix[2][0] + m_tMatrix[2][3]*m_tempMatrix[3][0];
-    temp[2][1] = m_tMatrix[2][0]*m_tempMatrix[0][1] + m_tMatrix[2][1]*m_tempMatrix[1][1] + m_tMatrix[2][2]*m_tempMatrix[2][1] + m_tMatrix[2][3]*m_tempMatrix[3][1];
-    temp[2][2] = m_tMatrix[2][0]*m_tempMatrix[0][2] + m_tMatrix[2][1]*m_tempMatrix[1][2] + m_tMatrix[2][2]*m_tempMatrix[2][2] + m_tMatrix[2][3]*m_tempMatrix[3][2];
-    temp[2][3] = m_tMatrix[2][0]*m_tempMatrix[0][3] + m_tMatrix[2][1]*m_tempMatrix[1][3] + m_tMatrix[2][2]*m_tempMatrix[2][3] + m_tMatrix[2][3]*m_tempMatrix[3][3];
+    temp[2*MX+0] = m_tMatrix[2*MX+0]*m_tempMatrix[0*MX+0] + m_tMatrix[2*MX+1]*m_tempMatrix[1*MX+0] + m_tMatrix[2*MX+2]*m_tempMatrix[2*MX+0] + m_tMatrix[2*MX+3]*m_tempMatrix[3*MX+0];
+    temp[2*MX+1] = m_tMatrix[2*MX+0]*m_tempMatrix[0*MX+1] + m_tMatrix[2*MX+1]*m_tempMatrix[1*MX+1] + m_tMatrix[2*MX+2]*m_tempMatrix[2*MX+1] + m_tMatrix[2*MX+3]*m_tempMatrix[3*MX+1];
+    temp[2*MX+2] = m_tMatrix[2*MX+0]*m_tempMatrix[0*MX+2] + m_tMatrix[2*MX+1]*m_tempMatrix[1*MX+2] + m_tMatrix[2*MX+2]*m_tempMatrix[2*MX+2] + m_tMatrix[2*MX+3]*m_tempMatrix[3*MX+2];
+    temp[2*MX+3] = m_tMatrix[2*MX+0]*m_tempMatrix[0*MX+3] + m_tMatrix[2*MX+1]*m_tempMatrix[1*MX+3] + m_tMatrix[2*MX+2]*m_tempMatrix[2*MX+3] + m_tMatrix[2*MX+3]*m_tempMatrix[3*MX+3];
 
-    temp[3][0] = m_tMatrix[3][0]*m_tempMatrix[0][0] + m_tMatrix[3][1]*m_tempMatrix[1][0] + m_tMatrix[3][2]*m_tempMatrix[2][0] + m_tMatrix[3][3]*m_tempMatrix[3][0];
-    temp[3][1] = m_tMatrix[3][0]*m_tempMatrix[0][1] + m_tMatrix[3][1]*m_tempMatrix[1][1] + m_tMatrix[3][2]*m_tempMatrix[2][1] + m_tMatrix[3][3]*m_tempMatrix[3][1];
-    temp[3][2] = m_tMatrix[3][0]*m_tempMatrix[0][2] + m_tMatrix[3][1]*m_tempMatrix[1][2] + m_tMatrix[3][2]*m_tempMatrix[2][2] + m_tMatrix[3][3]*m_tempMatrix[3][2];
-    temp[3][3] = m_tMatrix[3][0]*m_tempMatrix[0][3] + m_tMatrix[3][1]*m_tempMatrix[1][3] + m_tMatrix[3][2]*m_tempMatrix[2][3] + m_tMatrix[3][3]*m_tempMatrix[3][3];
+    temp[3*MX+0] = m_tMatrix[3*MX+0]*m_tempMatrix[0*MX+0] + m_tMatrix[3*MX+1]*m_tempMatrix[1*MX+0] + m_tMatrix[3*MX+2]*m_tempMatrix[2*MX+0] + m_tMatrix[3*MX+3]*m_tempMatrix[3*MX+0];
+    temp[3*MX+1] = m_tMatrix[3*MX+0]*m_tempMatrix[0*MX+1] + m_tMatrix[3*MX+1]*m_tempMatrix[1*MX+1] + m_tMatrix[3*MX+2]*m_tempMatrix[2*MX+1] + m_tMatrix[3*MX+3]*m_tempMatrix[3*MX+1];
+    temp[3*MX+2] = m_tMatrix[3*MX+0]*m_tempMatrix[0*MX+2] + m_tMatrix[3*MX+1]*m_tempMatrix[1*MX+2] + m_tMatrix[3*MX+2]*m_tempMatrix[2*MX+2] + m_tMatrix[3*MX+3]*m_tempMatrix[3*MX+2];
+    temp[3*MX+3] = m_tMatrix[3*MX+0]*m_tempMatrix[0*MX+3] + m_tMatrix[3*MX+1]*m_tempMatrix[1*MX+3] + m_tMatrix[3*MX+2]*m_tempMatrix[2*MX+3] + m_tMatrix[3*MX+3]*m_tempMatrix[3*MX+3];
 
     for(int i=0; i < 4; i++){
        for(int j=0; j < 4; j++){
-          m_tMatrix[i][j] = temp[i][j];
+          m_tMatrix[i*MX+j] = temp[i*MX+j];
        }
     }
 
@@ -210,9 +212,9 @@ Transformer::applyTransform(Point3D &pnt)
  
 
  
-   float x = pnt.GetX()*m_tMatrix[0][0] +  pnt.GetY()*m_tMatrix[1][0] + pnt.GetZ()*m_tMatrix[2][0] + m_tMatrix[3][0];
-   float y = pnt.GetX()*m_tMatrix[0][1] +  pnt.GetY()*m_tMatrix[1][1] + pnt.GetZ()*m_tMatrix[2][1] + m_tMatrix[3][1];
-   float z = pnt.GetX()*m_tMatrix[0][2] +  pnt.GetY()*m_tMatrix[1][2] + pnt.GetZ()*m_tMatrix[2][2] + m_tMatrix[3][2];
+   float x = pnt.GetX()*m_tMatrix[0*MX+0] +  pnt.GetY()*m_tMatrix[1*MX+0] + pnt.GetZ()*m_tMatrix[2*MX+0] + m_tMatrix[3*MX+0];
+   float y = pnt.GetX()*m_tMatrix[0*MX+1] +  pnt.GetY()*m_tMatrix[1*MX+1] + pnt.GetZ()*m_tMatrix[2*MX+1] + m_tMatrix[3*MX+1];
+   float z = pnt.GetX()*m_tMatrix[0*MX+2] +  pnt.GetY()*m_tMatrix[1*MX+2] + pnt.GetZ()*m_tMatrix[2*MX+2] + m_tMatrix[3*MX+2];
    
    pnt.SetX(x);
    pnt.SetY(y);

@@ -1,4 +1,3 @@
-
 #ifndef _mcore_defs_h_
 #define _mcore_defs_h_
 
@@ -12,4 +11,3 @@ const int MCORE_FOCALLENGTH = 256;
 typedef long fixed1616;
 
 #endif
-
