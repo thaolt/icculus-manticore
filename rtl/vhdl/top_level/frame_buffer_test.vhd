@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : frame_buffer_test.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002/03/31
+-- Last update: 2002-05-29
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Top level file for VGA out & SDRAM test
@@ -87,39 +87,62 @@ architecture structural of frame_buffer_test is
       clock1  : OUT STD_LOGIC
       );
   end component pll2x;
-
+-------------------------------------------------------------------------------
+-- sdram_control
+-------------------------------------------------------------------------------
   component sdram_control is
     generic(
+    -- Input Address format:
+    --
+    --   Bank       Row            Column 
+    --  |<->|<-              ->|<-        ->|
+    --  -------------------------------------
+    --  22  21                 9            0
+    --
+    IN_ADDRESS_WIDTH    : positive := 23;
+    BANKSIZE            : integer := 2;
+    ROWSIZE             : integer := 12;
+    COLSIZE             : integer := 9;
+    BANKSTART           : integer := 21;
+    ROWSTART            : integer := 9;
+    COLSTART            : integer := 0;
+    DATAWIDTH           : integer := 64;
+    INTERLEAVED         : std_logic := '0';  -- Sequential if '0'
+    BURST_MODE_n        : std_logic := '0';  -- enabled if '0'
+    BURST_LENGTH        : integer := 4;
+    NO_OF_CHIPS         : integer := 2
 
-      in_address_width   : positive := ADDRESS_WIDTH;
-      rowsize 	: integer := ADDRESS_ROW_WIDTH;
-      colsize 	: integer := ADDRESS_COLUMN_WIDTH;
-      rowstart 	: integer := ADDRESS_COLUMN_WIDTH;
-      colstart 	: integer := 0
     );
 
     port(
-      clock, reset       : in  std_logic;
-      R_enable, W_enable : in  std_logic;
-      RW_address         : in  std_logic_vector(in_address_width-1 downto 0);
-      ready              : out std_logic;
-      tx_data, rx_data   : out std_logic;
-      init_done          : out std_logic;
-	  data_mask          : in  std_logic_vector(DATA_WIDTH/8*4 -1 downto 0);
-      r_ack, w_ack       : out std_logic;	      
-      -- to memory
-      WEbar              : out std_logic;                  -- Write enable, Active Low
-      CKE                : out std_logic_vector(1 downto 0);                    -- clock enable
-      CSbar              : out std_logic; 
-      CS2bar             : out std_logic;                 -- chip select, Active Low
-      addr               : out std_logic_vector(12 downto 0);
-      RASbar, CASbar     : out std_logic;
-      DQM                : out std_logic_vector(7 downto 0);
-      BA                 : out std_logic_vector (1 downto 0)
---      chip_select        : in  std_logic
+    CLK_I               : in std_logic;
+    RST_I               : in  std_logic;
+    R_enable_I          : in  std_logic;
+    W_enable_I          : in  std_logic;
+    RW_address_I        : in  std_logic_vector(IN_ADDRESS_WIDTH-1 downto 0);
+    ready_O             : out std_logic;
+    tx_data_O           : out std_logic;
+    rx_data_O           : out std_logic;
+    r_ack_O             : out std_logic;
+    w_ack_O             : out std_logic;
+    init_done_O         : out std_logic;
+    data_mask_I         : in  std_logic_vector(DATAWIDTH/8*BURST_LENGTH -1 downto 0);
+
+    -- to memory
+    CKE_O          : out std_logic_vector(1 downto 0);  -- clock enable
+    CS_n_O         : out std_logic_vector(NO_OF_CHIPS-1 downto 0);
+    
+    addr_O         : out std_logic_vector(12 downto 0);
+    WE_n_O         : out std_logic;     -- Write enable, Active Low
+    RAS_n_O        : out std_logic;
+    CAS_n_O        : out std_logic;
+    DQM_O          : out std_logic_vector(datawidth/8-1 downto 0);
+    BA_O           : out std_logic_vector (1 downto 0)
     );
   end component sdram_control;
-
+-------------------------------------------------------------------------------
+-- vgaout
+-------------------------------------------------------------------------------
   component vgaout is
    port(
         signal clock, reset : in  std_logic;

@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : memory_manager.vhd
 -- Author     : Jeff Mrochuk <jmrochuk@ieee.org>
--- Last update: 2002-05-28
+-- Last update: 2002-05-29
 -- Platform   : Altera APEX20K200
 -------------------------------------------------------------------------------
 -- Description: Sends necessary signals to operate PC100 SDRAM at 66MHz
@@ -163,8 +163,7 @@ end sdram_control;
 architecture behav of sdram_control is
 
   
-  type state_type is (sdram_startup, sdram_activ, sdram_read, sdram_write, sdram_tRP_delay,
-                      sdram_MRS, sdram_precharge, sdram_auto_refresh, sdram_NOP);
+  type state_type is (sdram_startup, sdram_activ, sdram_read, sdram_write, sdram_tRP_delay, sdram_MRS, sdram_precharge, sdram_auto_refresh, sdram_NOP);
   
   signal state            : state_type;
   signal startup_flg      : std_logic;  -- Asserted when startup sequence finsihed
@@ -219,10 +218,11 @@ begin  -- architecture behav
       refresh_timer <= 0;
 
       refresh_done_flg <= '0';
-      mask1       <= "00000000";
-      mask2       <= "00000000";
-      mask3       <= "00000000";
-      mask4       <= "00000000";
+      mask1       <= (others => '0');
+      mask2       <= (others => '0');
+      mask3       <= (others => '0');
+      mask4       <= (others => '0');
+      
       ready_O       <= '0';
       r_ack_O       <= '0';
       w_ack_O       <= '0';
@@ -240,10 +240,11 @@ begin  -- architecture behav
       init_done_O   <= '0';
 
     elsif CLK_I'event and CLK_I = '1' then  -- rising clock edge
+      
       ---------------------------------------------------------------------
       -- CONSTANT SIGNALS
       ---------------------------------------------------------------------     
-      CKE_O <= "11";  
+      CKE_O <= "11";                    -- Clock enable
 
       
       case state is
@@ -258,6 +259,7 @@ begin  -- architecture behav
           state   <= sdram_NOP;
           r_ack_O <= '0';
           w_ack_O <= '0';
+          
         -----------------------------------------------------------------------
         -- Mode Register Set
         -----------------------------------------------------------------------
@@ -580,10 +582,9 @@ begin  -- architecture behav
             state <= sdram_tRP_delay;
           else
             delaycount <= 0;
-
- 		   CS_n_O(1) <= '0'; -- Enable SDRAM
-           state <= sdram_NOP;
-           command <= NOP;
+            CS_n_O(1) <= '0'; -- Enable SDRAM
+            state <= sdram_NOP;
+            Command <= NOP;
           end if;
           
         -----------------------------------------------------------------------
