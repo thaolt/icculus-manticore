@@ -3,6 +3,10 @@
 #include <iostream>
 #include <stdlib.h>
 
+#ifdef _MSC_VER
+#include <Windows.h>
+#endif
+
 #include "SDL.h"
 
 #include "input.h"
@@ -65,20 +69,30 @@ int main(int argc,char * argv[])
   Point3D P4(50, 100, -120);
   Point3D P5(-100, 100, -120);
   Point3D P6(80, 200, -120);
+
+  Point3D P7(180, -200, -80);
+  Point3D P8(100, -200, -150);
+  Point3D P9(180, -100, -120);
+
   Triangle3D tri1(P1, P2, P3);
   Triangle3D tri2(P4, P5, P6);  
+  Triangle3D tri3(P7, P8, P9);
 
   while(!die){
   
     PixelData->Blank();
 
+#ifdef _MSC_VER
+    Sleep(10);
+#endif
+
     TransformEngine -> Translate(P1,0,0,120 );
     TransformEngine -> Translate(P2,0,0,120 );
     TransformEngine -> Translate(P3,0,0,120 );
 
-    TransformEngine -> RotateZ(P1,0.0175f);
-    TransformEngine -> RotateZ(P2,0.0175f);
-    TransformEngine -> RotateZ(P3,0.0175f);
+    TransformEngine -> RotateZ(P1,0.04f);
+    TransformEngine -> RotateZ(P2,0.04f);
+    TransformEngine -> RotateZ(P3,0.04f);
 
     TransformEngine -> Translate(P1,0,0,-120 );
     TransformEngine -> Translate(P2,0,0,-120 );
@@ -95,10 +109,26 @@ int main(int argc,char * argv[])
     TransformEngine -> Translate(P4,0,0,-120 );
     TransformEngine -> Translate(P5,0,0,-120 );
     TransformEngine -> Translate(P6,0,0,-120 );
+
+    TransformEngine -> Translate(P7,0,0,280 );
+    TransformEngine -> Translate(P8,0,0,280 );
+    TransformEngine -> Translate(P9,0,0,280 );
+
+    TransformEngine -> RotateX(P7,0.06f);
+    TransformEngine -> RotateX(P8,0.06f);
+    TransformEngine -> RotateX(P9,0.06f);
+
+    TransformEngine -> Translate(P7,0,0,-280 );
+    TransformEngine -> Translate(P8,0,0,-280 );
+    TransformEngine -> Translate(P9,0,0,-280 );
+
     tri1.SetPoints(P1,P2,P3);
     tri2.SetPoints(P4,P5,P6);
+    tri3.SetPoints(P7,P8,P9);
+
     RasterEngine->Rasterize(tri1);
     RasterEngine->Rasterize(tri2);
+    RasterEngine->Rasterize(tri3);
 
     die = process_input();
     Video.DrawScreen();
