@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : memory_manager.vhd
 -- Author     : Jeff Mrochuk <jmrochuk@ieee.org>
--- Last update: 2002-05-29
+-- Last update: 2002-05-30
 -- Platform   : Altera APEX20K200
 -------------------------------------------------------------------------------
 -- Description: Sends necessary signals to operate PC100 SDRAM at 66MHz
@@ -128,7 +128,7 @@ entity sdram_control_param is
     DATAWIDTH           : integer := 64;
     INTERLEAVED         : std_logic := '0';  -- Sequential if '0'
     BURST_MODE_n        : std_logic := '0';  -- enabled if '0'
-    BURST_LENGTH        : integer := 4;
+    BURST_LENGTH        : integer := 8;
     NO_OF_CHIPS         : integer := 2
     );
 
@@ -188,13 +188,13 @@ architecture behav of sdram_control_param is
   signal warmup_timer  : integer range 0 to tSTARTUP_NOP_CYCLES;
 
   signal mask1, mask2, mask3, mask4 : std_logic_vector(7 downto 0);
-
+  signal mask5, mask6, mask7, mask8 : std_logic_vector(7 downto 0);
+  
 begin  -- architecture behav
 
   bankaddr <= RW_address_I(bankstart + banksize- 1 downto bankstart);
   rowaddr  <= RW_address_I(rowstart + rowsize - 1 downto rowstart);    
   coladdr  <= RW_address_I(colstart + colsize - 1 downto colstart);  
-
 
   -- purpose: Send outputs to RAM based on command input
   -- type   : sequential
@@ -216,25 +216,29 @@ begin  -- architecture behav
       delaycount    <= 0;
       count         <= 0;
       refresh_timer <= 0;
-
       refresh_done_flg <= '0';
+      
       mask1       <= (others => '0');
       mask2       <= (others => '0');
       mask3       <= (others => '0');
       mask4       <= (others => '0');
+      mask5       <= (others => '0');
+      mask6       <= (others => '0');
+      mask7       <= (others => '0');
+      mask8       <= (others => '0');
       
       ready_O       <= '0';
       r_ack_O       <= '0';
       w_ack_O       <= '0';
       tx_data_O     <= '0';
       rx_data_O     <= '0';
-      WE_n_O       <= '0';
+      WE_n_O        <= '0';
       CKE_O         <= (others => '0');
-      CS_n_O(0)       <= '0';
-      CS_n_O(1)      <= '1';
+      CS_n_O(0)     <= '0';
+      CS_n_O(1)     <= '1';
       addr_O        <= (others => '0');
-      RAS_n_O      <= '0';
-      CAS_n_O      <= '0';
+      RAS_n_O       <= '0';
+      CAS_n_O       <= '0';
       DQM_O         <= (others => '1');
       BA_O          <= (others => '0');
       init_done_O   <= '0';
@@ -269,11 +273,11 @@ begin  -- architecture behav
           WE_n_O  <= '0';
           r_ack_O <= '0';
           w_ack_O <= '0';
+          
           addr_O(12 downto 10) <= "000";
           addr_O(9)            <= BURST_MODE_n;   -- Burst read and write
           addr_O(8 downto 7)   <= "00";
-          addr_O(6 downto 4)   <= conv_std_logic_vector(cas_latency, CASWIDTH);
-                                            -- CAS latency 2
+          addr_O(6 downto 4)   <= conv_std_logic_vector(cas_latency, CASWIDTH);                                          -- CAS latency 2
           addr_O(3)            <= INTERLEAVED;  -- Sequential mode not interleave
           addr_O(2 downto 0)   <= "010";        --burst length of 4
 
@@ -282,13 +286,12 @@ begin  -- architecture behav
             state      <= sdram_MRS;
           else        
             delaycount <= 0;
+            
             case command is
               when startup => 
-
                 init_done_O   <= '1';
                 command     <= NOP;
                 state       <= sdram_NOP;
-
               -- We shouldn't be in this state if we aren't in the startup
               -- sequence, so head to NOP. 
               when read =>
@@ -329,6 +332,7 @@ begin  -- architecture behav
             delaycount <= 0;
 
             case command is
+              
               when startup => 
                 state <= sdram_auto_refresh;
               when refresh =>
@@ -443,9 +447,9 @@ begin  -- architecture behav
           else
       
             CS_n_O(0) <= '1'; -- Disable SDRAM          
-       
             delaycount <= 0;
             count <= 0;
+
             case command is
               when read =>
                 state <= sdram_read;
@@ -461,16 +465,18 @@ begin  -- architecture behav
                 addr_O(10) <= '1';              -- Auto precharge
                 addr_O(9)  <= '0';
                 addr_O(8 downto 0) <= coladdr;
-
-              tx_data_O <= '1';
+                tx_data_O <= '1';
+                
               when refresh =>
 
                 command <= NOP;
                 state <= sdram_NOP;
+                
               when startup =>
 
                 command <= NOP;
                 state <= sdram_NOP;
+                
               when NOP =>
                 state <= sdram_NOP;
 
@@ -484,7 +490,8 @@ begin  -- architecture behav
         -- Read with auto precharge        
         -----------------------------------------------------------------------
         when sdram_read =>
-		  CS_n_O(0) <= '0'; -- Enable SDRAM
+          
+          CS_n_O(0) <= '0'; -- Enable SDRAM
           DQM_O <= (others => '0');
           r_ack_O <= '0';
           
@@ -500,10 +507,11 @@ begin  -- architecture behav
 
             when 1 => -- CAS_LATENCY - 1=>
               -- NOP
-              RAS_n_O <= '1';
-              CAS_n_O <= '1';
-              WE_n_O  <= '1';
-          
+              -- RAS_n_O <= '1';
+              -- CAS_n_O <= '1';
+              -- WE_n_O  <= '1';
+              CS_n_O(0) <= '1';
+              
               rx_data_O <= '1';
               count <= count + 1;
               
@@ -512,9 +520,25 @@ begin  -- architecture behav
               count <= count + 1;
               
             when 3 => --CAS_LATENCY + 1 =>              
-  --            rx_data_O <= '1';
-              state <= sdram_tRP_delay;  -- Delay for tRP until next operation
+              if BURST_LENGTH-1 = 3 then
+                state <= sdram_tRP_delay;  -- Delay for tRP until next operation    
+              else
+                count <= count + 1; 
+              end if;
 
+            when 4 => -- CAS_LATENCY =>             
+              rx_data_O <= '1';
+              count <= count + 1;
+            when 5 => -- CAS_LATENCY =>             
+              rx_data_O <= '1';
+              count <= count + 1;
+            when 6 => -- CAS_LATENCY =>             
+              rx_data_O <= '1';
+              count <= count + 1;
+            when 7 => -- CAS_LATENCY =>             
+              rx_data_O <= '1';
+              state <= sdram_tRP_delay;
+              
             when others => null;
               
           end case;
@@ -527,22 +551,23 @@ begin  -- architecture behav
 
           case count is
             when 0 =>
-              -- WRITEA Command
+              -- WRITEA Command --
               RAS_n_O <= '1';
               CAS_n_O <= '0';
               WE_n_O  <= '0';
+              --------------------
+              
               w_ack_O <= '0';            
               count <= count + 1;              
               DQM_O <= mask1;
               tx_data_O <= '1';
 
-
             when 1 =>
-              -- NOP
-              RAS_n_O <= '1';
-              CAS_n_O <= '1';
-              WE_n_O  <= '1';
-     
+          --  NOP
+          --  RAS_n_O <= '1';
+          --  CAS_n_O <= '1';
+          --  WE_n_O  <= '1';
+              CS_n_O(0) <= '1';              
               count <= count + 1;
               DQM_O <= mask2;
               tx_data_O <= '1';
@@ -557,12 +582,36 @@ begin  -- architecture behav
               DQM_O <= mask4;
               tx_data_O <= '1';
 
-
             when 4 =>
-           --   DQM <= mask4;          
+              
               tx_data_O <= '1';
-              state <= sdram_tRP_delay;              
+              if BURST_LENGTH = 4 then
+                state <= sdram_tRP_delay;
+              else
+                count <= count + 1;
+                DQM_O <= mask5;
+              end if;
 
+            when 5 =>
+              count <= count + 1;
+              DQM_O <= mask6;
+              tx_data_O <= '1';
+
+            when 6 =>
+              count <= count + 1;
+              DQM_O <= mask7;
+              tx_data_O <= '1';
+
+            when 7 =>
+              count <= count + 1;
+              DQM_O <= mask8;
+              tx_data_O <= '1';
+
+            when 8 =>
+              count <= count + 1;
+              tx_data_O <= '1';
+              state <= sdram_tRP_delay;
+              
             when others => null;
 
           end case;
@@ -595,12 +644,13 @@ begin  -- architecture behav
           CAS_n_O <= '1';
           WE_n_O  <= '1';
           CS_n_O(0) <= '0'; -- Enable SDRAM          
-
+          
           if command = startup then     -- Check if we're in the startup sequence
-			r_ack_O <= '0';
-			w_ack_O <= '0';
+            r_ack_O <= '0';
+            w_ack_O <= '0';
             DQM_O <= (others => '1'); 
             ready_O <= '0';
+
             if warmup_timer < tSTARTUP_NOP_CYCLES then
               warmup_timer <= warmup_timer + 1;
               state <= sdram_NOP;
@@ -612,10 +662,10 @@ begin  -- architecture behav
             refresh_done_flg <= '1';   
             DQM_O <= (others => '0');
             ready_O <= '0';            
-            command <= refresh;
+      --    command <= refresh;
             state <= sdram_auto_refresh;
-			r_ack_O <= '0';
-			w_ack_O <= '0';
+            r_ack_O <= '0';
+            w_ack_O <= '0';
             
           elsif (W_Enable_I = '1' or command = write) then
             refresh_done_flg <= '0';
@@ -634,7 +684,7 @@ begin  -- architecture behav
           elsif (R_enable_I = '1' or command = read) then
             refresh_done_flg <= '0';
             DQM_O <= (others => '0');
-            ready_O <= '1';
+            ready_O <= '0';
 
             -- Send row address
             addr_O(12) <= '0';
@@ -642,17 +692,19 @@ begin  -- architecture behav
 
             command <= read;
             state <= sdram_activ;
-			r_ack_O <= '1';
+            r_ack_O <= '1';
             w_ack_O <= '0';       
   
           else
+            
             refresh_done_flg <= '0';
             DQM_O <= (others => '0');
             ready_O <= '1';
             command <= NOP;
             state <= sdram_NOP;
-			r_ack_O <= '0';
-			w_ack_O <= '0';
+            r_ack_O <= '0';
+            w_ack_O <= '0';
+            
           end if;                     
 
         when others => null;
