@@ -33,9 +33,9 @@ public:
 
 // Lifecycle
 
-   Triangle2D();
-	Triangle2D(const Point2D& inp1, const Point2D& inp2, const Point2D& inp3);
-   Triangle2D(const Triangle2D&);            // copy constructor
+    Triangle2D();
+    Triangle2D(const Point2D& inp1, const Point2D& inp2, const Point2D& inp3);
+    Triangle2D(const Triangle2D&);            // copy constructor
    ~Triangle2D();
 
 // Operator
@@ -52,11 +52,10 @@ protected:
 // Protected Methods
 private:
 
-	Point2D p1;
-	Point2D p2;
-	Point2D p3;
+    Point2D p1;
+    Point2D p2;
+    Point2D p3;
 
-	
 // Private Methods
 
 

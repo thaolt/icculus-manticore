@@ -33,7 +33,7 @@ public:
 // Lifecycle
 
     Point2D();
-	Point2D(const int& x, const int& y, const int& z);
+    Point2D(const int& x, const int& y, const int& z);
     Point2D(const int& x, const int& y, const int& z, const int& r, const int& g, const int& b);
     Point2D(const Point2D&);            // copy constructor
    ~Point2D();
@@ -45,9 +45,9 @@ public:
 // Operations
 
 // Access
-	const int& GetX()const;
-	const int& GetY()const;
-	const int& GetZ()const;
+    const int& GetX()const;
+    const int& GetY()const;
+    const int& GetZ()const;
     const int& GetR()const;
     const int& GetG()const;
     const int& GetB()const;
@@ -65,8 +65,8 @@ protected:
 private:
 
 // Private Methods
-	int x;
-	int y;
+    int x;
+    int y;
     int z;
     int r;
     int g;

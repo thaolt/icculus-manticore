@@ -35,8 +35,8 @@ public:
 // Lifecycle
 
    Point3D();
-	Point3D(const float& x, const float& y, const float& z);
-	Point3D(const float& x, const float& cy, const float& z, const int& r, const int& g, const int& b);
+    Point3D(const float& x, const float& y, const float& z);
+    Point3D(const float& x, const float& cy, const float& z, const int& r, const int& g, const int& b);
     Point3D(const Point3D&);            // copy constructor
    ~Point3D();
 
@@ -47,27 +47,28 @@ public:
 // Operations
 
 // Access
-	const float& GetX()const;
-	const float& GetY()const;
-	const float& GetZ()const;
+    const float& GetX()const;
+    const float& GetY()const;
+    const float& GetZ()const;
     const int& GetR()const;
     const int& GetG()const;
     const int& GetB()const;
 
-	void SetX(const float&);
-	void SetY(const float&);
-	void SetZ(const float&);
-	void SetR(const int&);
-	void SetG(const int&);
-	void SetB(const int&);
+    void SetX(const float&);
+    void SetY(const float&);
+    void SetZ(const float&);
+    void SetR(const int&);
+    void SetG(const int&);
+    void SetB(const int&);
+
 protected:
 // Protected Methods
 private:
 
 // Private Methods
-	float x;
-	float y;
-	float z;
+    float x;
+    float y;
+    float z;
     int r;
     int g;
     int b;

@@ -33,9 +33,9 @@ public:
 
 // Lifecycle
 
-   Triangle3D();
-	Triangle3D(const Point3D& inp1, const Point3D& inp2, const Point3D& inp3);
-   Triangle3D(const Triangle3D&);            // copy constructor
+    Triangle3D();
+    Triangle3D(const Point3D& inp1, const Point3D& inp2, const Point3D& inp3);
+    Triangle3D(const Triangle3D&);            // copy constructor
    ~Triangle3D();
 
 // Operator
@@ -46,20 +46,19 @@ public:
     void SetPoints(const Point3D& inp1, const Point3D& inp2, const Point3D& inp3);
 // Access
 
-   Point3D GetP3D1();
-	Point3D GetP3D2();
-	Point3D GetP3D3();
+    Point3D GetP3D1();
+    Point3D GetP3D2();
+    Point3D GetP3D3();
 // Inquiry
 
 protected:
 // Protected Methods
 private:
 
-	Point3D P3D1;
-	Point3D P3D2;
-	Point3D P3D3;
+    Point3D P3D1;
+    Point3D P3D2;
+    Point3D P3D3;
 
-	
 // Private Methods
 
 
