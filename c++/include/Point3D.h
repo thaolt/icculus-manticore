@@ -36,7 +36,8 @@ public:
 
    Point3D();
 	Point3D(const float& x, const float& y, const float& z);
-   Point3D(const Point3D&);            // copy constructor
+	Point3D(const float& x, const float& cy, const float& z, const int& r, const int& g, const int& b);
+    Point3D(const Point3D&);            // copy constructor
    ~Point3D();
 
 // Operator
@@ -49,6 +50,9 @@ public:
 	const float& GetX()const;
 	const float& GetY()const;
 	const float& GetZ()const;
+    const int& GetR()const;
+    const int& GetG()const;
+    const int& GetB()const;
 
 	void SetX(float xin);
 	void SetY(float yin);
@@ -62,7 +66,9 @@ private:
 	float x;
 	float y;
 	float z;
-
+    int r;
+    int g;
+    int b;
 //////////////////Removed
 };
 

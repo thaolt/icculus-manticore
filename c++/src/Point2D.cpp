@@ -28,12 +28,22 @@ Point2D::Point2D()
 
 }// Point2D
 
-Point2D::Point2D(const float& inx, const float& iny){
+Point2D::Point2D(const int& inx, const int& iny){
 
   x = inx;
   y = iny;
 
 }
+
+Point2D::Point2D(const int& inx, const int& iny, const int& inr, const int& ing, const int& inb){
+
+  x = inx;
+  y = iny;
+  r = inr;
+  g = ing;
+  b = inb;
+}
+
 Point2D::Point2D(const Point2D&point)
 {
   x = point.GetX();
@@ -65,20 +75,40 @@ Point2D::operator=(const Point2D&rhs)
 }// =
 
 //============================= Operations ===================================
-const float&
+const int&
 Point2D::GetX()const{
 
   return x;
 
 }
 
-const float&
+const int&
 Point2D::GetY()const{
 
   return y;
 
 }
 
+const int&
+Point2D::GetR()const{
+
+  return r;
+
+}
+
+const int&
+Point2D::GetG()const{
+
+  return g;
+
+}
+
+const int&
+Point2D::GetB()const{
+
+  return b;
+
+}
 //============================= Access      ==================================
 //============================= Inquiry    ===================================
 /////////////////////////////// Protected Methods ////////////////////////////

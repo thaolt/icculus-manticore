@@ -35,6 +35,18 @@ Point3D::Point3D(const float& inx, const float& iny, const float& inz){
   z = inz;
   //  cout << x << y << z << endl;
 }
+
+Point3D::Point3D(const float& inx, const float& iny, const float& inz, const int& inr, const int& ing, const int& inb){
+
+  x = inx;
+  y = iny;
+  z = inz;
+  r = inr;
+  g = ing;
+  b = inb;
+  //  cout << x << y << z << endl;
+}
+
 Point3D::Point3D(const Point3D&point)
 {
 
@@ -90,7 +102,29 @@ Point3D::GetZ()const{
 
 }
 
-void 
+
+const int&
+Point3D::GetR()const{
+
+  return r;
+
+}
+
+const int&
+Point3D::GetG()const{
+
+  return g;
+
+}
+
+const int&
+Point3D::GetB()const{
+
+  return b;
+
+}
+
+void
 Point3D::SetX(float xin){
 
   x = xin;

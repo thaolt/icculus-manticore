@@ -15,6 +15,8 @@
 #include "Rasterizer.h"                                // class implemented
 #include <math.h>
 
+#define XPIXELSPERCU 640
+#define YPIXELSPERCU 480
 /////////////////////////////// Public ///////////////////////////////////////
 
 //============================= Lifecycle ====================================
@@ -56,6 +58,7 @@ void
 Rasterizer::Rasterize(Triangle3D &tri){
   
   degenerate = false;    
+  short *colors = new short[9];
 
   P3D1 = tri.GetP3D1();  // Grab the 3 points from the triangle object
   P3D2 = tri.GetP3D2();
@@ -75,9 +78,11 @@ Rasterizer::Rasterize(Triangle3D &tri){
   P3screenX = P3X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_WIDTH/2;
   P3screenY = P3Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_HEIGHT/2;
 
-  Point2D P1(P1screenX, P1screenY);  // create some 2d points, (still need to impliment z)
-  Point2D P2(P2screenX, P2screenY);
-  Point2D P3(P3screenX, P3screenY);
+  Point2D P1(P1screenX, P1screenY, 200, 0, 0);  // create some 2d points, (still need to impliment z)
+  Point2D P2(P2screenX, P2screenY, 0, 200, 0);
+  Point2D P3(P3screenX, P3screenY, 0, 0, 200);
+
+  s3dGetColorDeltas(P1,P2,P3, colors); 
 
   Uint32 col1 = 255<<8;               // green
   Uint32 col2 = (255<<16)+(255<<8);   // yellow
@@ -271,12 +276,30 @@ Rasterizer::Rasterize(Triangle3D &tri){
      }
   }
 
+  int red = colors[6];
+  int green = colors[7];
+  int blue = colors[8];
+  int color;
   // Draw the top half of the triangle
   for(Uint32 i=(Uint32)top.GetY(); i < (Uint32)middle.GetY(); i++){
+
+      red = colors[6];
+
+      red += (i-(Uint32)top.GetY())*colors[1];
+      green += colors[3];
+      blue += colors[5];
+
       l+=slopeleft;
       r+=sloperight;
+      red -= colors[0]*slopeleft*(i-(Uint32)top.GetY());
+//      green += colors[2]*slopeleft;
+//      blue += colors[4]*slopeleft;
       for(Uint32 j=(Uint32)r; j<(Uint32)l; j++){
-         PixelData->WriteData((Uint32)j,i, col4);
+          red +=colors[0];
+          green += colors[2];
+          blue += colors[4];
+          color = ((red & 0x0000ff00)<<8) | (green & 0x0000ff00) | ((blue & 0x0000ff00)>>8);
+          PixelData->WriteData((Uint32)j,i, red&0x0000ff00<<8);
       }    
   }
 
@@ -307,4 +330,46 @@ Rasterizer::Rasterize(Triangle3D &tri){
     }
   }
 }
+
+
+void 
+Rasterizer::s3dGetColorDeltas(Point2D P1, Point2D P2, Point2D P3, short* colors){
+   int drdx, drdy, dgdx, dgdy, dbdx, dbdy, area;
+   int rstart, gstart, bstart;
+
+      area = ((P2.GetX() - P1.GetX()) * (P3.GetY() - P1.GetY()) - (P2.GetY() - P1.GetY()) * (P3.GetX() - P1.GetX()));
+      // Find the red slopes, 8 binary places after point
+	  drdx = (((P2.GetR() - P1.GetR()) * (P3.GetY() - P1.GetY()) - (P3.GetR() - P1.GetR()) * (P2.GetY() - P1.GetY())) << 8) / area;
+	  drdy = (((P3.GetR() - P1.GetR()) * (P2.GetX() - P1.GetX()) - (P2.GetR() - P1.GetR()) * (P3.GetX() - P1.GetX())) << 8) / area;
+
+	  dgdx = (((P2.GetG() - P1.GetG()) * (P3.GetY() - P1.GetY()) - (P3.GetG() - P1.GetG()) * (P2.GetY() - P1.GetY())) << 8) / area;
+	  dgdy = (((P3.GetG() - P1.GetG()) * (P2.GetX() - P1.GetX()) - (P2.GetG() - P1.GetG()) * (P3.GetX() - P1.GetX())) << 8) / area;
+
+	  dbdx = (((P2.GetB() - P1.GetB()) * (P3.GetY() - P1.GetY()) - (P3.GetB() - P1.GetB()) * (P2.GetY() - P1.GetY())) << 8) / area;
+	  dbdy = (((P3.GetB() - P1.GetB()) * (P2.GetX() - P1.GetX()) - (P2.GetB() - P1.GetB()) * (P3.GetX() - P1.GetX())) << 8) / area;
+
+      rstart = (P1.GetR()<<8);
+      gstart = (P1.GetG()<<8);
+      bstart = (P1.GetB()<<8);
+
+      //rstart += (XPIXELSPERCU-P1.GetX())*drdx;
+      //rstart += (YPIXELSPERCU-P1.GetY())*drdy;
+
+      //gstart += (XPIXELSPERCU-P1.GetX())*dgdx;
+      //gstart += (YPIXELSPERCU-P1.GetY())*dgdy;
+
+      //bstart += (XPIXELSPERCU-P1.GetX())*dbdx;
+      //bstart += (YPIXELSPERCU-P1.GetY())*dbdy;
+
+      colors[0]=(short)drdx;
+      colors[1]=(short)drdy;
+      colors[2]=(short)dgdx;
+      colors[3]=(short)dgdy;
+      colors[4]=(short)dbdx;
+      colors[5]=(short)dbdy;
+      colors[6]=(short)rstart;
+      colors[7]=(short)gstart;
+      colors[8]=(short)bstart;
+
+   }
 

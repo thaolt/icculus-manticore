@@ -59,8 +59,10 @@ protected:
 private:
 // Private Methods
 
-	SDL_Surface* Screen;
-	PixelRAM* PixelData;
+  void s3dGetColorDeltas(Point2D P1, Point2D P2, Point2D P3, short* colors);
+
+  SDL_Surface* Screen;
+  PixelRAM* PixelData;
 
    Point2D P2D_world1;
    Point2D P2D_world2;

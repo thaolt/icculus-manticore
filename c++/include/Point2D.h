@@ -33,8 +33,9 @@ public:
 // Lifecycle
 
    Point2D();
-	Point2D(const float& x, const float& y);
-   Point2D(const Point2D&);            // copy constructor
+	Point2D(const int& x, const int& y);
+    Point2D(const int& x, const int& y, const int& r, const int& g, const int& b);
+    Point2D(const Point2D&);            // copy constructor
    ~Point2D();
 
 // Operator
@@ -44,18 +45,24 @@ public:
 // Operations
 
 // Access
-	const float& GetX()const;
-	const float& GetY()const;
-// Inquiry
+	const int& GetX()const;
+	const int& GetY()const;
+    const int& GetR()const;
+    const int& GetG()const;
+    const int& GetB()const;
+    
+    // Inquiry
 
 protected:
 // Protected Methods
 private:
 
 // Private Methods
-	float x;
-	float y;
-
+	int x;
+	int y;
+    int r;
+    int g;
+    int b;
 //////////////////Removed
 };
 
