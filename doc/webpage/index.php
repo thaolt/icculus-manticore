@@ -32,7 +32,7 @@ design project lab, Manticore is ready to go public.  CVS has been
 kindly set up by
 <a href="http://www.icculus.org">icculus.org</a> as has this
 webspace.</p>
-
+Test
 <p class="newsitem">Formerly called &quot;The HULK&quot;, Manticore is
 an open source hardware design for a 3D graphics accelerator.  It is
 written entirely in VHDL.  Originally designed and tested using
