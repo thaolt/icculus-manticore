@@ -113,6 +113,10 @@ SOURCE=..\..\src\Point3D.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\Point3Dx.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\Rasterizer.cpp
 # End Source File
 # Begin Source File
@@ -126,6 +130,10 @@ SOURCE=..\..\src\Triangle2D.cpp
 # Begin Source File
 
 SOURCE=..\..\src\Triangle3D.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\Triangle3Dx.cpp
 # End Source File
 # Begin Source File
 
@@ -157,6 +165,10 @@ SOURCE=..\..\include\Point3D.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Point3Dx.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Rasterizer.h
 # End Source File
 # Begin Source File
@@ -170,6 +182,10 @@ SOURCE=..\..\include\Triangle2D.h
 # Begin Source File
 
 SOURCE=..\..\include\Triangle3D.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Triangle3Dx.h
 # End Source File
 # Begin Source File
 

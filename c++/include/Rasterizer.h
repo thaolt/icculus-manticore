@@ -19,10 +19,10 @@
 //
 #include "Point3D.h"
 #include "Point2D.h"
-#include "Triangle2D.h"
 #include "Triangle3D.h"
+#include "Triangle3Dx.h"
 #include "PixelRAM.h"
-
+#include "mcore_defs.h"
 // Local Includes
 //
 
@@ -50,7 +50,7 @@ public:
 // Operations
 
 	void Rasterize(Triangle3D &);
-
+	void Rasterizex(Triangle3Dx &);
 // Access
 
 // Inquiry
@@ -75,6 +75,10 @@ private:
   float P1X, P1Y, P1Z;
   float P2X, P2Y, P2Z;
   float P3X, P3Y, P3Z;
+  fixed1616 P1Xx, P1Yx, P1Zx;
+  fixed1616 P2Xx, P2Yx, P2Zx;
+  fixed1616 P3Xx, P3Yx, P3Zx;
+
   int P1screenX, P1screenY;
   int P2screenX, P2screenY;
   int P3screenX, P3screenY;

@@ -14,7 +14,7 @@
 /////////////////////////////////////////////////////////////////////////
 #include "Transformer.h"                                // class implemented
 #include <math.h>
-
+#include "mcore_defs.h"
 /////////////////////////////// Public ///////////////////////////////////////
 
 //============================= Lifecycle ====================================
@@ -53,8 +53,25 @@ Transformer::operator=(const Transformer &rhs)
 void 
 Transformer::RotateX(Point3D &pnt, float angle ){
 
-  float y = pnt.GetY()*cos(angle)+pnt.GetZ()*sin(angle);
-  float z = -pnt.GetY()*sin(angle)+pnt.GetZ()*cos(angle);
+  float y =  pnt.GetY()*cos(angle) + pnt.GetZ()*sin(angle);
+  float z = -pnt.GetY()*sin(angle) + pnt.GetZ()*cos(angle);
+  pnt.SetY(y);
+  pnt.SetZ(z);
+
+}
+
+void 
+Transformer::RotateXx(Point3Dx &pnt, float angle ){
+
+  float cosf = cos(angle);
+  float sinf = sin(angle);
+ 
+  fixed1616 cosx = (long)(cosf*256);
+  fixed1616 sinx = (long)(sinf*256);
+
+  fixed1616 y = ( pnt.GetY()*cosx + pnt.GetZ()*sinx)>>8;
+  fixed1616 z = (-pnt.GetY()*sinx + pnt.GetZ()*cosx)>>8;
+ 
   pnt.SetY(y);
   pnt.SetZ(z);
 
@@ -80,7 +97,16 @@ Transformer::RotateZ(Point3D &pnt, float angle ){
 }
 
 void 
-Transformer::Translate(Point3D &pnt, float dx, float dy, float dz){
+Transformer::Translatef(Point3D &pnt, float dx, float dy, float dz){
+
+  pnt.SetX(pnt.GetX()+dx);
+  pnt.SetY(pnt.GetY()+dy);
+  pnt.SetZ(pnt.GetZ()+dz);
+
+}
+
+void 
+Transformer::Translatex(Point3Dx &pnt, fixed1616 dx, fixed1616 dy, fixed1616 dz){
 
   pnt.SetX(pnt.GetX()+dx);
   pnt.SetY(pnt.GetY()+dy);

@@ -12,7 +12,9 @@
 #include "VGAout.h"
 #include "mcore_defs.h"
 #include "Triangle3D.h"
+#include "Triangle3Dx.h"
 #include "Point3D.h"
+#include "Point3Dx.h"
 #include "Rasterizer.h"
 #include "Transformer.h"
 
@@ -28,7 +30,6 @@ int main(int argc,char * argv[])
   Uint32 *flags = new Uint32;
 
   if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-	//cout<<    "Couldn't initialize SDL: "<< SDL_GetError() << endl;;
     exit(1);
   }
 
@@ -41,8 +42,6 @@ int main(int argc,char * argv[])
   long lasttime=0;
   long thistime;
 
-  //bpp = info->vfmt->BitsPerPixel;
-  //bpp=32;
   bpp=16;
   atexit(SDL_Quit);
   
@@ -64,24 +63,11 @@ int main(int argc,char * argv[])
   VGAout Video(Surface, PixelData);
   Video.ClearScreen();
 
-  Point3D *P1, *P2, *P3;
-  Point3D *P4, *P5, *P6;
-  Point3D *P8, *P7, *P9;
+  Point3Dx *P1, *P2, *P3;
+  Point3Dx *P4, *P5, *P6;
+  Point3Dx *P8, *P7, *P9;
   
 
-  if (bpp == 32){
-     P1 = new Point3D(-120,    0, -120, 255,   0, 0  );
-     P2 = new Point3D(-300, -100, -120,   0, 255, 0  );
-     P3 = new Point3D(-170, -160, -120,   0,   0, 255);
-
-     P6 = new Point3D( 150, 100, -120, 40, 255, 0  );
-     P5 = new Point3D(-100,  00, -120,   0, 90, 55);
-     P4 = new Point3D(  80, 150, -120, 20,  60, 255);
-
-     P9 = new Point3D(180, -200, -80,   30,  75,  82);
-     P8 = new Point3D(100, -200, -150, 115,  76,  32);
-     P7 = new Point3D(150, -100, -120, 200, 200, 200);
-  }else{
  /*    P1 = new Point3D(-120,    0, -120, 31,   0, 0  );
        P2 = new Point3D(-300, -100, -120,   0, 63, 0  );
        P3 = new Point3D(-170, -160, -120,   0,   0, 31);
@@ -94,82 +80,62 @@ int main(int argc,char * argv[])
        P8 = new Point3D(100, -200, -150, 31,  15,  5);
        P7 = new Point3D(150, -100, -120, 26, 60, 30);
  */
-         P1 = new Point3D(-100, -100, -120, 30,  2,  2);
-         P2 = new Point3D(100, 0, -120,  2, 62,  2);
-         P3 = new Point3D(-60, 100, -120,  2,  2, 30);
+       P1 = new Point3Dx(-100<<16,-100<<16, -120<<16, 30,  2,  2);
+       P2 = new Point3Dx( 100<<16,   0<<16, -120<<16,  2, 62,  2);
+       P3 = new Point3Dx( -60<<16, 100<<16, -120<<16,  2,  2, 30);
 
-/*       P1 = new Point3D( 100,  100, -120, 30,  2,  2);
+/*     P1 = new Point3D( 100,  100, -120, 30,  2,  2);
        P2 = new Point3D(-100,  100, -120,  2, 62,  2);
        P3 = new Point3D( 100, -100, -120,  2,  2, 30);
 */
-  P4 = new Point3D(-100, -100, -120, 30, 62,  2);
-       P5 = new Point3D( 100,  100, -260,  2, 62, 30);
-       P6 = new Point3D(-100,  100, -260, 15,  30, 15);
-       P7 = new Point3D( 100, -100, -260, 30, 50, 30);
-       P8 = new Point3D(-100, -100, -260,  2, 2, 2);
+       P4 = new Point3Dx(-100, -100, -120, 30, 62,  2);
+       P5 = new Point3Dx( 100,  100, -260,  2, 62, 30);
+       P6 = new Point3Dx(-100,  100, -260, 15,  30, 15);
+       P7 = new Point3Dx( 100, -100, -260, 30, 50, 30);
+       P8 = new Point3Dx(-100, -100, -260,  2, 2, 2);
 
 
-   }
-
-  Triangle3D tri1(*P1, *P2, *P3);
-  Triangle3D tri2(*P2, *P4, *P3);  
-  Triangle3D tri3(*P5, *P6, *P7);
-  Triangle3D tri4(*P5, *P7, *P8);
-  Triangle3D tri5(*P2, *P6, *P8);
-  Triangle3D tri6(*P2, *P8, *P4);  
-  Triangle3D tri7(*P1, *P5, *P7);
-  Triangle3D tri8(*P1, *P3, *P7);
+  Triangle3Dx tri1(*P1, *P2, *P3);
+  Triangle3Dx tri2(*P2, *P4, *P3);  
+  Triangle3Dx tri3(*P5, *P6, *P7);
+  Triangle3Dx tri4(*P5, *P7, *P8);
+  Triangle3Dx tri5(*P2, *P6, *P8);
+  Triangle3Dx tri6(*P2, *P8, *P4);  
+  Triangle3Dx tri7(*P1, *P5, *P7);
+  Triangle3Dx tri8(*P1, *P3, *P7);
   
   while(!die){
   
    // 
     PixelData->Blank();
 
-    TransformEngine -> Translate(*P1,0,0,200 );
-    TransformEngine -> Translate(*P2,0,0,200 );
-    TransformEngine -> Translate(*P3,0,0,200 );
-    TransformEngine -> Translate(*P4,0,0,200 );
-    TransformEngine -> Translate(*P5,0,0,200 );
-    TransformEngine -> Translate(*P6,0,0,200 );
-    TransformEngine -> Translate(*P7,0,0,200 );
-    TransformEngine -> Translate(*P8,0,0,200 );
+    TransformEngine -> Translatex(*P1,0,0,200<<16 );
+    TransformEngine -> Translatex(*P2,0,0,200<<16 );
+    TransformEngine -> Translatex(*P3,0,0,200<<16 );
+    TransformEngine -> Translatex(*P4,0,0,200<<16 );
+    TransformEngine -> Translatex(*P5,0,0,200<<16 );
+    TransformEngine -> Translatex(*P6,0,0,200<<16 );
+    TransformEngine -> Translatex(*P7,0,0,200<<16 );
+    TransformEngine -> Translatex(*P8,0,0,200<<16 );
+
+    TransformEngine -> RotateXx(*P1,0.06f);
+    TransformEngine -> RotateXx(*P2,0.06f);
+    TransformEngine -> RotateXx(*P3,0.06f);
 /*
-    TransformEngine -> RotateY(*P1,0.08f);
-    TransformEngine -> RotateY(*P2,0.08f);
-    TransformEngine -> RotateY(*P3,0.08f);
-    TransformEngine -> RotateY(*P4,0.08f);
-    TransformEngine -> RotateY(*P5,0.08f);
-    TransformEngine -> RotateY(*P6,0.08f);
-    TransformEngine -> RotateY(*P7,0.08f);
-    TransformEngine -> RotateY(*P8,0.08f);
-*/
-    TransformEngine -> RotateX(*P1,0.06f);
-    TransformEngine -> RotateX(*P2,0.06f);
-    TransformEngine -> RotateX(*P3,0.06f);
     TransformEngine -> RotateX(*P4,0.06f);
     TransformEngine -> RotateX(*P5,0.06f);
     TransformEngine -> RotateX(*P6,0.06f);
     TransformEngine -> RotateX(*P7,0.06f);
     TransformEngine -> RotateX(*P8,0.06f);
-
-/*
-    TransformEngine -> RotateZ(*P1,0.02f);
-    TransformEngine -> RotateZ(*P2,0.02f);
-    TransformEngine -> RotateZ(*P3,0.02f);
-    TransformEngine -> RotateZ(*P4,0.02f);
-    TransformEngine -> RotateZ(*P5,0.02f);
-    TransformEngine -> RotateZ(*P6,0.02f);
-    TransformEngine -> RotateZ(*P7,0.02f);
-    TransformEngine -> RotateZ(*P8,0.02f);
 */
-    TransformEngine -> Translate(*P1,0,0,-200 );
-    TransformEngine -> Translate(*P2,0,0,-200 );
-    TransformEngine -> Translate(*P3,0,0,-200 );
-    TransformEngine -> Translate(*P4,0,0,-200 );
-    TransformEngine -> Translate(*P5,0,0,-200 );
-    TransformEngine -> Translate(*P6,0,0,-200 );
-    TransformEngine -> Translate(*P7,0,0,-200 );
-    TransformEngine -> Translate(*P8,0,0,-200 );
+    TransformEngine -> Translatex(*P1,0,0,-200<<16 );
+    TransformEngine -> Translatex(*P2,0,0,-200<<16 );
+    TransformEngine -> Translatex(*P3,0,0,-200<<16 );
+    TransformEngine -> Translatex(*P4,0,0,-200<<16 );
+    TransformEngine -> Translatex(*P5,0,0,-200<<16 );
+    TransformEngine -> Translatex(*P6,0,0,-200<<16 );
+    TransformEngine -> Translatex(*P7,0,0,-200<<16 );
+    TransformEngine -> Translatex(*P8,0,0,-200<<16 );
 
     tri1.SetPoints(*P1,*P2,*P3);
     tri2.SetPoints(*P2,*P4,*P3);
@@ -180,7 +146,7 @@ int main(int argc,char * argv[])
     tri7.SetPoints(*P1, *P5, *P7);
     tri8.SetPoints(*P1, *P3, *P7);
 
-    RasterEngine->Rasterize(tri1);
+    RasterEngine->Rasterizex(tri1);
  /*
     RasterEngine->Rasterize(tri2);
 
