@@ -99,6 +99,15 @@ package memory_constants is
   constant B4_START : integer := 7;     -- Mask start for burst 4
   constant B4_END   : integer := 0;     -- Mask End for burst 4
   
+--  constant B8_START : integer := 31;    -- Mask start for burst 1
+--  constant B8_END   : integer := 24;    -- Mask End for burst 1
+--  constant B7_START : integer := 23;    -- Mask start for burst 2
+--  constant B7_END   : integer := 16;    -- Mask End for burst 2
+--  constant B6_START : integer := 15;    -- Mask start for burst 3
+--  constant B6_END   : integer := 8;     -- Mask End for burst 3
+--  constant B5_START : integer := 40;     -- Mask start for burst 4
+--  constant B5_END   : integer := 39;     -- Mask End for burst 4
+  
 end memory_constants;
 
 library ieee;
@@ -279,7 +288,11 @@ begin  -- architecture behav
           addr_O(8 downto 7)   <= "00";
           addr_O(6 downto 4)   <= conv_std_logic_vector(cas_latency, CASWIDTH);                                          -- CAS latency 2
           addr_O(3)            <= INTERLEAVED;  -- Sequential mode not interleave
-          addr_O(2 downto 0)   <= "010";        --burst length of 4
+          if BURST_LENGTH = 4 then
+            addr_O(2 downto 0)   <= "010";   --burst length of 4
+          elsif BURST_LENGTH = 8  then
+            addr_O(2 downto 0)   <= "011";   --burst length of 8
+          end if;
 
           if delaycount < tMRD_CYCLES then
             delaycount <= delaycount + 1;
@@ -507,10 +520,10 @@ begin  -- architecture behav
 
             when 1 => -- CAS_LATENCY - 1=>
               -- NOP
-              -- RAS_n_O <= '1';
-              -- CAS_n_O <= '1';
-              -- WE_n_O  <= '1';
-              CS_n_O(0) <= '1';
+              RAS_n_O <= '1';
+              CAS_n_O <= '1';
+              WE_n_O  <= '1';
+
               
               rx_data_O <= '1';
               count <= count + 1;
@@ -526,16 +539,16 @@ begin  -- architecture behav
                 count <= count + 1; 
               end if;
 
-            when 4 => -- CAS_LATENCY =>             
+            when 4 => -- CAS_LATENCY + 2 =>             
               rx_data_O <= '1';
               count <= count + 1;
-            when 5 => -- CAS_LATENCY =>             
+            when 5 => -- CAS_LATENCY + 3=>             
               rx_data_O <= '1';
               count <= count + 1;
-            when 6 => -- CAS_LATENCY =>             
+            when 6 => -- CAS_LATENCY + 4=>             
               rx_data_O <= '1';
               count <= count + 1;
-            when 7 => -- CAS_LATENCY =>             
+            when 7 => -- CAS_LATENCY + 5=>             
               rx_data_O <= '1';
               state <= sdram_tRP_delay;
               
@@ -564,10 +577,10 @@ begin  -- architecture behav
 
             when 1 =>
           --  NOP
-          --  RAS_n_O <= '1';
-          --  CAS_n_O <= '1';
-          --  WE_n_O  <= '1';
-              CS_n_O(0) <= '1';              
+           RAS_n_O <= '1';
+           CAS_n_O <= '1';
+           WE_n_O  <= '1';
+              --CS_n_O(0) <= '1';              
               count <= count + 1;
               DQM_O <= mask2;
               tx_data_O <= '1';
