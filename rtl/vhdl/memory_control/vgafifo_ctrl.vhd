@@ -109,12 +109,12 @@ architecture behavioural of vgafifo_ctrl is
   z_blank_wait, z_blank, z_read_wait, z_read ); --,draw_ready_wait, send_data, error_state);
                       
   signal state       : state_type;
-  signal Word_Count  : integer range 0 to 84; -- Tally of words written to buffer
-  signal blank_Word_Count  : integer range 0 to 84; -- Tally of words written to buffer
+  signal Word_Count  : integer range 0 to 88; -- Tally of words written to buffer
+  signal blank_Word_Count  : integer range 0 to 88; -- Tally of words written to buffer
   signal Burst_Count : integer range 0 to 7;                   -- Tally of words received in a burst cycle
-  signal Row_Number	 : integer range 0 to 485;
+  signal Row_Number	 : integer range 0 to 511;
   signal Read_FB : std_logic;           -- The active read frame bufffer
-
+  signal first_time : std_logic;          -- See if its the first pass
   --
   signal Data_Internal: std_logic_vector(DATA_WIDTH-1 downto 0);
   signal Data_Enable: std_logic;
@@ -152,6 +152,7 @@ begin  -- behavioural
       Read_Line_Ack <= '0';
       Data_Enable <= '0';
       Address_Enable <= '0';
+      first_time <= '1';
 --	  Blank_half <= '0';
       Write_Fifo_Data_Pop    <= '0';
       Write_Fifo_Data_Enable <= '0';
@@ -163,6 +164,10 @@ begin  -- behavioural
 
       case state is
 
+-------------------------------------------------------------------------------
+-- Memory Wait
+-------------------------------------------------------------------------------
+        
         when memory_wait =>
           
           Data_Enable <= '0';
@@ -179,24 +184,24 @@ begin  -- behavioural
           Row_Number <= 0;
           data_mask <= ( others => '0');
 
-          --         Blank_Half <= '1';  -- Whole thing first
+
 
           if Init_Done ='0' then
             state <= memory_wait;
           else
             state <= blank_ready_wait;
---            state <= draw_ready_wait;
---          state <= idle; 
+
           end if;
 
 ------------------------------------------------------------------------------------
--- Blank State
+-- Blank Ready Wait
 ------------------------------------------------------------------------------------			
         when blank_ready_wait =>
 
           R_Enable   <= '0';
           Address_Enable <= '1';
-  --         Data_Enable <= '1';
+          Data_Enable <= '1';
+          
           Address_Internal(ADDRESS_COLUMN_WIDTH+ADDRESS_ROW_WIDTH-1 downto ADDRESS_COLUMN_WIDTH+ADDRESS_ROW_WIDTH-3) <= "000";
           Address_Internal(18) <= '0';
           Address_Internal(17 downto ADDRESS_COLUMN_WIDTH)  <= conv_std_logic_vector(Row_Number, 9);
@@ -206,80 +211,87 @@ begin  -- behavioural
           Write_Req  <= '0';
           Fifo_Clear <= '0';
           Burst_count <= 0;
-         -- Data_Internal   <= (others => '0');
 
--- Stupid green Fade
-	if row_number < 60 then
+-- Stupid blue Fade
+          if row_number < 60 then
             Data_Internal   <= (others => '1');
-	elsif row_number < 120 then
+          elsif row_number < 120 then
             Data_Internal <= "1101101111011011110110111101101111011011110110111101101111011011";
 
 		
-	elsif row_number < 180 then
+          elsif row_number < 180 then
 
             Data_Internal <= "1011011110110111101101111011011110110111101101111011011110110111";
 
 		
-	elsif row_number < 240 then
+          elsif row_number < 240 then
 	
              Data_Internal <= "1001001110010011100100111001001110010011100100111001001110010011"; 
 
 		
-	elsif row_number < 300 then
+          elsif row_number < 300 then
 	
               Data_Internal <= "0110111101101111011011110110111101101111011011110110111101101111";
 
 		
-	elsif row_number < 360 then
+          elsif row_number < 360 then
 	
             Data_Internal <= "0100101101001011010010110100101101001011010010110100101101001011";
 
 	
-	elsif row_number < 420 then
+          elsif row_number < 420 then
 
             Data_Internal <= "0010011100100111001001110010011100100111001001110010011100100111";
 		
-	elsif row_number < 480 then
+          elsif row_number < 480 then
 	
 
             Data_Internal <= "0000001100000011000000110000001100000011000000110000001100000011";
-		
-	end if;
+            
+          end if;
 
           data_mask <= (others => '0');
 
-          if Read_Line = '1' then -- Read_Line_Warn = '1'  then
+          if Read_Line = '1' or (row_number > 479 and first_time = '1') then
+
       	      state <= idle;
               W_Enable <= '0'; 
               word_count <= 0;
-            
-          elsif row_number > 479 then
-
-            state <= idle;
-            word_count <= 0;
-            row_number <= 0;
-            W_Enable <= '0';       			
-            Read_FB <= '0';
+              first_time <= '0';
 
           elsif blank_Word_count > 80 then
-            row_number <= row_number + 1;
+            
+            if row_number < 480 then
+              row_number <= row_number + 1;
+            else
+              row_number <= 0;
+            end if;
+
             blank_Word_Count <= 0;
             W_Enable <= '0';
 
           elsif (SDRAM_Ready = '1') then
+
+            
             W_Enable <= '1';
        	    state <= memory_blank;
 
           else
+            
             state <= blank_ready_wait;
             W_Enable <= '0';
           end if;
+          
+-------------------------------------------------------------------------------
+-- Memory Blank
+-------------------------------------------------------------------------------            
 
         when memory_blank =>
 
           Blank_Ack <= '0';
           R_Enable <= '0';
-          --data_mask <= ( others => '0');
+
+
 
           case burst_count is 
             when 0 =>
@@ -287,6 +299,7 @@ begin  -- behavioural
                 Address_Enable <= '0';
                 burst_count <= 1;
                 W_Enable   <= '0';
+                
               else
                 Data_Enable <= '1';
                 burst_count <= 0;
@@ -299,11 +312,11 @@ begin  -- behavioural
               burst_count <= 3;
             when 3 =>
               burst_count <= 0;
-			  Data_Enable <= '1';
-             -- word_count <= word_count + 4;
+
               blank_word_count <= blank_word_count + 4;
               state <= blank_ready_wait;
-
+              Data_Enable <= '1';
+              
             when others => null;	
 
           end case;
@@ -313,13 +326,14 @@ begin  -- behavioural
 ------------------------------------------------------------------------------------		
 
         when idle =>
+          first_time <= '0';
           R_Enable <= '0';
           W_Enable <= '0';
           Blank_Done <= '1'; 
           Write_Req <= '0';
           Address_Enable <= '0';
-	      Data_Enable <= '0';
-
+          Data_Enable <= '0';
+          Read_fb <= '0';
           Write_Fifo_Data_Enable <= '0';
           Write_Fifo_Addr_Enable <= '0';
           Write_Fifo_Data_Pop <= '0';
@@ -390,10 +404,10 @@ begin  -- behavioural
           if Word_Count > 80 then 
             Read_Line_Ack <= '0';		   
             state <= idle; --z_read_wait; 
- --           row_number <= 0;
+ --         row_number <= 0;
             Word_Count <= 0; --conv_integer(Z_Col_Start);
             R_Enable <= '0';
---            Z_Fifo_Clear <= '1';
+--          Z_Fifo_Clear <= '1';
 
           elsif (SDRAM_Ready = '1') and (Fifo_Level < conv_std_logic_vector(76,7)) then            
             R_Enable <= '1';
@@ -445,90 +459,6 @@ begin  -- behavioural
           end case;
 
 
-------------------------------------------------------------------------------------
--- DRAW CYCLE
-------------------------------------------------------------------------------------
-         
---        when draw_ready_wait =>
-
---         Address_Internal(ADDRESS_COLUMN_WIDTH+ADDRESS_ROW_WIDTH-1 downto ADDRESS_COLUMN_WIDTH+ADDRESS_ROW_WIDTH-3) <= "00";
---         Address_Internal(18) <= Read_FB;
---         Address_Internal(17 downto ADDRESS_COLUMN_WIDTH)  <= conv_std_logic_vector(Row_Number, 9);
---         Address_Internal(ADDRESS_COLUMN_WIDTH-1 downto 0) 
---    				<= conv_std_logic_vector(Word_Count, ADDRESS_COLUMN_WIDTH);
-
---         Address_Enable <= '1';
-
---         Data_Internal <= (others => '0');
---        data_mask <= "01111111011111110111111101111110";
---        data_mask <= "10111111111111111111111111111110";
---          data_mask <= "00000000000110000011110011111111";
---        data_mask <= (others => '0');
---         R_Enable   <= '0';
-
---          Write_Req  <= '0';
---          Fifo_Clear <= '0';
---          Burst_count <= 0 ;
-
-
---	   if row_number > 210  then
-		
---             state <= idle;		
---             word_count <= 0;
---             W_Enable <= '0';       
---             row_number <= 0;
-						
---          elsif Word_count > 36 then
---            Word_count <= 32;
---            W_Enable   <= '0';
---	        row_number <= row_number + 1;
-
---          elsif (SDRAM_Ready = '1') then
---            W_Enable <= '1';
---            state <= send_data;
---
---          else
---            W_Enable   <= '0';          
---            state <= draw_ready_wait;
---          end if;
---
---        when send_data =>
---
---          Write_Req  <= '0';
---         Fifo_Clear <= '0';
---          
---	case burst_count is 
---          when 0 =>
---            
---            if w_ack = '1' then        
---              burst_count <= burst_count + 1;
---              W_Enable   <= '0';
---            else
---              burst_count <= 0;
---              W_Enable   <= '1';
---			  Data_Enable <= '1';
---              
---            end if;
---
---          when 1 =>
---                  Address_Enable <= '0';   
---                  burst_count <= burst_count + 1;
---                  Data_Internal <= "1111110011111100111111001111110011111100111111001111110011111100";
---          when 2 => 
---                  Data_Internal <= "1110000011100000111000001110000011100000111000001110000011100000";
---                  burst_count <= burst_count + 1;
---          when 3 =>				
---                  burst_count <= burst_count + 1;
---                  Data_Internal <= "0001110000011100000111000001110000011100000111000001110000011100";
---          when 4 =>
---			      Data_Enable <= '0';
---                  Data_Internal <= "0000001100000011000000110000001100000011000000110000001100000011";
---                  state <= draw_ready_wait;	
---                  word_count <= word_count + 4;		    	
---          when others => null;	
---
---        end case;   
-
 -------------------------------------------------------------------------------
 -- Arbitrary Write
 -------------------------------------------------------------------------------
@@ -557,7 +487,11 @@ begin  -- behavioural
             end if;
 
 -- Now Write
-          
+
+-------------------------------------------------------------------------------
+-- Flush writes
+-------------------------------------------------------------------------------             
+            
         when flush_writes =>
           
           case burst_count is 
@@ -751,7 +685,7 @@ begin  -- behavioural
 -------------------------------------------------------------------------------
 
           
-        when others => null;
+          when others => null;
 
 
           end case;
@@ -769,8 +703,8 @@ begin  -- behavioural
   -- type   : combinational
   -- inputs : Tx_Data
   -- outputs: Data
+    
   tristate_data_bus : process (Data_Enable) is
-
 
   begin  -- process tristate_data_bus	
     if Data_Enable = '1' then
@@ -779,11 +713,10 @@ begin  -- behavioural
       Data_Out <= (others => 'Z');
     end if;
 
-    
   end process tristate_data_bus;
 
-  tristate_address_bus : process (Address_Enable) is
 
+  tristate_address_bus : process (Address_Enable) is
 
   begin  -- process tristate_address
     if (Address_Enable = '1') then
@@ -792,8 +725,7 @@ begin  -- behavioural
       Address <= (others => 'Z');
     end if;
 
-    
-  end process tristate_address_bus;
+      end process tristate_address_bus;
 
 
 end behavioural;
