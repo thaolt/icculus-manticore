@@ -33,6 +33,9 @@ Point3D::Point3D(const float& inx, const float& iny, const float& inz){
   x = inx;
   y = iny;
   z = inz;
+  r = 0;
+  g = 0;
+  b = 0;
   //  cout << x << y << z << endl;
 }
 
@@ -77,6 +80,9 @@ Point3D::operator=(const Point3D&rhs)
    x = rhs.GetX();
    y = rhs.GetY();
    z = rhs.GetZ();
+   r = rhs.GetR();
+   g = rhs.GetG();
+   b = rhs.GetB();
     return *this;
 
 }// =

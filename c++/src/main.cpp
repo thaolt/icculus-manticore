@@ -39,6 +39,8 @@ int main(int argc,char * argv[])
   height = MCORE_HEIGHT;
 
   info = SDL_GetVideoInfo( );
+  long lasttime=0;
+  long thistime;
 
   //bpp = info->vfmt->BitsPerPixel;
   bpp=32;
@@ -62,17 +64,17 @@ int main(int argc,char * argv[])
   VGAout Video(Surface, PixelData);
   Video.ClearScreen();
 
-  Point3D P1(-120, 0, -120);
-  Point3D P2(-300, -100, -120);
-  Point3D P3(-170, -160, -120);
+  Point3D P1(-120,    0, -120, 255,   0, 0  );
+  Point3D P2(-300, -100, -120,   0, 255, 0  );
+  Point3D P3(-170, -160, -120,   0,   0, 255);
 
-  Point3D P6(250, 100, -120);
-  Point3D P5(-100, 00, -120);
-  Point3D P4(80, 150, -120);
+  Point3D P6( 150, 100, -120, 40, 255, 0  );
+  Point3D P5(-100,  00, -120,   0, 90, 55);
+  Point3D P4(  80, 150, -120, 20,  60, 255);
 
-  Point3D P9(180, -200, -80);
-  Point3D P8(100, -200, -150);
-  Point3D P7(180, -100, -120);
+  Point3D P9(180, -200, -80,   30,  75,  82);
+  Point3D P8(100, -200, -150, 115,  76,  32);
+  Point3D P7(150, -100, -120, 200, 200, 200);
 
   Triangle3D tri1(P1, P2, P3);
   Triangle3D tri2(P4, P5, P6);  
@@ -94,7 +96,7 @@ int main(int argc,char * argv[])
     TransformEngine -> Translate(P1,0,0,-120 );
     TransformEngine -> Translate(P2,0,0,-120 );
     TransformEngine -> Translate(P3,0,0,-120 );
-/*
+
     TransformEngine -> Translate(P4,0,0,120 );
     TransformEngine -> Translate(P5,0,0,120 );
     TransformEngine -> Translate(P6,0,0,120 );
@@ -118,15 +120,22 @@ int main(int argc,char * argv[])
     TransformEngine -> Translate(P7,0,0,-280 );
     TransformEngine -> Translate(P8,0,0,-280 );
     TransformEngine -> Translate(P9,0,0,-280 );
-
+/*
     */
     tri1.SetPoints(P1,P2,P3);
     tri2.SetPoints(P4,P5,P6);
     tri3.SetPoints(P7,P8,P9);
 
-    RasterEngine->Rasterize2(tri1);
-    RasterEngine->Rasterize2(tri2);
-    RasterEngine->Rasterize2(tri3);
+
+    RasterEngine->Rasterize(tri2);
+
+    RasterEngine->Rasterize(tri1);
+
+    RasterEngine->Rasterize(tri3);
+
+    thistime = SDL_GetTicks();
+    cout << "FPS: " << 1.0f/(thistime-lasttime)*1000 << endl;
+    lasttime = thistime;
 
     die = process_input();
     Video.DrawScreen();

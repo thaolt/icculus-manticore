@@ -50,7 +50,7 @@ public:
 // Operations
 
 	void Rasterize(Triangle3D &);
-	void Rasterize2(Triangle3D &);
+
 // Access
 
 // Inquiry

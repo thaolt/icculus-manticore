@@ -32,7 +32,9 @@ Point2D::Point2D(const int& inx, const int& iny){
 
   x = inx;
   y = iny;
-
+  r = 0;
+  g = 0;
+  b = 0;
 }
 
 Point2D::Point2D(const int& inx, const int& iny, const int& inr, const int& ing, const int& inb){
@@ -71,7 +73,9 @@ Point2D::operator=(const Point2D&rhs)
     //add local assignments
    x = rhs.GetX();
    y = rhs.GetY();
-
+   r = rhs.GetR();
+   g = rhs.GetG();
+   b = rhs.GetB();
     return *this;
 
 }// =
