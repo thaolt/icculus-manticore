@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : vgafifo_ctrl.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-06-13
+-- Last update: 2002-06-16
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Generates control signals for fifo & SDRAM
@@ -196,7 +196,7 @@ begin  -- behavioural
 
           R_Enable   <= '0';
           Address_Enable <= '1';
-          Data_Enable <= '1';
+  --         Data_Enable <= '1';
           Address_Internal(ADDRESS_COLUMN_WIDTH+ADDRESS_ROW_WIDTH-1 downto ADDRESS_COLUMN_WIDTH+ADDRESS_ROW_WIDTH-3) <= "000";
           Address_Internal(18) <= '0';
           Address_Internal(17 downto ADDRESS_COLUMN_WIDTH)  <= conv_std_logic_vector(Row_Number, 9);

@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : frame_buffer_test.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002/06/14
+-- Last update: 2002-06-16
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Top level file for VGA out & SDRAM test
@@ -941,57 +941,57 @@ begin  -- architecture structural
         color    <= "11100000";
         tb_x0 <= conv_std_logic_vector(-150, 10)  & "000000";
         tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";
+        tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";  -- 64
 
         tb_x1 <= conv_std_logic_vector(-100, 10)  & "000000";
         tb_y1 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_z1 <= conv_std_logic_vector(0, 10)     & "000000";
+        tb_z1 <= conv_std_logic_vector(0, 10)     & "000000";  -- 0
 
         tb_x2 <= conv_std_logic_vector(-20, 10)   & "000000";
         tb_y2 <= conv_std_logic_vector(-60, 10)   & "000000";
-        tb_z2 <= conv_std_logic_vector(-32, 10)   & "000000";
+        tb_z2 <= conv_std_logic_vector(-32, 10)   & "000000";  -- -32
 
-       when "01" =>                     -- bottom right
+       when "01" =>                     -- bottom right ( sorta trouble )
         color    <= "11111100";
         tb_x0 <= conv_std_logic_vector(150, 10)   & "000000";
         tb_y0 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_z0 <= conv_std_logic_vector(-32, 10)   & "000000";
+        tb_z0 <= conv_std_logic_vector(-32, 10)   & "000000";  -- -32
 
         tb_x1 <= conv_std_logic_vector(100, 10)   & "000000";
         tb_y1 <= conv_std_logic_vector(-100, 10)  & "000000";
-        tb_z1 <= conv_std_logic_vector(0, 10)     & "000000";
+        tb_z1 <= conv_std_logic_vector(0, 10)     & "000000";  -- 0 
 
         tb_x2 <= conv_std_logic_vector(20, 10)    & "000000";
-        tb_y2 <= conv_std_logic_vector(-30, 10)   & "000000";
+        tb_y2 <= conv_std_logic_vector(-30, 10)   & "000000";  -- -30
         tb_z2 <= conv_std_logic_vector(60, 10)    & "000000";
 
      when "10" =>                       -- top right (trouble)
         color    <= "11111111";     
         tb_x0 <= conv_std_logic_vector(10, 10)    & "000000";
         tb_y0 <= conv_std_logic_vector(100, 10)   & "000000";
-        tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";
+        tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";  -- 64 
 
         tb_x1 <= conv_std_logic_vector(100, 10)   & "000000";
         tb_y1 <= conv_std_logic_vector(110, 10)   & "000000";
-        tb_z1 <= conv_std_logic_vector(50, 10)    & "000000";
+        tb_z1 <= conv_std_logic_vector(32, 10)    & "000000";  -- 50
 
         tb_x2 <= conv_std_logic_vector(30, 10)    & "000000";
         tb_y2 <= conv_std_logic_vector(0, 10)     & "000000";
-        tb_z2 <= conv_std_logic_vector(10, 10)    & "000000";
+        tb_z2 <= conv_std_logic_vector(0, 10)    & "000000";  -- 10
 
      when "11" =>                       -- top left
         color    <= "00011100";
         tb_x0 <= conv_std_logic_vector(-50, 10)   & "000000";
         tb_y0 <= conv_std_logic_vector(100, 10)   & "000000";
-        tb_z0 <= conv_std_logic_vector(32, 10)    & "000000";
+        tb_z0 <= conv_std_logic_vector(32, 10)    & "000000";  -- 32
 
         tb_x1 <= conv_std_logic_vector(-100, 10)  & "000000";
         tb_y1 <= conv_std_logic_vector(100, 10)   & "000000";
-        tb_z1 <= conv_std_logic_vector(0, 10)     & "000000";
+        tb_z1 <= conv_std_logic_vector(0, 10)     & "000000";  -- 0 
 
         tb_x2 <= conv_std_logic_vector(-20, 10)   & "000000";
         tb_y2 <= conv_std_logic_vector(0, 10)     & "000000";
-        tb_z2 <= conv_std_logic_vector(64, 10)    & "000000";
+        tb_z2 <= conv_std_logic_vector(64, 10)    & "000000";  -- 64
         
      when others => null;
 
