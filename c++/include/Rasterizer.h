@@ -20,8 +20,8 @@
 #include "Point3D.h"
 #include "Point2D.h"
 #include "Triangle3D.h"
-#include "Triangle3Dx.h"
-#include "PixelRAM.h"
+//#include "Triangle3Dx.h"
+//#include "PixelRAM.h"
 #include "mcore_defs.h"
 // Local Includes
 //
@@ -39,7 +39,7 @@ public:
 
 // Lifecycle
 
-   Rasterizer(PixelRAM*);
+   Rasterizer(unsigned char* buffer, int dx, int dy);//PixelRAM*);
    Rasterizer(const Rasterizer&);            // copy constructor
    ~Rasterizer();
 
@@ -50,7 +50,8 @@ public:
 // Operations
 
 	void Rasterize(Triangle3D &);
-	void Rasterizex(Triangle3Dx &);
+	void blank();
+//	void Rasterizex(Triangle3Dx &);
 // Access
 
 // Inquiry
@@ -65,8 +66,17 @@ private:
   void s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq);
 
 //  SDL_Surface* Screen;
-  PixelRAM* PixelData;
+  // PixelRAM* PixelData;
+  unsigned char* m_pPixelData;
+  int* m_pZData;
+  int m_dx;
+  int m_dy;
+  int m_bpp;
 
+  short *colors;
+  short *eq;
+  int *zslopes;
+  
    Point2D P2D_world1;
    Point2D P2D_world2;
    Point2D P2D_world3;

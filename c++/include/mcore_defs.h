@@ -12,3 +12,4 @@ const int MCORE_FOCALLENGTH = 512;
 typedef long fixed1616;
 
 #endif
+

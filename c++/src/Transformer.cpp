@@ -59,7 +59,7 @@ Transformer::RotateX(Point3D &pnt, float angle ){
   pnt.SetZ(z);
 
 }
-
+/*
 void 
 Transformer::RotateXx(Point3Dx &pnt, float angle ){
 
@@ -76,7 +76,7 @@ Transformer::RotateXx(Point3Dx &pnt, float angle ){
   pnt.SetZ(z);
 
 }
-
+*/
 void 
 Transformer::RotateY(Point3D &pnt, float angle ){
 
@@ -104,7 +104,7 @@ Transformer::Translatef(Point3D &pnt, float dx, float dy, float dz){
   pnt.SetZ(pnt.GetZ()+dz);
 
 }
-
+/*
 void 
 Transformer::Translatex(Point3Dx &pnt, fixed1616 dx, fixed1616 dy, fixed1616 dz){
 
@@ -113,7 +113,7 @@ Transformer::Translatex(Point3Dx &pnt, fixed1616 dx, fixed1616 dy, fixed1616 dz)
   pnt.SetZ(pnt.GetZ()+dz);
 
 }
-
+*/
 void 
 Transformer::Scale(Point3D &pnt, float factor ){
 

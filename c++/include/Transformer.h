@@ -16,7 +16,7 @@
 // Project Includes
 //
 #include "Point3D.h"
-#include "Point3Dx.h"
+//#include "Point3Dx.h"
 #include "mcore_defs.h"
 // Local Includes
 //
@@ -45,11 +45,11 @@ public:
 // Operations
 
 	void RotateX(Point3D &pnt, float angle );
-	void RotateXx(Point3Dx &pnt, float angle );
+//	void RotateXx(Point3Dx &pnt, float angle );
 	void RotateY(Point3D &pnt, float angle );
 	void RotateZ(Point3D &pnt, float angle );
 	void Translatef(Point3D &pnt, float dx, float dy, float dz);
-	void Translatex(Point3Dx &pnt, fixed1616 dx, fixed1616 dy, fixed1616 dz);
+//	void Translatex(Point3Dx &pnt, fixed1616 dx, fixed1616 dy, fixed1616 dz);
 	void Scale(Point3D &pnt, float factor );
 
 // Access
