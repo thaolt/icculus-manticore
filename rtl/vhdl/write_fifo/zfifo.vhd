@@ -4,7 +4,7 @@
 -- MODULE: dcfifo 
 
 -- ============================================================
--- File Name: vgafifo.vhd
+-- File Name: zfifo.vhd
 -- Megafunction Name(s):
 -- 			dcfifo
 -- ============================================================

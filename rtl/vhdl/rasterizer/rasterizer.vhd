@@ -1,3 +1,27 @@
+-----------------------------------------------------------------------
+-- Manticore: 3D Graphics Processor Core
+-- http://icculus.org/manticore/
+--
+-- Portions of Manticore are freely available under the Design Science 
+-- License. 
+--
+-- All source files with this header are distributed under the terms
+-- of the Design Science License, which should have been packaged
+-- with this source code. If it was not, a copy is available at
+-- http://www.dsl.org/copyleft/dsl.txt
+--
+-- Source files without this header are not copyrighted by the 
+-- Manticore project, and their use may be limited by their own
+-- respective licenses.
+--
+-- Manticore is © 2002 Jeff Mrochuk and Benj Carson. Under the DSL, 
+-- however, its source may be distributed, published or copied in its 
+-- entirety provided the license is clearly published with all copies.
+--
+-- Jeff Mrochuk   jm@icculus.org
+-- Benj Carson    benjcarson@digitaljunkies.ca
+-----------------------------------------------------------------------
+
 -- EE552 Project 'The Hulk' 3D Video Accelerator
 -- Triangle Rasterizer Component
 -- Inputs need are the three vertices, and the three slopes that the set of vertices make up.  Assumes
