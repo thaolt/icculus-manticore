@@ -80,3 +80,4 @@ private:
 //
 
 #endif  // _Point2D_h
+

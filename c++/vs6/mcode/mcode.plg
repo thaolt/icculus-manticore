@@ -6,13 +6,13 @@
 --------------------Configuration: mcode - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP7BE.tmp" with contents
+Creating temporary file "C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP77.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Fp"Debug/mcode.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
-"C:\jeff\manticore\c++\src\Point3D.cpp"
+"C:\jeff\manticore\c++\src\PixelRAM.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP7BE.tmp" 
-Creating temporary file "C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP7BF.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP77.tmp" 
+Creating temporary file "C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP78.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/mcode.pdb" /debug /machine:I386 /out:"Debug/mcode.exe" /pdbtype:sept 
 ".\Debug\input.obj"
@@ -26,10 +26,10 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 ".\Debug\Triangle3D.obj"
 ".\Debug\VGAout.obj"
 ]
-Creating command line "link.exe @C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP7BF.tmp"
+Creating command line "link.exe @C:\DOCUME~1\mrochuk\LOCALS~1\Temp\RSP78.tmp"
 <h3>Output Window</h3>
 Compiling...
-Point3D.cpp
+PixelRAM.cpp
 Linking...
 
 
