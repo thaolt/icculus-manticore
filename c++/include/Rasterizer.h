@@ -62,7 +62,7 @@ private:
 	SDL_Surface* Screen;
 	PixelRAM* PixelData;
 
-	Point2D P2D_world1;
+   Point2D P2D_world1;
    Point2D P2D_world2;
    Point2D P2D_world3;
 
@@ -70,9 +70,9 @@ private:
   float P1X, P1Y, P1Z;
   float P2X, P2Y, P2Z;
   float P3X, P3Y, P3Z;
-  int P1screenX, P1screenY;
-  int P2screenX, P2screenY;
-  int P3screenX, P3screenY;
+  float P1screenX, P1screenY;
+  float P2screenX, P2screenY;
+  float P3screenX, P3screenY;
   float l, r;
   float dxleft, dxright, dxclose;
   bool degenerate;

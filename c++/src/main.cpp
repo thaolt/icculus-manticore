@@ -60,9 +60,9 @@ int main(int argc,char * argv[])
 
   Point3D P1(-350, 0, -120);
   Point3D P2(-300, -100, -120);
-  Point3D P3(-20, -160, -120);
+  Point3D P3(-120, -160, -120);
 
-  Point3D P4(50, 110, -120);
+  Point3D P4(50, 100, -120);
   Point3D P5(-100, 100, -120);
   Point3D P6(80, 200, -120);
   Triangle3D tri1(P1, P2, P3);
@@ -71,13 +71,14 @@ int main(int argc,char * argv[])
   while(!die){
   
     PixelData->Blank();
+
     TransformEngine -> Translate(P1,0,0,120 );
     TransformEngine -> Translate(P2,0,0,120 );
     TransformEngine -> Translate(P3,0,0,120 );
 
-    TransformEngine -> RotateZ(P1,0.06f);
-    TransformEngine -> RotateZ(P2,0.06f);
-    TransformEngine -> RotateZ(P3,0.06f);
+    TransformEngine -> RotateZ(P1,0.0175f);
+    TransformEngine -> RotateZ(P2,0.0175f);
+    TransformEngine -> RotateZ(P3,0.0175f);
 
     TransformEngine -> Translate(P1,0,0,-120 );
     TransformEngine -> Translate(P2,0,0,-120 );

@@ -57,16 +57,17 @@ Rasterizer::Rasterize(Triangle3D &tri){
   
   degenerate = false;
 
-  P3D1 = tri.GetP3D1();
+  P3D1 = tri.GetP3D1();  // Grab the 3 points from the triangle object
   P3D2 = tri.GetP3D2();
   P3D3 = tri.GetP3D3();
-  P1X = P3D1.GetX();  
+  P1X = P3D1.GetX();     //  Grab the points' x,y,z values;
   P1Y = P3D1.GetY();   P1Z = P3D1.GetZ();
   P2X = P3D2.GetX();  
   P2Y = P3D2.GetY();   P2Z = P3D2.GetZ();
   P3X = P3D3.GetX();  
   P3Y = P3D3.GetY();   P3Z = P3D3.GetZ();
   
+  // 3D to screen projections
   P1screenX = P1X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_WIDTH/2;
   P1screenY = P1Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P1Z) +MCORE_HEIGHT/2;
   P2screenX = P2X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P2Z) +MCORE_WIDTH/2;
@@ -74,18 +75,19 @@ Rasterizer::Rasterize(Triangle3D &tri){
   P3screenX = P3X*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_WIDTH/2;
   P3screenY = P3Y*MCORE_FOCALLENGTH/(MCORE_FOCALLENGTH-P3Z) +MCORE_HEIGHT/2;
 
-  Point2D P1(P1screenX, P1screenY);
+  Point2D P1(P1screenX, P1screenY);  // create some 2d points, (still need to impliment z)
   Point2D P2(P2screenX, P2screenY);
   Point2D P3(P3screenX, P3screenY);
 
   Uint32 col1 = 255<<8;               // green
   Uint32 col2 = (255<<16)+(255<<8);   // yellow
   Uint32 col3 = 255<<16;              // red
-  Uint32 col4 = col3 - (63<<16);            //orange
+  Uint32 col4 = col3 - (63<<16);      // dark red
   // Slope Calculations
   
   // Handle degenerate cases first
-  if(P1screenY == P2screenY){
+  //if((Uint32)P1screenY == (Uint32)P2screenY){
+  if(abs(P1screenY-P2screenY) < 2){
       degenerate=true;
       if(P3screenY > P1screenY){  // 3rd point below
           top=P1;  middle=P3; bottom=P3; left=P3; right=P3;
@@ -112,7 +114,8 @@ Rasterizer::Rasterize(Triangle3D &tri){
       }
   }
 
-  else if(P1screenY == P3screenY){
+  //else if((Uint32)P1screenY == (Uint32)P3screenY){
+  else if(abs(P1screenY-P3screenY) < 2){
       degenerate=true;
       if(P2screenY > P1screenY){  // 3rd point below
           top=P1;  middle=P2; bottom=P2; left=P2; right=P2;
@@ -139,7 +142,8 @@ Rasterizer::Rasterize(Triangle3D &tri){
       }
   }
 
-  else if(P2screenY == P3screenY){
+  //else if((Uint32)P2screenY == (Uint32)P3screenY){
+  else if(abs(P2screenY-P3screenY) < 2){ 
       degenerate=true;
       if(P1screenY > P3screenY){  // 3rd point below
           top=P2;  middle=P1; bottom=P1; left=P1; right=P1;
@@ -222,41 +226,48 @@ Rasterizer::Rasterize(Triangle3D &tri){
 
   // slopes down the top left edge, top right edge, and the line that closes the triangle
 
-  if(!degenerate){
+  if(!degenerate){ // some operations that we've done in the degenerate cases
     dxleft = top.GetX() - left.GetX();
     dxright = top.GetX() - right.GetX();
     dxclose = middle.GetX() - bottom.GetX();
     l=top.GetX();
     r=top.GetX();
+
+    // calculate the closing edge slope
     dy = middle.GetY()-bottom.GetY();
-    slopeclose = (int)dxclose/dy;
+    slopeclose = dxclose/dy;
   }
 
+    // calcule the left edge slope
   dy = top.GetY()-left.GetY();
-  slopeleft = (int)dxleft/dy;
+  slopeleft = dxleft/dy;
 
+  // calculate the right edge slope
   dy = top.GetY()-right.GetY();
-  sloperight = (int)dxright/dy;
+  sloperight = dxright/dy;
 
 
   float temp;
   // In some orientations the left and right edges are swapped
   //  definitions of l and r are not really accurate
-  if(slopeleft < sloperight){  
-       temp=slopeleft;
-       slopeleft=sloperight;
-       sloperight=temp;
-   }
+  if(!degenerate){
+    if(slopeleft < sloperight){  
+         temp=slopeleft;
+         slopeleft=sloperight;
+         sloperight=temp;
+     }
+  }
 
+  // Draw the top half of the triangle
   for(Uint32 i=(Uint32)top.GetY(); i < (Uint32)middle.GetY(); i++){
       l+=slopeleft;
       r+=sloperight;
-      
       for(Uint32 j=(Uint32)r; j<(Uint32)l; j++){
          PixelData->WriteData((Uint32)j,i, col4);
       }    
   }
 
+  // decide which edge is going to close the triangle
    if(fabs(r - middle.GetX()) < fabs(l - middle.GetX())){
        r=middle.GetX();
        sloperight=slopeclose;
@@ -265,6 +276,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
        slopeleft=slopeclose;
    }
 
+   // Draw the bottom half of the triangle
   for(Uint32 i=(Uint32)middle.GetY(); i < (Uint32)bottom.GetY(); i++){
       l+=slopeleft;
       r+=sloperight;
@@ -273,6 +285,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
       }     
   }
 
+  // draw the corners, for reference
   for(int i=-1; i < 1; i++){
     for(int j=-1; j <1; j++){
       PixelData->WriteData((Uint32)P1.GetX()+i,(Uint32)P1.GetY()+j, col1);
