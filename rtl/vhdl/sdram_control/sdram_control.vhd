@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : memory_manager.vhd
 -- Author     : Jeff Mrochuk <jmrochuk@ieee.org>
--- Last update: 2002/03/20
+-- Last update: 2002-05-23
 -- Platform   : Altera APEX20K200
 -------------------------------------------------------------------------------
 -- Description: Sends necessary signals to operate PC100 SDRAM at 66MHz
@@ -54,7 +54,7 @@ package memory_constants is
   -- From JEDEC PC100/133 standard (www.jedec.org)
   --
   -- tRC   >= 70ns (RAS Cycle time)
-  -- tRRD  >= 20ns (RAS to RAS Banck activate delay)
+  -- tRRD  >= 20ns (RAS to RAS Bank activate delay)
   -- tRCD  >= 20ns (Activate to command delay - RAS to CAS delay)
   -- tRAS  >= 50ns (RAS Active time)
   -- tRP   >= 20ns (RAS Precharge time)
@@ -62,7 +62,7 @@ package memory_constants is
   -- tREF  <= 64ms (Refresh period for 4096 rows, so 64ms/4096 = 15.625us per row)
   -- tRFC  <= 80ns (Row refresh cycle time)
   
-  constant CLOCK_PERIOD : positive := 20;--15;  -- Clock period in ns.  Designed for 66.67 MHz (15ns)
+  constant CLOCK_PERIOD : positive := 20; -- Clock period in ns.  Designed for 50 MHz (20ns)
 
   -- Timing constants in ns:
   constant tRC  : positive := 70;
@@ -85,7 +85,6 @@ package memory_constants is
   constant tRFC_CYCLES : positive := tRFC / CLOCK_PERIOD;
 
   constant tSTARTUP_NOP_CYCLES : positive := tSTARTUP_NOP / CLOCK_PERIOD;
-  --constant t_startupNOP_cycles: integer := 13334; --200us (200.01)
    
   constant CASWIDTH : integer := 3;    -- width of CAS mode for MRS
 
@@ -119,29 +118,33 @@ entity sdram_control is
     --  -------------------------------------
     --  22  21                 9            0
     --
-    in_address_width   : positive := 23;
-    banksize    : integer := 2;
-	rowsize 	: integer := 12;
-	colsize 	: integer := 9;
-    bankstart   : integer := 21;
-	rowstart 	: integer := 9;
-	colstart 	: integer := 0;
-    datawidth       : integer := 64;
-    INTERLEAVED     : std_logic := '0';  -- Sequential if '0'
-    BURST_MODE      : std_logic := '0';   -- enabled if '0'
-    BURST_LENGTH    : integer := 4
+    IN_ADDRESS_WIDTH    : positive := 23;
+    BANKSIZE            : integer := 2;
+    ROWSIZE             : integer := 12;
+    COLSIZE             : integer := 9;
+    BANKSTART           : integer := 21;
+    ROWSTART            : integer := 9;
+    COLSTART            : integer := 0;
+    DATAWIDTH           : integer := 64;
+    INTERLEAVED         : std_logic := '0';  -- Sequential if '0'
+    BURST_MODE_n        : std_logic := '0';  -- enabled if '0'
+    BURST_LENGTH        : integer := 4
     );
 
   port(
-    clock, reset       : in  std_logic;
-    R_enable, W_enable : in  std_logic;
-    RW_address         : in  std_logic_vector(in_address_width-1 downto 0);
-    ready              : out std_logic;
-    tx_data, rx_data   : out std_logic;
-	r_ack, w_ack	   : out std_logic;
-    init_done          : out std_logic;
-    data_mask          : in  std_logic_vector(datawidth/8*BURST_LENGTH -1 downto 0);
- --   chip_select        : in  std_logic;
+    CLK_I               : in std_logic;
+    RST_I               : in  std_logic;
+    R_enable_I          : in  std_logic;
+    W_enable_I          : in  std_logic;
+    RW_address_I        : in  std_logic_vector(IN_ADDRESS_WIDTH-1 downto 0);
+    ready_O             : out std_logic;
+    tx_data_O           : out std_logic;
+    rx_data_O           : out std_logic;
+    r_ack_O             : out std_logic;
+    w_ack_O             : out std_logic;
+    init_done_O         : out std_logic;
+    data_mask_I         : in  std_logic_vector(DATAWIDTH/8*BURST_LENGTH -1 downto 0);
+ -- chip_select_I       : in  std_logic;
 
     -- to memory
     WEbar          : out std_logic;     -- Write enable, Active Low
