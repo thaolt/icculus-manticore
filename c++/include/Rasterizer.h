@@ -23,6 +23,10 @@
 //#include "Triangle3Dx.h"
 //#include "PixelRAM.h"
 #include "mcore_defs.h"
+#include "mcore_types.h"
+
+
+
 // Local Includes
 //
 
@@ -39,7 +43,7 @@ public:
 
 // Lifecycle
 
-   Rasterizer(unsigned char* buffer, int dx, int dy);//PixelRAM*);
+   Rasterizer(oglContext* context);//PixelRAM*);
    Rasterizer(const Rasterizer&);            // copy constructor
    ~Rasterizer();
 

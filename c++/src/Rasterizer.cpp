@@ -15,26 +15,26 @@
 /////////////////////////////////////////////////////////////////////////
 #include "Rasterizer.h"                                // class implemented
 #include <math.h>
+#include "mcore_types.h"
 
 #define BINARY_PLACES 10
 /////////////////////////////// Public ///////////////////////////////////////
 
+
 //============================= Lifecycle ====================================
 
-//Rasterizer::Rasterizer(SDL_Surface *InScreen, PixelRAM  *InPixelData)
-Rasterizer::Rasterizer(unsigned char *buffer, int dx, int dy)
+Rasterizer::Rasterizer(oglContext* context)
 {
-  m_pPixelData = buffer;
-  m_pZData = new int[dx*dy];
-  m_dx = dx;
-  m_dy = dy;
-  m_bpp = 16;
+  m_pPixelData = (unsigned char*)(context->drawDesc->colorBuffer);
+  m_pZData =     (int*)(context->drawDesc->depthBuffer);
+  m_dx =         context->drawDesc->width;
+  m_dy =         context->drawDesc->height;
+  m_bpp =        8*context->drawDesc->colorBytes;
   
   colors = new short[9];  // short arrays for SIMD array
   eq = new short[9];
   zslopes = new int[3];
-//  PixelData = InPixelData;
-//  Screen = InScreen;
+
 }// Rasterizer
 
 Rasterizer::Rasterizer(const Rasterizer&)
