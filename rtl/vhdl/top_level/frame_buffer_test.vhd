@@ -189,6 +189,31 @@ architecture structural of frame_buffer_test is
     );
   end component;
 
+--component manticore_fifo is
+
+--generic (
+--  DATA_WIDTH : positive:= 8;                -- width
+--  DATA_DEPTH : positive := 640;             --depth
+--  ADDR_WIDTH : positive := 10
+--  );            
+
+--  port (
+  
+--  CLK_I   : in  std_logic;              -- clock
+--  RST_I   : in  std_logic;              -- asych reset
+--  data_I  : in  std_logic_vector(DATA_WIDTH-1 downto 0);  -- Input data
+--  data_O  : out std_logic_vector(DATA_WIDTH-1 downto 0);  -- Output data
+--  full_O  : out std_logic;              -- high if fifo is full
+--  empty_O : out std_logic;              -- high if fifo is empty
+--  clear_I : in  std_logic;              -- empties the fifo
+--  w_req_I : in  std_logic;              -- write request
+--  r_req_I : in  std_logic              -- read request
+  
+--  );
+
+--end manticore_fifo;
+
+  
   -- Z FIFO
   component zfifo is                  -- lpm_fifo_dc megafunction
     port (
@@ -545,6 +570,8 @@ begin  -- architecture structural
       wrusedw => Fifo_Level
       );
 
+
+  
 --  zfifo_inst : component zfifo
 --    port map (
 --      data    => Z_Data, --_VGA_fifo,
@@ -650,7 +677,27 @@ begin  -- architecture structural
       Mostly_Empty        => Write_Fifo_Empty
       );
   
- 
+--      writefifo_inst: component manticore_fifo 
+
+--       generic map (
+--         DATA_WIDTH : positive:= 8;                -- width
+--         DATA_DEPTH : positive := 640;             --depth
+--         ADDR_WIDTH : positive := 10
+--         )
+--       port map (
+  
+--         CLK_I   
+--         RST_I
+--         data_I
+--         data_O  
+--         full_O  
+--         empty_O 
+--         clear_I 
+--         w_req_I 
+--         r_req_I 
+  
+--         );
+  
   rasterizer_inst : rasterizer
     port map (
       clock    => clock50,
