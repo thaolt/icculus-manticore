@@ -971,13 +971,13 @@ begin  -- architecture structural
         tb_z2 <= conv_std_logic_vector(60, 10)    & "000000";
 
      when "10" =>                       -- top right (trouble)
-        color    <= "11000011";     
+        color    <= "11111111";     
         tb_x0 <= conv_std_logic_vector(10, 10)    & "000000";
         tb_y0 <= conv_std_logic_vector(100, 10)   & "000000";
         tb_z0 <= conv_std_logic_vector(64, 10)    & "000000";
 
         tb_x1 <= conv_std_logic_vector(100, 10)   & "000000";
-        tb_y1 <= conv_std_logic_vector(100, 10)   & "000000";
+        tb_y1 <= conv_std_logic_vector(110, 10)   & "000000";
         tb_z1 <= conv_std_logic_vector(50, 10)    & "000000";
 
         tb_x2 <= conv_std_logic_vector(30, 10)    & "000000";
