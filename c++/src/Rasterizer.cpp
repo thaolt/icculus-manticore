@@ -43,6 +43,11 @@ Rasterizer::Rasterizer(const Rasterizer&)
 
 Rasterizer::~Rasterizer()
 {
+
+  delete[] colors;
+  delete[] eq;
+  delete[] zslopes;
+  
 }// ~Rasterizer
 
 

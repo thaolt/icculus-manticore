@@ -43,13 +43,15 @@ public:
    Transformer&   operator=(const Transformer&);     // assignment operator
 
 // Operations
-
+    void loadIdentity();
+    void translate3f(const float& x, const float& y, const float& z);
+    void rotate3f(const float& x, const float& y, const float& z, const float& angle);
+    
+    // old interface
 	void RotateX(Point3D &pnt, float angle );
-//	void RotateXx(Point3Dx &pnt, float angle );
 	void RotateY(Point3D &pnt, float angle );
 	void RotateZ(Point3D &pnt, float angle );
 	void Translatef(Point3D &pnt, float dx, float dy, float dz);
-//	void Translatex(Point3Dx &pnt, fixed1616 dx, fixed1616 dy, fixed1616 dz);
 	void Scale(Point3D &pnt, float factor );
 
 // Access
@@ -60,8 +62,11 @@ protected:
 // Protected Methods
 private:
 // Private Methods
+   
+   void applyTempMatrix();
 
-
+   float m_tMatrix[4][4];
+   float m_tempMatrix[4][4];
 //////////////////Removed
 };
 
