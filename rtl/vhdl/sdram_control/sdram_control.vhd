@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : memory_manager.vhd
 -- Author     : Jeff Mrochuk <jmrochuk@ieee.org>
--- Last update: 2002-05-23
+-- Last update: 2002-05-28
 -- Platform   : Altera APEX20K200
 -------------------------------------------------------------------------------
 -- Description: Sends necessary signals to operate PC100 SDRAM at 66MHz
@@ -128,7 +128,8 @@ entity sdram_control is
     DATAWIDTH           : integer := 64;
     INTERLEAVED         : std_logic := '0';  -- Sequential if '0'
     BURST_MODE_n        : std_logic := '0';  -- enabled if '0'
-    BURST_LENGTH        : integer := 4
+    BURST_LENGTH        : integer := 4;
+    NO_OF_CHIPS         : integer := 2
     );
 
   port(
@@ -144,17 +145,17 @@ entity sdram_control is
     w_ack_O             : out std_logic;
     init_done_O         : out std_logic;
     data_mask_I         : in  std_logic_vector(DATAWIDTH/8*BURST_LENGTH -1 downto 0);
- -- chip_select_I       : in  std_logic;
 
     -- to memory
-    WEbar          : out std_logic;     -- Write enable, Active Low
-    CKE            : out std_logic_vector(1 downto 0);  -- clock enable
-    CSbar          : out std_logic;
-    CS2bar         : out std_logic;     -- chip select, Active Low
-    addr           : out std_logic_vector(12 downto 0);
-    RASbar, CASbar : out std_logic;
-    DQM            : out std_logic_vector(datawidth/8-1 downto 0);
-    BA             : out std_logic_vector (1 downto 0)
+    CKE_O          : out std_logic_vector(1 downto 0);  -- clock enable
+    CS_n_O         : out std_logic_vector(NO_OF_CHIPS-1 downto 0);
+    
+    addr_O         : out std_logic_vector(12 downto 0);
+    WE_n_O         : out std_logic;     -- Write enable, Active Low
+    RAS_n_O        : out std_logic;
+    CAS_n_O        : out std_logic;
+    DQM_O          : out std_logic_vector(datawidth/8-1 downto 0);
+    BA_O           : out std_logic_vector (1 downto 0)
 
     );
 end sdram_control;
@@ -191,23 +192,23 @@ architecture behav of sdram_control is
 
 begin  -- architecture behav
 
-  bankaddr <= RW_address(bankstart + banksize- 1 downto bankstart);
-  rowaddr  <= RW_address(rowstart + rowsize - 1 downto rowstart);    
-  coladdr  <= RW_address(colstart + colsize - 1 downto colstart);  
+  bankaddr <= RW_address_I(bankstart + banksize- 1 downto bankstart);
+  rowaddr  <= RW_address_I(rowstart + rowsize - 1 downto rowstart);    
+  coladdr  <= RW_address_I(colstart + colsize - 1 downto colstart);  
 
 
   -- purpose: Send outputs to RAM based on command input
   -- type   : sequential
-  -- inputs : clock, reset, refresh_req, read_req, write_req
-  -- outputs: All memory signals, init_done
-  command_engine: process (clock, reset) is
+  -- inputs : clock, RST_I, refresh_req, read_req, write_req
+  -- outputs: All memory signals, init_done_O
+  command_engine: process (CLK_I, RST_I) is
   begin  -- process command_engine
 
     ---------------------------------------------------------------------------
     --  ASYNCHRONOUS RESET
     ---------------------------------------------------------------------------
 
-    if reset = '0' then
+    if RST_I = '0' then
 
       state        <= sdram_startup;
       command      <= startup;
@@ -222,27 +223,27 @@ begin  -- architecture behav
       mask2       <= "00000000";
       mask3       <= "00000000";
       mask4       <= "00000000";
-      ready       <= '0';
-      r_ack       <= '0';
-      w_ack       <= '0';
-      tx_data     <= '0';
-      rx_data     <= '0';
-      WEbar       <= '0';
-      CKE         <= (others => '0');
-      CSbar       <= '0';
-      CS2bar      <= '1';
-      addr        <= (others => '0');
-      RASbar      <= '0';
-      CASbar      <= '0';
-      DQM         <= (others => '1');
-      BA          <= (others => '0');
-      init_done   <= '0';
+      ready_O       <= '0';
+      r_ack_O       <= '0';
+      w_ack_O       <= '0';
+      tx_data_O     <= '0';
+      rx_data_O     <= '0';
+      WE_n_O       <= '0';
+      CKE_O         <= (others => '0');
+      CS_n_O(1)       <= '0';
+      CS_n_O(2)      <= '1';
+      addr_O        <= (others => '0');
+      RAS_n_O      <= '0';
+      CAS_n_O      <= '0';
+      DQM_O         <= (others => '1');
+      BA_O          <= (others => '0');
+      init_done_O   <= '0';
 
-    elsif clock'event and clock = '1' then  -- rising clock edge
+    elsif CLK_I'event and CLK_I = '1' then  -- rising clock edge
       ---------------------------------------------------------------------
       -- CONSTANT SIGNALS
       ---------------------------------------------------------------------     
-      CKE <= "11";  
+      CKE_O <= "11";  
 
       
       case state is
@@ -252,27 +253,27 @@ begin  -- architecture behav
         -----------------------------------------------------------------------
 
         when sdram_startup   =>
-          DQM     <= (others => '1');   -- Set high during init routine
+          DQM_O     <= (others => '1');   -- Set high during init routine
           command <= startup;
           state   <= sdram_NOP;
-			r_ack <= '0';
-			w_ack <= '0';
+          r_ack_O <= '0';
+          w_ack_O <= '0';
         -----------------------------------------------------------------------
         -- Mode Register Set
         -----------------------------------------------------------------------
         when sdram_MRS =>
-          RASbar <= '0';
-          CASbar <= '0';
-          WEbar  <= '0';
-         	r_ack <= '0';
-			w_ack <= '0';
-          addr(12 downto 10) <= "000";
-          addr(9)            <= BURST_MODE;   -- Burst read and write
-          addr(8 downto 7)   <= "00";
-          addr(6 downto 4)   <= conv_std_logic_vector(cas_latency, CASWIDTH);
+          RAS_n_O <= '0';
+          CAS_n_O <= '0';
+          WE_n_O  <= '0';
+          r_ack_O <= '0';
+          w_ack_O <= '0';
+          addr_O(12 downto 10) <= "000";
+          addr_O(9)            <= BURST_MODE_n;   -- Burst read and write
+          addr_O(8 downto 7)   <= "00";
+          addr_O(6 downto 4)   <= conv_std_logic_vector(cas_latency, CASWIDTH);
                                             -- CAS latency 2
-          addr(3)            <= INTERLEAVED;  -- Sequential mode not interleave
-          addr(2 downto 0)   <= "010";        --burst length of 4
+          addr_O(3)            <= INTERLEAVED;  -- Sequential mode not interleave
+          addr_O(2 downto 0)   <= "010";        --burst length of 4
 
           if delaycount < tMRD_CYCLES then
             delaycount <= delaycount + 1;
@@ -282,7 +283,7 @@ begin  -- architecture behav
             case command is
               when startup => 
 
-                init_done   <= '1';
+                init_done_O   <= '1';
                 command     <= NOP;
                 state       <= sdram_NOP;
 
@@ -309,14 +310,15 @@ begin  -- architecture behav
         -- Precharge
         -----------------------------------------------------------------------  
         when sdram_precharge =>
-          RASbar <= '0';
-          CASbar <= '1';
-          WEbar  <= '0';
- 			r_ack <= '0';
-			w_ack <= '0';         
-          addr(12 downto 11) <= "00";
-          addr(10) <= '1';                    -- Precharge all banks
-          addr(9 downto 0)   <= "0000000000";
+
+          RAS_n_O <= '0';
+          CAS_n_O <= '1';
+          WE_n_O  <= '0';
+          r_ack_O <= '0';
+          w_ack_O <= '0';         
+          addr_O(12 downto 11) <= "00";
+          addr_O(10) <= '1';                    -- Precharge all banks
+          addr_O(9 downto 0)   <= "0000000000";
 
           if delaycount < tRP_CYCLES then
             delaycount <= delaycount + 1;
@@ -347,31 +349,28 @@ begin  -- architecture behav
         when sdram_auto_refresh =>
 
           -- Not sure why this has to be high, but it works better
-          DQM <= (others => '1');
-     		r_ack <= '0';
-			w_ack <= '0';
+          
+          DQM_O <= (others => '1');
+          r_ack_O <= '0';
+          w_ack_O <= '0';
 			
-	      if delaycount = 0 then
-            RASbar <= '0';
-            CASbar <= '0';
-            WEbar  <= '1';
+          if delaycount = 0 then
+            
+            RAS_n_O <= '0';
+            CAS_n_O <= '0';
+            WE_n_O  <= '1';
             delaycount <= delaycount + 1; 
-            state <= sdram_auto_refresh;       
+            state <= sdram_auto_refresh;
+            
           elsif delaycount < tRFC_CYCLES then
-		    CSbar <= '1'; -- Disable SDRAM
-			-- NOP
-		--	RASbar <= '1';
-		--	CASbar <= '1';
-		--	WEbar  <= '1';
+            
+            CS_n_O(1) <= '1'; -- Disable SDRAM
             delaycount <= delaycount + 1;
             state <= sdram_auto_refresh;
+            
           else
-            CSbar <= '1'; -- Disable SDRAM
-			-- NOP
-	    --	RASbar <= '1';
-		--	CASbar <= '1';
-		--	WEbar  <= '1';
-      
+            
+            CS_n_O(1) <= '1';
             delaycount <= 0;
                        
             case command is
@@ -383,7 +382,7 @@ begin  -- architecture behav
                   count <= 0;
                   state <= sdram_MRS;
                 end if;
-		        CSbar <= '0'; -- Enable SDRAM
+                CS_n_O(1) <= '0'; -- Enable SDRAM
 		
               when read =>
                 command <= NOP;
@@ -410,64 +409,58 @@ begin  -- architecture behav
         ---------------------------------------------------------------------
         when sdram_activ =>
             
-          ready <= '0';
+          ready_O <= '0';
 
           -- Load DQM mask
-          mask1 <= data_mask(B1_START downto B1_END);
-          mask2 <= data_mask(B2_START downto B2_END);
-          mask3 <= data_mask(B3_START downto B3_END);
-          mask4 <= data_mask(B4_START downto B4_END);
-          DQM <= (others => '0');
+          mask1 <= data_mask_I(B1_START downto B1_END);
+          mask2 <= data_mask_I(B2_START downto B2_END);
+          mask3 <= data_mask_I(B3_START downto B3_END);
+          mask4 <= data_mask_I(B4_START downto B4_END);
+          DQM_O <= (others => '0');
 
           if delaycount = 0 then 
             --Row Activate
-            RASbar <= '0';
-            CASbar <= '1';
-            WEbar  <= '1';
-            CSbar  <= '0';	                    
+            RAS_n_O <= '0';
+            CAS_n_O <= '1';
+            WE_n_O  <= '1';
+            CS_n_O(1)  <= '0';	                    
 
             -- Send row address
-            addr(12) <= '0';
-            addr(11 downto 0) <= rowaddr;
+            addr_O(12) <= '0';
+            addr_O(11 downto 0) <= rowaddr;
   
             delaycount <= delaycount + 1;
             state <= sdram_activ;
 
           elsif delaycount < tRCD_CYCLES then
-            -- NOP
-          --  RASbar <= '1';
-          --  CASbar <= '1';
-          --  WEbar  <= '1';
-		    CSbar <= '1'; -- Disable SDRAM          
+
+	    CS_n_O(1) <= '1'; -- Disable SDRAM          
             delaycount <= delaycount + 1;
             state <= sdram_activ;
 
           else
-            -- NOP
-            --RASbar <= '1';
-            --CASbar <= '1';
-            --WEbar  <= '1';          
-		    CSbar <= '1'; -- Disable SDRAM          
+      
+            CS_n_O(1) <= '1'; -- Disable SDRAM          
        
             delaycount <= 0;
             count <= 0;
             case command is
               when read =>
                 state <= sdram_read;
-                addr(12 downto 11) <= "00";   -- HARDCODED: send bank
-                addr(10) <= '1';              -- Auto precharge
-                addr(9)  <= '0';
-                addr(8 downto 0) <= coladdr;
+                addr_O(12 downto 11) <= "00";   -- HARDCODED: send bank
+                addr_O(10) <= '1';              -- Auto precharge
+                addr_O(9)  <= '0';
+                addr_O(8 downto 0) <= coladdr;
 
 
               when write =>
                 state <= sdram_write;
-                addr(12 downto 11) <= "00";   -- HARDCODED: send bank
-                addr(10) <= '1';              -- Auto precharge
-                addr(9)  <= '0';
-                addr(8 downto 0) <= coladdr;
+                addr_O(12 downto 11) <= "00";   -- HARDCODED: send bank
+                addr_O(10) <= '1';              -- Auto precharge
+                addr_O(9)  <= '0';
+                addr_O(8 downto 0) <= coladdr;
 
-              tx_data <= '1';
+              tx_data_O <= '1';
               when refresh =>
 
                 command <= NOP;
@@ -489,35 +482,35 @@ begin  -- architecture behav
         -- Read with auto precharge        
         -----------------------------------------------------------------------
         when sdram_read =>
-		  CSbar <= '0'; -- Enable SDRAM
-          DQM <= (others => '0');
-          r_ack <= '0';
+		  CS_n_O(1) <= '0'; -- Enable SDRAM
+          DQM_O <= (others => '0');
+          r_ack_O <= '0';
           
           case count is
             when 0 =>
               -- READA Command
-              RASbar <= '1';
-              CASbar <= '0';
-              WEbar  <= '1';
+              RAS_n_O <= '1';
+              CAS_n_O <= '0';
+              WE_n_O  <= '1';
 
-              rx_data <= '1';
+              rx_data_O <= '1';
               count <= count + 1;
 
             when 1 => -- CAS_LATENCY - 1=>
               -- NOP
-              RASbar <= '1';
-              CASbar <= '1';
-              WEbar  <= '1';
+              RAS_n_O <= '1';
+              CAS_n_O <= '1';
+              WE_n_O  <= '1';
           
-              rx_data <= '1';
+              rx_data_O <= '1';
               count <= count + 1;
               
             when 2 => -- CAS_LATENCY =>             
-              rx_data <= '1';
+              rx_data_O <= '1';
               count <= count + 1;
               
             when 3 => --CAS_LATENCY + 1 =>              
-  --            rx_data <= '1';
+  --            rx_data_O <= '1';
               state <= sdram_tRP_delay;  -- Delay for tRP until next operation
 
             when others => null;
@@ -528,44 +521,44 @@ begin  -- architecture behav
         -- Write
         -----------------------------------------------------------------------  
         when sdram_write =>
-		  CSbar <= '0'; -- Enable SDRAM
+          CS_n_O(1) <= '0'; -- Enable SDRAM
 
           case count is
             when 0 =>
               -- WRITEA Command
-              RASbar <= '1';
-              CASbar <= '0';
-              WEbar  <= '0';
-              w_ack <= '0';            
+              RAS_n_O <= '1';
+              CAS_n_O <= '0';
+              WE_n_O  <= '0';
+              w_ack_O <= '0';            
               count <= count + 1;              
-              DQM <= mask1;
-              tx_data <= '1';
+              DQM_O <= mask1;
+              tx_data_O <= '1';
 
 
             when 1 =>
               -- NOP
-              RASbar <= '1';
-              CASbar <= '1';
-              WEbar  <= '1';
+              RAS_n_O <= '1';
+              CAS_n_O <= '1';
+              WE_n_O  <= '1';
      
               count <= count + 1;
-              DQM <= mask2;
-              tx_data <= '1';
+              DQM_O <= mask2;
+              tx_data_O <= '1';
               
             when 2 =>
               count <= count + 1;
-              DQM <= mask3;
-              tx_data <= '1';
+              DQM_O <= mask3;
+              tx_data_O <= '1';
 
             when 3 =>
               count <= count + 1;
-              DQM <= mask4;
-              tx_data <= '1';
+              DQM_O <= mask4;
+              tx_data_O <= '1';
 
 
             when 4 =>
            --   DQM <= mask4;          
-              tx_data <= '1';
+              tx_data_O <= '1';
               state <= sdram_tRP_delay;              
 
             when others => null;
@@ -576,11 +569,11 @@ begin  -- architecture behav
         -- Delay for tRP
         -----------------------------------------------------------------------
         when sdram_tRP_delay =>
-          DQM <= (others => '0');
-          rx_data <= '0';
-          tx_data <= '0';
+          DQM_O <= (others => '0');
+          rx_data_O <= '0';
+          tx_data_O <= '0';
           count <= 0;    
-		  CSbar <= '1'; -- Disable SDRAM
+          CS_n_O(1) <= '1'; -- Disable SDRAM
 		
           if delaycount < tRP_CYCLES then
             delaycount <= delaycount + 1;
@@ -588,7 +581,7 @@ begin  -- architecture behav
           else
             delaycount <= 0;
 
- 		   CSbar <= '0'; -- Enable SDRAM
+ 		   CS_n_O(1) <= '0'; -- Enable SDRAM
            state <= sdram_NOP;
            command <= NOP;
           end if;
@@ -597,16 +590,16 @@ begin  -- architecture behav
         -- NOP
         -----------------------------------------------------------------------  
         when sdram_NOP =>
-          RASbar <= '1';
-          CASbar <= '1';
-          WEbar  <= '1';
-		  CSbar <= '0'; -- Enable SDRAM          
+          RAS_n_O <= '1';
+          CAS_n_O <= '1';
+          WE_n_O  <= '1';
+          CS_n_O(1) <= '0'; -- Enable SDRAM          
 
           if command = startup then     -- Check if we're in the startup sequence
-			r_ack <= '0';
-			w_ack <= '0';
-            DQM <= (others => '1'); 
-            ready <= '0';
+			r_ack_O <= '0';
+			w_ack_O <= '0';
+            DQM_O <= (others => '1'); 
+            ready_O <= '0';
             if warmup_timer < tSTARTUP_NOP_CYCLES then
               warmup_timer <= warmup_timer + 1;
               state <= sdram_NOP;
@@ -616,49 +609,49 @@ begin  -- architecture behav
             
           elsif (refresh_req = '1' or command = refresh) then            
             refresh_done_flg <= '1';   
-            DQM <= (others => '0');
-            ready <= '0';            
+            DQM_O <= (others => '0');
+            ready_O <= '0';            
             command <= refresh;
             state <= sdram_auto_refresh;
-			r_ack <= '0';
-			w_ack <= '0';
+			r_ack_O <= '0';
+			w_ack_O <= '0';
             
-          elsif (W_Enable = '1' or command = write) then
+          elsif (W_Enable_I = '1' or command = write) then
             refresh_done_flg <= '0';
-            DQM <= (others => '0');
-            ready <= '0';            
+            DQM_O <= (others => '0');
+            ready_O <= '0';            
      
             -- Send row address
-            addr(12) <= '0';
-            addr(11 downto 0) <= rowaddr;
+            addr_O(12) <= '0';
+            addr_O(11 downto 0) <= rowaddr;
     
             command <= write;
             state <= sdram_activ;
-            w_ack <= '1';
-            r_ack <= '0';
+            w_ack_O <= '1';
+            r_ack_O <= '0';
 
-          elsif (R_Enable = '1' or command = read) then
+          elsif (R_enable_I = '1' or command = read) then
             refresh_done_flg <= '0';
-            DQM <= (others => '0');
-            ready <= '1';
+            DQM_O <= (others => '0');
+            ready_O <= '1';
 
             -- Send row address
-            addr(12) <= '0';
-            addr(11 downto 0) <= rowaddr;
+            addr_O(12) <= '0';
+            addr_O(11 downto 0) <= rowaddr;
 
             command <= read;
             state <= sdram_activ;
-			r_ack <= '1';
-            w_ack <= '0';       
+			r_ack_O <= '1';
+            w_ack_O <= '0';       
   
           else
             refresh_done_flg <= '0';
-            DQM <= (others => '0');
-            ready <= '1';
+            DQM_O <= (others => '0');
+            ready_O <= '1';
             command <= NOP;
             state <= sdram_NOP;
-			r_ack <= '0';
-			w_ack <= '0';
+			r_ack_O <= '0';
+			w_ack_O <= '0';
           end if;                     
 
         when others => null;
@@ -668,55 +661,23 @@ begin  -- architecture behav
     end if;
   end process command_engine;  
 
--- purpose: Latch and acknowledge commands
--- type : sequential
--- inputs : clock, reset, ready, R_Enable, W_enable
--- outputs: read_req, write_req, ready
---command_latch : process (clock, reset) is
---begin  -- process command_latch
---  if reset = '0' then                   -- asynchronous reset (active low)
-
---    write_req <= '0';
---    read_req  <= '0';
-
---  elsif clock'event and clock = '1' then  -- rising clock edge
-
---    if command_done_flg = '0' then
---      ready <= '0';
---      if R_Enable = '1' or read_req = '1' then
---        read_req <= '1';
-
---      elsif W_Enable = '1' or write_req = '1'  then
---        write_req <= '1';
---      end if;
-    
---    else
---      ready <= '1';
---      read_req <= '0';
---      write_req <= '0';
---   end if;
-    
-    
---  end if;
---end process command_latch;
-
 -------------------------------------------------------------------------------
 -- REFRESH EVERY 15.6us
 -------------------------------------------------------------------------------
 
   -- purpose: Generates refresh request every 15.6us
   -- type   : sequential
-  -- inputs : clock, reset
+  -- inputs : clock, RST_I
   -- outputs: refresh_req
 
-refresh_process: process (clock, reset) is
+refresh_process: process (CLK_I, RST_I) is
   begin  -- process refresh
-    if reset = '0' then                 -- asynchronous reset (active low)
+    if RST_I = '0' then                 -- asynchronous reset (active low)
 
       refresh_timer <= 0;
       refresh_req <= '0';
 
-    elsif clock'event and clock = '1' then  -- rising clock edge
+    elsif CLK_I'event and CLK_I = '1' then  -- rising clock edge
 
       if refresh_timer < tREF_CYCLES then
 
