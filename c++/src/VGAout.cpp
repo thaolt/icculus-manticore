@@ -73,7 +73,7 @@ VGAout::DrawScreen(){
     for(Uint32 y=0 ; y < MCORE_HEIGHT ; y++){
       Uint32* color = (Uint32 *)Pixels->GetLine(y);
       for(Uint32 x=0 ; x < MCORE_WIDTH ; x++){
-	DrawPixel(x,y,color[x]);
+	       DrawPixel(x,y,color[x]);
       }
     }
 

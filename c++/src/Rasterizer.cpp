@@ -217,9 +217,9 @@ Rasterizer::Rasterize(Triangle3D &tri){
   maxx = max(P1.GetX(),P2.GetX());
   maxx = max(maxx,     P3.GetX());
 
-  yrstart =  (P1.GetR()<<8) + (maxx-P1.GetX())*colors[0] + (maxy-P1.GetY())*colors[1];
-  ygstart =  (P1.GetG()<<8) + (maxx-P1.GetX())*colors[2] + (maxy-P1.GetY())*colors[3];
-  ybstart =  (P1.GetB()<<8) + (maxx-P1.GetX())*colors[4] + (maxy-P1.GetY())*colors[5];
+  yrstart =  (P1.GetR()<<8) + (maxx-P1.GetX())*colors[0] + (maxy-P1.GetY())*colors[1] + colors[0];
+  ygstart =  (P1.GetG()<<8) + (maxx-P1.GetX())*colors[2] + (maxy-P1.GetY())*colors[3] + colors[2];
+  ybstart =  (P1.GetB()<<8) + (maxx-P1.GetX())*colors[4] + (maxy-P1.GetY())*colors[5] + colors[4];
 
   short eq1result, eq1temp;
   short eq2result, eq2temp;
@@ -239,14 +239,15 @@ Rasterizer::Rasterize(Triangle3D &tri){
       eq2result = eq2temp;
       eq3result = eq3temp;
 
-      yrstart -= colors[1];
       red = yrstart;
+      yrstart -= colors[1];
 
-      ygstart -= colors[3];
       green = ygstart;
+      ygstart -= colors[3];
 
-      ybstart -= colors[5];
       blue = ybstart;
+      ybstart -= colors[5];
+
 
       for(int x = maxx-1; x >= minx; x--){
 
@@ -258,14 +259,20 @@ Rasterizer::Rasterize(Triangle3D &tri){
          green -= colors[2]; 
          blue  -= colors[4]; 
          
+         
           if(  (eq1result < 0)
             && (eq2result < 0)
             && (eq3result < 0) ){
 
-             color = (red & 0xff00) << 8;
-             color = color | (green & 0xff00);
-             color = color | (blue & 0xff00) >> 8;
-
+              if(PixelData->Getbpp()==32){
+               color = (red & 0xff00) << 8;
+               color = color | (green & 0xff00);
+               color = color | (blue & 0xff00) >> 8;
+              }else if(PixelData->Getbpp()==16){
+               color = (red & 0x1f00) << 3;
+               color = color | (green & 0x3f00) >> 3;
+               color = color | (blue & 0x1f00) >> 8;
+              }
              PixelData->WriteData((Uint32)x,y, color);
 
           }

@@ -35,7 +35,7 @@ public:
 
 // Lifecycle
 
-   PixelRAM();
+   PixelRAM(const int& bppin);
    PixelRAM(const PixelRAM&);            // copy constructor
    ~PixelRAM();
 
@@ -49,8 +49,7 @@ public:
 
 // Access
 	Uint8* GetLine(Uint32 row);
-
-
+    int Getbpp();
 // Inquiry
 
 protected:
@@ -59,6 +58,7 @@ private:
 // Private Methods
 
 	Uint8 *PixelData;
+    int bpp;
 
 //////////////////Removed
 };
