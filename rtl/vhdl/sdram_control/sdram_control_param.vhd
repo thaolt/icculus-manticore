@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : memory_manager.vhd
 -- Author     : Jeff Mrochuk <jmrochuk@ieee.org>
--- Last update: 2002-05-30
+-- Last update: 2002-06-11
 -- Platform   : Altera APEX20K200
 -------------------------------------------------------------------------------
 -- Description: Sends necessary signals to operate PC100 SDRAM at 66MHz
@@ -137,7 +137,8 @@ entity sdram_control_param is
     DATAWIDTH           : integer := 64;
     INTERLEAVED         : std_logic := '0';  -- Sequential if '0'
     BURST_MODE_n        : std_logic := '0';  -- enabled if '0'
-    NO_OF_CHIPS         : integer := 2
+    NO_OF_CHIPS         : integer := 2;
+    BURST_LENGTH        : positive :=4
     );
 
   port(

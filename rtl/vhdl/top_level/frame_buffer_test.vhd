@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : frame_buffer_test.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-05-29
+-- Last update: 2002-06-11
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Top level file for VGA out & SDRAM test
@@ -88,9 +88,9 @@ architecture structural of frame_buffer_test is
       );
   end component pll2x;
 -------------------------------------------------------------------------------
--- sdram_control
+-- sdram_control_param
 -------------------------------------------------------------------------------
-  component sdram_control is
+  component sdram_control_param is
     generic(
     -- Input Address format:
     --
@@ -139,7 +139,7 @@ architecture structural of frame_buffer_test is
     DQM_O          : out std_logic_vector(datawidth/8-1 downto 0);
     BA_O           : out std_logic_vector (1 downto 0)
     );
-  end component sdram_control;
+  end component sdram_control_param;
 -------------------------------------------------------------------------------
 -- vgaout
 -------------------------------------------------------------------------------
@@ -504,7 +504,9 @@ begin  -- architecture structural
 
   outclock <= clock50;
     
-  sdram_control_inst : sdram_control
+  sdram_control_param_inst : sdram_control_param
+    generic map (
+      BURST_LENGTH => 4)
     port map (
       CLK_I             => clock50,
       RST_I             => reset,
