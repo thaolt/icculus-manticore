@@ -24,6 +24,8 @@ PixelRAM::PixelRAM(const int& bppin)
   bpp = bppin;  // bits per pixel
 
   PixelData = new unsigned char[MCORE_HEIGHT*MCORE_WIDTH*(bpp/8)];
+  ZData = new int[MCORE_HEIGHT*MCORE_WIDTH];
+
   for(int i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*(bpp/8); i+=(bpp/8)){
     int row = i/(MCORE_WIDTH*(bpp/8));
 
@@ -74,7 +76,7 @@ PixelRAM::GetLine(int row){
 //============================= Operations ===================================
 
 void
-PixelRAM::WriteData(int x, int y, int col){
+PixelRAM::WriteData(int x, int y, int col, int depth){
   unsigned char *p;
 
   if(bpp == 32){
@@ -84,17 +86,19 @@ PixelRAM::WriteData(int x, int y, int col){
         *(int *)p = col;
     }
   }else if( bpp == 16 ){
+    if((y<MCORE_HEIGHT) && (x>0) && (x < MCORE_WIDTH) && (y > 0)){
 
         p = &PixelData[(y*MCORE_WIDTH+x)*(bpp/8)];
         *(unsigned short *)p = col;
-  }
 
+        ZData[(y*MCORE_WIDTH+x)]=depth; // 4 bytes for depth
+
+    }
+  }
 }
 
 void
 PixelRAM::Blank(){
-
-
   for(int i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*(bpp/8); i+=(bpp/8)){
     int row = i/(MCORE_WIDTH*(bpp/8));
     PixelData[i]=80; 
@@ -103,6 +107,17 @@ PixelRAM::Blank(){
 	    PixelData[i+2]=80;
     }
   }
+
+
+  for(i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH; i++){
+       ZData[i] = -2147483648;
+  }
+}
+
+int
+PixelRAM::GetZ(int x, int y){
+
+    return ZData[(y*MCORE_WIDTH+x)];
 
 }
 

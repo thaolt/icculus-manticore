@@ -24,23 +24,28 @@ Point2D::Point2D()
 
   x=0;
   y=0;
-
+  z=0;
+  r=0;
+  g=0;
+  b=0;
 
 }// Point2D
 
-Point2D::Point2D(const int& inx, const int& iny){
+Point2D::Point2D(const int& inx, const int& iny, const int& inz){
 
   x = inx;
   y = iny;
+  z = inz;
   r = 0;
   g = 0;
   b = 0;
 }
 
-Point2D::Point2D(const int& inx, const int& iny, const int& inr, const int& ing, const int& inb){
+Point2D::Point2D(const int& inx, const int& iny, const int& inz, const int& inr, const int& ing, const int& inb){
 
   x = inx;
   y = iny;
+  z = inz;
   r = inr;
   g = ing;
   b = inb;
@@ -50,6 +55,7 @@ Point2D::Point2D(const Point2D&point)
 {
   x = point.GetX();
   y = point.GetY();
+  z = point.GetZ();
   r = point.GetR();
   g = point.GetG();
   b = point.GetB();
@@ -73,6 +79,7 @@ Point2D::operator=(const Point2D&rhs)
     //add local assignments
    x = rhs.GetX();
    y = rhs.GetY();
+   z = rhs.GetZ();
    r = rhs.GetR();
    g = rhs.GetG();
    b = rhs.GetB();
@@ -92,6 +99,13 @@ const int&
 Point2D::GetY()const{
 
   return y;
+
+}
+
+const int&
+Point2D::GetZ()const{
+
+  return z;
 
 }
 

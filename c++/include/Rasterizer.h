@@ -39,7 +39,6 @@ public:
 
 // Lifecycle
 
-//   Rasterizer(SDL_Surface *, PixelRAM*);
    Rasterizer(PixelRAM*);
    Rasterizer(const Rasterizer&);            // copy constructor
    ~Rasterizer();
@@ -62,6 +61,7 @@ private:
 // Private Methods
 
   void s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colors);
+  void s3dGetZDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* z);
   void s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq);
 
 //  SDL_Surface* Screen;
@@ -78,11 +78,7 @@ private:
   int P1screenX, P1screenY;
   int P2screenX, P2screenY;
   int P3screenX, P3screenY;
-  float l, r;
-  float dxleft, dxright, dxclose;
-  bool degenerate;
-  float slopeleft, sloperight, slopeclose, dy;
-  Point2D middle, bottom, top, left, right;
+  int P1fixedZ, P2fixedZ, P3fixedZ;
 
 //////////////////Removed
 };

@@ -68,6 +68,7 @@ int main(int argc,char * argv[])
   Point3D *P1, *P2, *P3;
   Point3D *P4, *P5, *P6;
   Point3D *P8, *P7, *P9;
+  
 
   if (bpp == 32){
      P1 = new Point3D(-120,    0, -120, 255,   0, 0  );
@@ -82,40 +83,79 @@ int main(int argc,char * argv[])
      P8 = new Point3D(100, -200, -150, 115,  76,  32);
      P7 = new Point3D(150, -100, -120, 200, 200, 200);
   }else{
-     P1 = new Point3D(-120,    0, -120, 31,   0, 0  );
-     P2 = new Point3D(-300, -100, -120,   0, 63, 0  );
-     P3 = new Point3D(-170, -160, -120,   0,   0, 31);
+ /*    P1 = new Point3D(-120,    0, -120, 31,   0, 0  );
+       P2 = new Point3D(-300, -100, -120,   0, 63, 0  );
+       P3 = new Point3D(-170, -160, -120,   0,   0, 31);
 
-     P6 = new Point3D( 150, 100, -120, 10,  63, 0  );
-     P5 = new Point3D(-100,  00, -120,   0, 20, 10);
-     P4 = new Point3D(  80, 150, -120, 5 ,  10, 31);
+       P6 = new Point3D( 150, 100, -120, 10,  63, 0  );
+       P5 = new Point3D(-100,  00, -120,   0, 20, 10);
+       P4 = new Point3D(  80, 150, -120, 5 ,  10, 31);
 
-     P9 = new Point3D(180, -200, -80,   5,  20,  15);
-     P8 = new Point3D(100, -200, -150, 31,  15,  5);
-     P7 = new Point3D(150, -100, -120, 26, 60, 30);
-  }
+       P9 = new Point3D(180, -200, -80,   5,  20,  15);
+       P8 = new Point3D(100, -200, -150, 31,  15,  5);
+       P7 = new Point3D(150, -100, -120, 26, 60, 30);
+ */
+
+       P1 = new Point3D( 100,  100, -120, 31,  0,  0);
+       P2 = new Point3D(-100,  100, -120,  0, 63,  0);
+       P3 = new Point3D( 100, -100, -120,  0,  0, 31);
+       P4 = new Point3D(-100, -100, -120, 31, 63,  0);
+       P5 = new Point3D( 100,  100, -260,  0, 63, 31);
+       P6 = new Point3D(-100,  100, -260, 31,  0, 31);
+       P7 = new Point3D( 100, -100, -260, 31, 15,  5);
+       P8 = new Point3D(-100, -100, -260,  0, 15, 31);
+
+   }
 
   Triangle3D tri1(*P1, *P2, *P3);
-  Triangle3D tri2(*P4, *P5, *P6);  
-  Triangle3D tri3(*P7, *P8, *P9);
-
+  Triangle3D tri2(*P2, *P4, *P3);  
+  Triangle3D tri3(*P5, *P6, *P7);
+  Triangle3D tri4(*P5, *P7, *P8);
+  Triangle3D tri5(*P2, *P6, *P8);
+  Triangle3D tri6(*P2, *P8, *P4);  
+  Triangle3D tri7(*P1, *P5, *P7);
+  Triangle3D tri8(*P1, *P3, *P7);
   while(!die){
   
     PixelData->Blank();
 
 
-    TransformEngine -> Translate(*P1,0,0,120 );
-    TransformEngine -> Translate(*P2,0,0,120 );
-    TransformEngine -> Translate(*P3,0,0,120 );
+    TransformEngine -> Translate(*P1,0,0,155 );
+    TransformEngine -> Translate(*P2,0,0,155 );
+    TransformEngine -> Translate(*P3,0,0,155 );
+    TransformEngine -> Translate(*P4,0,0,155 );
+    TransformEngine -> Translate(*P5,0,0,155 );
+    TransformEngine -> Translate(*P6,0,0,155 );
+    TransformEngine -> Translate(*P7,0,0,155 );
+    TransformEngine -> Translate(*P8,0,0,155 );
 
-    TransformEngine -> RotateZ(*P1,0.04f);
-    TransformEngine -> RotateZ(*P2,0.04f);
-    TransformEngine -> RotateZ(*P3,0.04f);
-
-    TransformEngine -> Translate(*P1,0,0,-120 );
-    TransformEngine -> Translate(*P2,0,0,-120 );
-    TransformEngine -> Translate(*P3,0,0,-120 );
-
+    TransformEngine -> RotateX(*P1,0.06f);
+    TransformEngine -> RotateX(*P2,0.06f);
+    TransformEngine -> RotateX(*P3,0.06f);
+    TransformEngine -> RotateX(*P4,0.06f);
+    TransformEngine -> RotateX(*P5,0.06f);
+    TransformEngine -> RotateX(*P6,0.06f);
+    TransformEngine -> RotateX(*P7,0.06f);
+    TransformEngine -> RotateX(*P8,0.06f);
+/*
+    TransformEngine -> RotateZ(*P1,0.02f);
+    TransformEngine -> RotateZ(*P2,0.02f);
+    TransformEngine -> RotateZ(*P3,0.02f);
+    TransformEngine -> RotateZ(*P4,0.02f);
+    TransformEngine -> RotateZ(*P5,0.02f);
+    TransformEngine -> RotateZ(*P6,0.02f);
+    TransformEngine -> RotateZ(*P7,0.02f);
+    TransformEngine -> RotateZ(*P8,0.02f);
+*/
+    TransformEngine -> Translate(*P1,0,0,-155 );
+    TransformEngine -> Translate(*P2,0,0,-155 );
+    TransformEngine -> Translate(*P3,0,0,-155 );
+    TransformEngine -> Translate(*P4,0,0,-155 );
+    TransformEngine -> Translate(*P5,0,0,-155 );
+    TransformEngine -> Translate(*P6,0,0,-155 );
+    TransformEngine -> Translate(*P7,0,0,-155 );
+    TransformEngine -> Translate(*P8,0,0,-155 );
+/*
     TransformEngine -> Translate(*P4,0,0,120 );
     TransformEngine -> Translate(*P5,0,0,120 );
     TransformEngine -> Translate(*P6,0,0,120 );
@@ -139,23 +179,36 @@ int main(int argc,char * argv[])
     TransformEngine -> Translate(*P7,0,0,-280 );
     TransformEngine -> Translate(*P8,0,0,-280 );
     TransformEngine -> Translate(*P9,0,0,-280 );
-/*
+
     */
     tri1.SetPoints(*P1,*P2,*P3);
-    tri2.SetPoints(*P4,*P5,*P6);
-    tri3.SetPoints(*P7,*P8,*P9);
-
-
-    RasterEngine->Rasterize(tri2);
+    tri2.SetPoints(*P2,*P4,*P3);
+    tri3.SetPoints(*P5,*P6,*P7);
+    tri4.SetPoints(*P6,*P7,*P8);
+    tri5.SetPoints(*P2, *P6, *P8);
+    tri6.SetPoints(*P2, *P8, *P4);  
+    tri7.SetPoints(*P1, *P5, *P7);
+    tri8.SetPoints(*P1, *P3, *P7);
 
     RasterEngine->Rasterize(tri1);
+    RasterEngine->Rasterize(tri2);
 
     RasterEngine->Rasterize(tri3);
+    RasterEngine->Rasterize(tri4);
 
+    RasterEngine->Rasterize(tri5);
+    RasterEngine->Rasterize(tri6);
+
+    RasterEngine->Rasterize(tri7);
+    RasterEngine->Rasterize(tri8);   
+ /*   
+    */
+  
+/*
     thistime = SDL_GetTicks();
     cout << "FPS: " << 1.0f/(thistime-lasttime)*1000 << endl;
     lasttime = thistime;
-
+*/
     die = process_input();
     Video.DrawScreen();
   }

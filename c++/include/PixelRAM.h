@@ -44,11 +44,12 @@ public:
    PixelRAM&   operator=(const PixelRAM&);     // assignment operator
 
 // Operations
-	void WriteData(int x, int y, int col);
+	void WriteData(int x, int y, int col, int depth);
 	void Blank();
 
 // Access
 	unsigned char* GetLine(int row);
+    int GetZ(int x, int y);
     int Getbpp();
 // Inquiry
 
@@ -58,6 +59,7 @@ private:
 // Private Methods
 
 	unsigned char *PixelData;
+    int *ZData;
     int bpp;
 
 //////////////////Removed
