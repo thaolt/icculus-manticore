@@ -17,6 +17,7 @@
 
 #define XPIXELSPERCU 640
 #define YPIXELSPERCU 480
+#define BINARY_POINTS 0
 /////////////////////////////// Public ///////////////////////////////////////
 
 //============================= Lifecycle ====================================
@@ -389,16 +390,22 @@ Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colo
 void
 Rasterizer::s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq){
 
-       float dx,dy, m, i;
+       int dx,dy;
+       float m, i;
 
-       dx = (float)(P2.GetX()-P1.GetX());
-       dy = (float)(P2.GetY()-P1.GetY());
+       dx = (P2.GetX()-P1.GetX());
+       dy = (P2.GetY()-P1.GetY());
+/*
+       m =  (dy<<BINARY_POINTS) / (dx);         // m is (28).(4)
+
+       i =  (P1.GetY()<<BINARY_POINTS)-(m)*(P1.GetX());  // i is (28).(4)
+*/
        m = dy/dx;
-       i = (float)P1.GetY()-m*(float)P1.GetX();
+       i = (float)P1.GetY()-(m)*((float)P1.GetX());
 
-       eq[0] = (short)(-m*dx);  // A
-       eq[1] = (short)(dx);     // B
-       eq[2] = (short)(i*dx);   // C
+       eq[0] = ((short)((-m*dx)))<<BINARY_POINTS;  // A
+       eq[1] = ((short)(dx))<<BINARY_POINTS;          // B
+       eq[2] = ((short)(i*dx))<<BINARY_POINTS;   // C
 
    }
 
@@ -480,15 +487,15 @@ Rasterizer::Rasterize2(Triangle3D &tri){
   short eq2result, eq2temp;
   short eq3result, eq3temp;
 
-  eq1temp = eq[0]*maxx + eq[1]*maxy - eq[2];
+  eq1temp = eq[0]*maxx + eq[1]*maxy - eq[2];  // All eq's are (13).(3)
   eq2temp = eq[3]*maxx + eq[4]*maxy - eq[5];
   eq3temp = eq[6]*maxx + eq[7]*maxy - eq[8];
 
   for(int y = maxy; y >= miny; y--){ 
 
-      eq1temp -= eq[1];
-      eq2temp -= eq[4];
-      eq3temp -= eq[7];
+      eq1temp -= (int)eq[1];
+      eq2temp -= (int)eq[4];
+      eq3temp -= (int)eq[7];
 
       eq1result = eq1temp;
       eq2result = eq2temp;
@@ -505,17 +512,17 @@ Rasterizer::Rasterize2(Triangle3D &tri){
 
       for(int x = maxx; x >= minx; x--){
 
-         eq1result -= eq[0];
-         eq2result -= eq[3];
-         eq3result -= eq[6];
+         eq1result -= (int)eq[0];
+         eq2result -= (int)eq[3];
+         eq3result -= (int)eq[6];
 
          red   -= colors[0]; 
          green -= colors[2]; 
          blue  -= colors[4]; 
          
-          if(  (eq1result < 0)
-            && (eq2result < 0)
-            && (eq3result < 0) ){
+          if(  (eq1result>>BINARY_POINTS < 0)
+            && (eq2result>>BINARY_POINTS < 0)
+            && (eq3result>>BINARY_POINTS < 0) ){
 
              color = (red & 0xff00) << 8;
              color = color | (green & 0xff00);

@@ -82,7 +82,7 @@ int main(int argc,char * argv[])
   
     PixelData->Blank();
 
-
+/*
     TransformEngine -> Translate(P1,0,0,120 );
     TransformEngine -> Translate(P2,0,0,120 );
     TransformEngine -> Translate(P3,0,0,120 );
@@ -94,7 +94,7 @@ int main(int argc,char * argv[])
     TransformEngine -> Translate(P1,0,0,-120 );
     TransformEngine -> Translate(P2,0,0,-120 );
     TransformEngine -> Translate(P3,0,0,-120 );
-/*
+
     TransformEngine -> Translate(P4,0,0,120 );
     TransformEngine -> Translate(P5,0,0,120 );
     TransformEngine -> Translate(P6,0,0,120 );
