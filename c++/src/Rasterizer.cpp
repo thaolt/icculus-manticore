@@ -401,7 +401,7 @@ Rasterizer::s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq){
        eq[2] = (short)(i*dx);   // C
 
    }
-#ifndef _MSC_VER
+
 
 int max(int x, int y)
 {
@@ -421,7 +421,7 @@ int min(int x, int y)
     return y;
 }
 
-#endif
+
 void
 Rasterizer::Rasterize2(Triangle3D &tri){
     
@@ -461,17 +461,7 @@ Rasterizer::Rasterize2(Triangle3D &tri){
   int color;
 
   short miny, minx, maxy, maxx;
-#ifdef _MSC_VER
-  miny = __min(P1.GetY(),P2.GetY());
-  miny = __min(miny,     P3.GetY());
-  minx = __min(P1.GetX(),P2.GetX());
-  minx = __min(minx,     P3.GetX());
 
-  maxy = __max(P1.GetY(),P2.GetY());
-  maxy = __max(maxy,     P3.GetY());
-  maxx = __max(P1.GetX(),P2.GetX());
-  maxx = __max(maxx,     P3.GetX());
-#else
   miny = min(P1.GetY(),P2.GetY());
   miny = min(miny,     P3.GetY());
   minx = min(P1.GetX(),P2.GetX());
@@ -481,15 +471,10 @@ Rasterizer::Rasterize2(Triangle3D &tri){
   maxy = max(maxy,     P3.GetY());
   maxx = max(P1.GetX(),P2.GetX());
   maxx = max(maxx,     P3.GetX());
-#endif
 
-  red   =  (P1.GetR()<<8) + (maxx-P1.GetX())*colors[0] + (maxy-P1.GetY())*colors[1];
-  green =  (P1.GetG()<<8) + (maxx-P1.GetX())*colors[2] + (maxy-P1.GetY())*colors[3];
-  blue  =  (P1.GetB()<<8) + (maxx-P1.GetX())*colors[4] + (maxy-P1.GetY())*colors[5];
-
-  yrstart = red;
-  ygstart = green;
-  ybstart = blue;
+  yrstart =  (P1.GetR()<<8) + (maxx-P1.GetX())*colors[0] + (maxy-P1.GetY())*colors[1];
+  ygstart =  (P1.GetG()<<8) + (maxx-P1.GetX())*colors[2] + (maxy-P1.GetY())*colors[3];
+  ybstart =  (P1.GetB()<<8) + (maxx-P1.GetX())*colors[4] + (maxy-P1.GetY())*colors[5];
 
   short eq1result, eq1temp;
   short eq2result, eq2temp;
@@ -499,7 +484,7 @@ Rasterizer::Rasterize2(Triangle3D &tri){
   eq2temp = eq[3]*maxx + eq[4]*maxy - eq[5];
   eq3temp = eq[6]*maxx + eq[7]*maxy - eq[8];
 
-  for(int y = maxy; y >= miny; y--){           // Treat like one giant PE at the moment
+  for(int y = maxy; y >= miny; y--){ 
 
       eq1temp -= eq[1];
       eq2temp -= eq[4];
@@ -538,7 +523,7 @@ Rasterizer::Rasterize2(Triangle3D &tri){
 
              PixelData->WriteData((Uint32)x,y, color);
           }else{
-             PixelData->WriteData((Uint32)x,y, 0x00ffff00);
+             PixelData->WriteData((Uint32)x,y, 0x00000000);
           }
       }
   }
