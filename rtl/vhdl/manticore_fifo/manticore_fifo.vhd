@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : manticore_fifo.vhd
 -- Author     : Jeff Mrochuk <jmrochuk@ieee.org>
--- Last update: 2002-06-05
+-- Last update: 2002/06/06
 -- Platform   : Altera APEX20K200
 -------------------------------------------------------------------------------
 -- Description: A generic FIFO for the manticore project
@@ -45,11 +45,40 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_signed.all;
 
+library lpm;
+use lpm.lpm_components.all;
+
+component LPM_RAM_DP
+  generic (LPM_WIDTH : positive;
+           LPM_WIDTHAD : positive;
+           LPM_NUMWORDS : natural := 0;
+           LPM_INDATA : string := "REGISTERED";
+           LPM_OUTDATA : string := "REGISTERED";
+           LPM_RDADDRESS_CONTROL : string := "REGISTERED";
+           LPM_WRADDRESS_CONTROL : string := "REGISTERED";
+           LPM_FILE : string := "UNUSED";
+           LPM_TYPE : string := L_RAM_DP;
+           LPM_HINT : string := "UNUSED");
+  port (RDCLOCK : in std_logic := '0';
+        RDCLKEN : in std_logic := '1';
+        RDADDRESS : in std_logic_vector(LPM_WIDTHad-1 downto 0);
+        RDEN : in std_logic := '1';
+        DATA : in std_logic_vector(LPM_WIDTH-1 downto 0);
+        WRADDRESS : in std_logic_vector(LPM_WIDTHad-1 downto 0);
+        WREN : in std_logic;
+        WRCLOCK : in std_logic := '0';
+        WRCLKEN : in std_logic := '1';
+        Q : out std_logic_vector(LPM_WIDTH-1 downto 0));
+end component;
+
+
+
 entity manticore_fifo is
 
 generic (
   DATA_WIDTH : positive:= 8;                -- width
-  DATA_DEPTH : positive := 32             --depth
+  DATA_DEPTH : positive := 32;             --depth
+  ADDR_WIDTH : positive := 3
   );               
 
   port (
@@ -67,14 +96,15 @@ generic (
 
 end manticore_fifo;
 
-architecture behavioral of manticore_fifo is
+architecture mixed of manticore_fifo is
 
 
-  type data_block_type is array (DATA_DEPTH-1 downto 0) of
-       std_logic_vector(DATA_WIDTH-1 downto 0);
+--  type data_block_type is array (DATA_DEPTH-1 downto 0) of
+--       std_logic_vector(DATA_WIDTH-1 downto 0);
   
   signal depth : positive range 0 to DATA_DEPTH+1;                -- depth gauge
-  signal data_block : data_block_type;          -- storage
+--  signal data_block : data_block_type;          -- storage
+
   signal start_pointer : positive range 0 to DATA_DEPTH+1;        -- start pointer
   signal end_pointer : positive range 0 to DATA_DEPTH+1;        -- end pointer
 
@@ -112,7 +142,7 @@ begin  -- behavioral
         if depth /= DATA_DEPTH then
           
           full_O <= '0';
-          data_block(end_pointer) <= data_I;
+ --         data_block(end_pointer) <= data_I;
           depth <= depth + 1;    
         
           if end_pointer = DATA_DEPTH-1 then
@@ -133,7 +163,7 @@ begin  -- behavioral
 
           empty_O <= '0';
           
-          data_O <= data_block(start_pointer);
+    --      data_O <= data_block(start_pointer);
 
           depth  <= depth - 1;
         
@@ -154,4 +184,29 @@ begin  -- behavioral
     end if;                             -- clock
   end process storage;
 
-end behavioral;
+  -- purpose: connects to LPM_RAM 
+  -- type   : combinational
+  -- inputs : w_req_I
+  -- outputs: 
+  ram_connect: process (w_req_I, r_req_I, start_pointer, end_pointer, data_I)
+  begin  -- process ram_connect
+ 
+    lpm_ram_inst: component lpm_ram_dp
+      generic map (
+        LPM_WIDTH    => DATA_WIDTH,
+        LPM_WIDTHad  => ADDR_WIDTH,
+        LPM_NUMWORDS => DATA_DEPTH)
+      
+      port map (
+        RDCLOCK   => CLK_I,
+        RDADDRESS => conv_std_logic_vector(start_pointer, ADDR_WIDTH),
+        RDEN      => r_req_I,
+        DATA      => DATA_I,
+        WRADDRESS => conv_std_logic_vector(end_pointer, ADDR_WIDTH),
+        WRCLOCK   => CLK_I,
+        Q         => DATA_O);
+
+      
+  end process ram_connect;
+
+end mixed;
