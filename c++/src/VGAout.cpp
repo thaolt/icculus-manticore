@@ -23,9 +23,9 @@ VGAout::VGAout(SDL_Surface *InScreen, PixelRAM *InPixels)
 {
   Screen = InScreen;
   Pixels = InPixels;
-  bpp = Screen->format->BitsPerPixel;
-
-  cout << "Bits Per Pixel: " << bpp << endl;
+//      bpp = Screen->format->BitsPerPixel;
+  bpp=32;
+//  cout << "Bits Per Pixel: " << bpp << endl;
 
 }// VGAout
 
@@ -61,11 +61,11 @@ void
 VGAout::DrawScreen(){
 
  
-  //  Uint32 color = SDL_MapRGB(Screen->format, 0x00, 0x00, 0xff); 
+  Uint32 color = SDL_MapRGB(Screen->format, 0x00, 0x00, 0xff); 
 
   if ( SDL_MUSTLOCK(Screen) ) {
     if ( SDL_LockSurface(Screen) < 0 ) {
-      cout << "Can't lock Surface " << endl;
+ //     cout << "Can't lock Surface " << endl;
     }
   }
 

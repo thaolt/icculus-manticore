@@ -14,9 +14,10 @@ SRCS = src/main.cpp \
        src/Point3D.cpp \
        src/Transformer.cpp
 
-CFLAGS  = -g -ggdb -Wall  -ansi -DDEBUG  `sdl-config --cflags`
+#CFLAGS  = -g -ggdb -Wall  -ansi -DDEBUG  `sdl-config --cflags`
+CFLAGS  = -Wall  -ansi  `sdl-config --cflags`
 INCLUDE = -I. -Iinclude
-LDFLAGS = -Llib  -lm `sdl-config --libs`
+LDFLAGS = -Llib -L/lib/mingw -lm `sdl-config --libs`
 
 #############################################################################################
 

@@ -55,7 +55,7 @@ Rasterizer::operator=(const Rasterizer &rhs)
 void
 Rasterizer::Rasterize(Triangle3D &tri){
   
-  degenerate = false;
+  degenerate = false;    
 
   P3D1 = tri.GetP3D1();  // Grab the 3 points from the triangle object
   P3D2 = tri.GetP3D2();
@@ -83,24 +83,30 @@ Rasterizer::Rasterize(Triangle3D &tri){
   Uint32 col2 = (255<<16)+(255<<8);   // yellow
   Uint32 col3 = 255<<16;              // red
   Uint32 col4 = col3 - (63<<16);      // dark red
-  // Slope Calculations
+
+  // Slope Calculations & Triangle Sorting
   
   // Handle degenerate cases first
-  //if((Uint32)P1screenY == (Uint32)P2screenY){
-  if(abs(P1screenY-P2screenY) < 2){
+  // This means two points are on the same line,
+  // or very close
+
+  //  P1 and P2 on the same line, P3 above or below
+  if(fabs(P1screenY-P2screenY) < 2){
       degenerate=true;
-      if(P3screenY > P1screenY){  // 3rd point below
+      if(P3screenY > P1screenY){  // 3rd point below others
+          // define the relative location of each point
+          // the naming is strange in the degenerate cases
           top=P1;  middle=P3; bottom=P3; left=P3; right=P3;
-          if(P1screenX < P2screenX){
-            l=P2screenX; 
-            r=P1screenX;
-          }else{
+          if(P1screenX < P2screenX){   /// Which one is on the left
+            l=P2screenX;          // l is where the left edge starts
+            r=P1screenX;          // r is where the right edge starts
+          }else{                  
             r=P2screenX; 
             l=P1screenX;
           }
-          dxleft = l - left.GetX();
-          dxright = r - right.GetX();
-      }else{   // 3rd point above
+          dxleft = l - left.GetX();    // find the difference between
+          dxright = r - right.GetX();  // start of the edge and desinatiob
+      }else{                       // 3rd point above the others
           top=P3; middle=P1; bottom=P1;
           l = P3.GetX();
           r = P3.GetX();
@@ -114,8 +120,8 @@ Rasterizer::Rasterize(Triangle3D &tri){
       }
   }
 
-  //else if((Uint32)P1screenY == (Uint32)P3screenY){
-  else if(abs(P1screenY-P3screenY) < 2){
+ //  P1 and P3 on the same line, P2 above or below
+  else if(fabs(P1screenY-P3screenY) < 2){
       degenerate=true;
       if(P2screenY > P1screenY){  // 3rd point below
           top=P1;  middle=P2; bottom=P2; left=P2; right=P2;
@@ -142,8 +148,8 @@ Rasterizer::Rasterize(Triangle3D &tri){
       }
   }
 
-  //else if((Uint32)P2screenY == (Uint32)P3screenY){
-  else if(abs(P2screenY-P3screenY) < 2){ 
+  //  P2 and P3 on the same line, P1 above or below
+  else if(fabs(P2screenY-P3screenY) < 2){ 
       degenerate=true;
       if(P1screenY > P3screenY){  // 3rd point below
           top=P2;  middle=P1; bottom=P1; left=P1; right=P1;
@@ -170,6 +176,10 @@ Rasterizer::Rasterize(Triangle3D &tri){
       }
   }
 
+  // Normal cases, where the triangle has to be broken into two
+  // requires a left slope, a right slope, and a closing slope
+
+  // P1 on top, P2 or P3 in either order
   else if((P1screenY < P2screenY) && (P1screenY < P3screenY)){
     top = P1;
     if(P2screenY < P3screenY){
@@ -188,6 +198,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
     }
   }
 
+  // P2 on top, P1 or P3 in either order
   else if((P2screenY < P1screenY) && (P2screenY < P3screenY)){
     top = P2;
     if(P1screenY < P3screenY){
@@ -206,6 +217,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
     }
   }
 
+  // P3 on top, P2 or P1 in either order
   else if((P3screenY < P2screenY) && (P3screenY < P1screenY)) {
     top = P3;
     if(P2screenY < P1screenY){
@@ -248,8 +260,9 @@ Rasterizer::Rasterize(Triangle3D &tri){
 
 
   float temp;
-  // In some orientations the left and right edges are swapped
-  //  definitions of l and r are not really accurate
+  // definitions of l and r are not really accurate
+  // in the case where all 3 points are increasing in x
+  // this will catch that
   if(!degenerate){
     if(slopeleft < sloperight){  
          temp=slopeleft;
@@ -285,7 +298,7 @@ Rasterizer::Rasterize(Triangle3D &tri){
       }     
   }
 
-  // draw the corners, for reference
+  // draw the vertices, for reference
   for(int i=-1; i < 1; i++){
     for(int j=-1; j <1; j++){
       PixelData->WriteData((Uint32)P1.GetX()+i,(Uint32)P1.GetY()+j, col1);

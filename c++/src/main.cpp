@@ -29,7 +29,7 @@ int main(int argc,char * argv[])
   Uint32 *flags = new Uint32;
 
   if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-	cout<<    "Couldn't initialize SDL: "<< SDL_GetError() << endl;;
+	//cout<<    "Couldn't initialize SDL: "<< SDL_GetError() << endl;;
     exit(1);
   }
 
@@ -40,12 +40,12 @@ int main(int argc,char * argv[])
 
   info = SDL_GetVideoInfo( );
 
-  bpp = info->vfmt->BitsPerPixel;
-
+  //bpp = info->vfmt->BitsPerPixel;
+  bpp=32;
   atexit(SDL_Quit);
   
   SDL_ShowCursor(0);
-
+  *flags = SDL_SWSURFACE;
   if(fullscreen){
     *flags = SDL_FULLSCREEN;
   }
