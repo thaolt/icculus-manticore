@@ -247,7 +247,7 @@ architecture structural of frame_buffer_test is
       R_Enable     : out std_logic;
       W_Enable     : out std_logic;
       Address      : inout std_logic_vector(ADDRESS_WIDTH-1 downto 0);
-	  data_mask    : out std_logic_vector(4*DATA_WIDTH/8 -1 downto 0);
+-- 	  data_mask    : out std_logic_vector(4*DATA_WIDTH/8 -1 downto 0);
       r_ack, w_ack	   : in std_logic;
       BufferPick   : in std_logic;  -- DEBUG
       -- Write Fifo signals
@@ -439,7 +439,7 @@ architecture structural of frame_buffer_test is
   signal R_Enable, W_Enable, Tx_Data, Rx_Data, r_ack, w_ack : std_logic;
   signal Init_Done                                          : std_logic;
   signal Address_Internal                                   : std_logic_vector(ADDRESS_WIDTH-1 downto 0);
-  signal Data_mask                                          : std_logic_vector(DATA_WIDTH/8*4 -1 downto 0);
+ -- signal Data_mask                                          : std_logic_vector(DATA_WIDTH/8*4 -1 downto 0);
 
   signal Write_FB : std_logic;
   signal triangle_case : std_logic_vector(1 downto 0);
@@ -646,7 +646,7 @@ begin  -- architecture structural
       Write_Fifo_Addr_Pop   => Addr_Pop,
       Write_Fifo_Addr_Enable => Write_Fifo_Addr_Enable,
       Write_FB              => Write_FB,
-      data_mask             => data_mask,
+--      data_mask             => data_mask,
       r_ack                 => r_ack,
       w_ack                 => w_ack,
       blank_done            => blank_done,

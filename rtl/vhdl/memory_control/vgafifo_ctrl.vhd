@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : vgafifo_ctrl.vhd
 -- Author     : Benj Carson <benjcarson@digitaljunkies.ca>
--- Last update: 2002-06-18
+-- Last update: 2002-06-19
 -- Platform   : Altera APEX20K200E
 -------------------------------------------------------------------------------
 -- Description: Generates control signals for fifo & SDRAM
@@ -67,7 +67,7 @@ entity vgafifo_ctrl is
     R_Enable     : out std_logic;
     W_Enable     : out std_logic;
     Address      : inout std_logic_vector(ADDRESS_WIDTH-1 downto 0);
-    data_mask    : out std_logic_vector(DATA_WIDTH/8*4 -1 downto 0);
+--    data_mask    : out std_logic_vector(DATA_WIDTH/8*4 -1 downto 0);
     r_ack, w_ack :  in std_logic;	
     BufferPick   : in std_logic;  -- DEBUG
     -- Fifo Signals
@@ -148,7 +148,7 @@ begin  -- behavioural
       blank_word_count <= 0;
       Burst_Count <= 0;
       Row_Number <= 0;
-      data_mask <= ( others => '0');
+ --     data_mask <= ( others => '0');
       Read_FB <= '0';
       Read_Line_Ack <= '0';
       Data_Enable <= '0';
@@ -183,7 +183,7 @@ begin  -- behavioural
           blank_word_count <= 0;
           Burst_Count <= 0;
           Row_Number <= 0;
-          data_mask <= ( others => '0');
+  --        data_mask <= ( others => '0');
 
 
 
@@ -251,7 +251,7 @@ begin  -- behavioural
             
           end if;
 
-          data_mask <= (others => '0');
+  --         data_mask <= (others => '0');
 
           if Read_Line = '1' or (row_number > 479 and first_time = '1') then
 
@@ -419,7 +419,7 @@ begin  -- behavioural
         when get_data =>
 
           W_Enable   <= '0';
-          data_mask  <= (others => '0');
+   --        data_mask  <= (others => '0');
           Data_Internal   <= (others => '0');
           Fifo_Clear <= '0';
           Read_Line_Ack <= '0';
