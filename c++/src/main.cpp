@@ -2,8 +2,7 @@
 
 #include <iostream>
 #include <stdlib.h>
-//#include <unistd.h>
-#include <Windows.h>
+
 #include "SDL.h"
 
 #include "input.h"
