@@ -87,7 +87,7 @@ package memory_constants is
   constant tSTARTUP_NOP_CYCLES : positive := tSTARTUP_NOP / CLOCK_PERIOD;
    
   constant CASWIDTH : integer := 3;    -- width of CAS mode for MRS
-
+  constant BURST_LENGTH : integer := 4;
   constant CAS_LATENCY : positive := 2;
 
   constant B1_START : integer := 31;    -- Mask start for burst 1
@@ -98,7 +98,7 @@ package memory_constants is
   constant B3_END   : integer := 8;     -- Mask End for burst 3
   constant B4_START : integer := 7;     -- Mask start for burst 4
   constant B4_END   : integer := 0;     -- Mask End for burst 4
-  
+
 --  constant B8_START : integer := 31;    -- Mask start for burst 1
 --  constant B8_END   : integer := 24;    -- Mask End for burst 1
 --  constant B7_START : integer := 23;    -- Mask start for burst 2
@@ -137,7 +137,6 @@ entity sdram_control_param is
     DATAWIDTH           : integer := 64;
     INTERLEAVED         : std_logic := '0';  -- Sequential if '0'
     BURST_MODE_n        : std_logic := '0';  -- enabled if '0'
-    BURST_LENGTH        : integer := 8;
     NO_OF_CHIPS         : integer := 2
     );
 
@@ -201,7 +200,7 @@ architecture behav of sdram_control_param is
   
 begin  -- architecture behav
 
-  bankaddr <= RW_address_I(bankstart + banksize- 1 downto bankstart);
+  bankaddr <= RW_address_I(bankstart + banksize - 1 downto bankstart);
   rowaddr  <= RW_address_I(rowstart + rowsize - 1 downto rowstart);    
   coladdr  <= RW_address_I(colstart + colsize - 1 downto colstart);  
 
@@ -524,7 +523,6 @@ begin  -- architecture behav
               CAS_n_O <= '1';
               WE_n_O  <= '1';
 
-              
               rx_data_O <= '1';
               count <= count + 1;
               
@@ -533,8 +531,8 @@ begin  -- architecture behav
               count <= count + 1;
               
             when 3 => --CAS_LATENCY + 1 =>              
-              if BURST_LENGTH-1 = 3 then
-                state <= sdram_tRP_delay;  -- Delay for tRP until next operation    
+              if BURST_LENGTH = 4 then
+                state <= sdram_tRP_delay;  -- Delay for tRP until next op    
               else
                 count <= count + 1; 
               end if;
