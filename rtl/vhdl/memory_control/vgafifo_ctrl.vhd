@@ -105,22 +105,23 @@ end vgafifo_ctrl;
 architecture behavioural of vgafifo_ctrl is
 
   type state_type is (memory_wait, blank_ready_wait, memory_blank, idle, ready_wait, R_send,  
-  get_data, flush_writes_wait, flush_writes,
-  z_blank_wait, z_blank, z_read_wait, z_read ); --,draw_ready_wait, send_data, error_state);
+  get_data, flush_writes_wait, flush_writes );
+  --  z_blank_wait, z_blank, z_read_wait, z_read );
+  --,draw_ready_wait, send_data, error_state);
                       
-  signal state       : state_type;
-  signal Word_Count  : integer range 0 to 88; -- Tally of words written to buffer
-  signal blank_Word_Count  : integer range 0 to 88; -- Tally of words written to buffer
-  signal Burst_Count : integer range 0 to 7;                   -- Tally of words received in a burst cycle
-  signal Row_Number	 : integer range 0 to 511;
-  signal Read_FB : std_logic;           -- The active read frame bufffer
-  signal first_time : std_logic;          -- See if its the first pass
+  signal state                  : state_type;
+  signal Word_Count             : integer range 0 to 88; -- Tally of words written to buffer
+  signal blank_Word_Count       : integer range 0 to 88; -- Tally of words written to buffer
+  signal Burst_Count            : integer range 0 to 7;  -- Tally of words received in a burst cycle
+  signal Row_Number             : integer range 0 to 511;
+  signal Read_FB                : std_logic;        -- The active read frame bufffer
+  signal first_time             : std_logic;        -- See if its the first pass
   --
-  signal Data_Internal: std_logic_vector(DATA_WIDTH-1 downto 0);
-  signal Data_Enable: std_logic;
-  signal Address_Internal :  std_logic_vector(ADDRESS_WIDTH-1 downto 0);
-  signal Address_Enable: std_logic;
---  signal Blank_Half: std_logic;
+  signal Data_Internal          : std_logic_vector(DATA_WIDTH-1 downto 0);
+  signal Data_Enable            : std_logic;
+  signal Address_Internal       :  std_logic_vector(ADDRESS_WIDTH-1 downto 0);
+  signal Address_Enable         : std_logic;
+
 begin  -- behavioural
 
 
@@ -153,7 +154,7 @@ begin  -- behavioural
       Data_Enable <= '0';
       Address_Enable <= '0';
       first_time <= '1';
---	  Blank_half <= '0';
+
       Write_Fifo_Data_Pop    <= '0';
       Write_Fifo_Data_Enable <= '0';
       Write_Fifo_Addr_Enable <= '0';
@@ -291,8 +292,6 @@ begin  -- behavioural
           Blank_Ack <= '0';
           R_Enable <= '0';
 
-
-
           case burst_count is 
             when 0 =>
               if tx_data = '1' then
@@ -326,6 +325,7 @@ begin  -- behavioural
 ------------------------------------------------------------------------------------		
 
         when idle =>
+          
           first_time <= '0';
           R_Enable <= '0';
           W_Enable <= '0';
@@ -338,42 +338,37 @@ begin  -- behavioural
           Write_Fifo_Addr_Enable <= '0';
           Write_Fifo_Data_Pop <= '0';
           Write_Fifo_Addr_Pop <= '0';
-
+          Burst_Count <= 0;
           Read_FB <= '0';
 
           if Read_line = '1'  then
-            Word_Count <= 0;
-            state <= ready_wait; 		
+
+            state <= ready_wait;
+            
             Fifo_Clear <= '1';
             Read_Line_Ack <= '1'; 
             Blank_Ack <= '0';
 
           elsif Blank_Now = '1' then -- and Read_Line_Warn = '0'  then
+            
             state <= blank_ready_wait;
-            Word_Count <= 0;
+
             Read_Line_Ack <= '0';
-            Burst_Count <= 0;
             Blank_Ack <= '1';
-
---           if Blank_half= '0' then
---              row_number <= 0;
---           else
---              row_number <= 239;
---           end if;
-              
- --         Row_Number <= 0;
-
+            Fifo_Clear <= '0';
+            
           elsif Write_Fifo_Empty = '0' then -- and Read_Line_Warn = '0' then
+            
             state <= flush_writes_wait;
-            Word_Count <= 0;
+
             Fifo_Clear <= '0';
             Read_Line_Ack <= '0';
             Blank_Ack <= '0';
 
 
           else
-            Word_Count <= 0;
             state <= idle;
+            
             Fifo_Clear <= '0';
             Read_Line_Ack <= '0';
             Blank_Ack <= '0';
@@ -404,7 +399,6 @@ begin  -- behavioural
           if Word_Count > 80 then 
             Read_Line_Ack <= '0';		   
             state <= idle; --z_read_wait; 
- --         row_number <= 0;
             Word_Count <= 0; --conv_integer(Z_Col_Start);
             R_Enable <= '0';
 --          Z_Fifo_Clear <= '1';
@@ -418,6 +412,10 @@ begin  -- behavioural
             R_Enable   <= '0';
           end if;
 
+-------------------------------------------------------------------------------
+-- Get Data
+-------------------------------------------------------------------------------            
+          
         when get_data =>
 
           W_Enable   <= '0';
