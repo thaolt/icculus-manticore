@@ -28,7 +28,7 @@
 -------------------------------------------------------------------------------
 -- File       : manticore_fifo.vhd
 -- Author     : Jeff Mrochuk <jmrochuk@ieee.org>
--- Last update: 2002-06-11
+-- Last update: 2002-06-12
 -- Platform   : Altera APEX20K200
 -------------------------------------------------------------------------------
 -- Description: A generic FIFO for the manticore project
@@ -63,203 +63,69 @@ generic (
   RST_I   : in  std_logic;              -- asych reset
   data_I  : in  std_logic_vector(DATA_WIDTH-1 downto 0);  -- Input data
   data_O  : out std_logic_vector(DATA_WIDTH-1 downto 0);  -- Output data
-  full_O  : out std_logic;              -- high if fifo is full
-  empty_O : out std_logic;              -- high if fifo is empty
-  clear_I : in  std_logic;              -- empties the fifo
+  r_full_O  : out std_logic;              -- high if fifo is full
+  w_full_O  : out std_logic;              -- high if fifo is full
+  r_empty_O : out std_logic;              -- high if fifo is empty
+  w_empty_O : out std_logic;              -- high if fifo is empty 
   w_req_I : in  std_logic;              -- write request
   r_req_I : in  std_logic;              -- read request
-  level_O : out std_logic_vector(ADDR_WIDTH-1 downto 0)
+  r_level_O : out std_logic_vector(ADDR_WIDTH-1 downto 0);
+  w_level_O : out std_logic_vector(ADDR_WIDTH-1 downto 0)
   );
 
 end manticore_fifo;
 
-architecture mixed of manticore_fifo is
+architecture struct of manticore_fifo is
 
-component LPM_RAM_DP
-  generic (LPM_WIDTH : positive;
-           LPM_WIDTHAD : positive;
-           LPM_NUMWORDS : natural := 0;
-           LPM_INDATA : string := "REGISTERED";
-           LPM_OUTDATA : string := "REGISTERED";
-           LPM_RDADDRESS_CONTROL : string := "REGISTERED";
-           LPM_WRADDRESS_CONTROL : string := "REGISTERED";
-           LPM_FILE : string := "UNUSED";
-           LPM_TYPE : string := L_RAM_DP;
-           LPM_HINT : string := "UNUSED");
-
-  port (RDCLOCK : in std_logic := '0';
-        RDCLKEN : in std_logic := '1';
-        RDADDRESS : in std_logic_vector(LPM_WIDTHad-1 downto 0);
-        RDEN : in std_logic := '1';
-        DATA : in std_logic_vector(LPM_WIDTH-1 downto 0);
-        WRADDRESS : in std_logic_vector(LPM_WIDTHad-1 downto 0);
-        WREN : in std_logic;
-        WRCLOCK : in std_logic := '0';
-        WRCLKEN : in std_logic := '1';
-        Q : out std_logic_vector(LPM_WIDTH-1 downto 0));
+component LPM_FIFO_DC
+		generic (LPM_WIDTH : positive ;
+				 LPM_WIDTHU : positive := 1;
+				 LPM_NUMWORDS : positive;
+				 LPM_SHOWAHEAD : string := "OFF";
+				 LPM_TYPE : string := L_FIFO_DC;
+				 LPM_HINT : string := "UNUSED");
+		port (DATA : in std_logic_vector(LPM_WIDTH-1 downto 0);
+			  WRCLOCK : in std_logic;
+			  RDCLOCK : in std_logic;
+			  WRREQ : in std_logic;
+			  RDREQ : in std_logic;
+			  ACLR : in std_logic := '0';
+			  Q : out std_logic_vector(LPM_WIDTH-1 downto 0);
+			  WRUSEDW : out std_logic_vector(LPM_WIDTHU-1 downto 0);
+			  RDUSEDW : out std_logic_vector(LPM_WIDTHU-1 downto 0);
+			  WRFULL : out std_logic;
+			  RDFULL : out std_logic;
+			  WREMPTY : out std_logic;
+			  RDEMPTY : out std_logic);
 end component;
 
---  type data_block_type is array (DATA_DEPTH-1 downto 0) of
---  std_logic_vector(DATA_WIDTH-1 downto 0);
---  signal data_block : data_block_type;              -- storage 
+signal clear : std_logic;               -- Asynch clear, active high
 
--------------------------------------------------------------------------------
--- Signals
--------------------------------------------------------------------------------
+begin
 
-  signal depth : positive range 0 to DATA_DEPTH+1;                -- depth gauge
-  signal start_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);        -- start pointer
-  signal end_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);        -- end pointer
-  signal wren, rden, full_int, empty_int : std_logic;  -- write enable and read enable
+  clear <= not rst_I;
+
+  lpm_fifo_dc_inst: LPM_FIFO_DC
+    generic map (
+      LPM_WIDTH    => DATA_WIDTH,
+      LPM_WIDTHU   => ADDR_WIDTH,
+      LPM_NUMWORDS => DATA_DEPTH)
+    port map (
+      DATA    => DATA_I,
+      WRCLOCK => W_CLK_I,
+      RDCLOCK => R_CLK_I,
+      WRREQ   => W_REQ_I,
+      RDREQ   => R_REQ_I,
+      ACLR    => clear,
+      Q       => DATA_O,
+      WRUSEDW => w_level_O,
+      RDUSEDW => r_level_O,
+      WRFULL  => w_full_O,
+      RDFULL  => r_full_O,
+      WREMPTY => w_empty_O,
+      RDEMPTY => r_empty_O
+      );
+
+end struct;
 
 
-begin  -- behavioral
-
-------------------------------------------------------------------------------
--- Depth Meter
-------------------------------------------------------------------------------
-
-  depth_control: process (R_CLK_I, W_CLK_I, RST_I, wren, rden, depth)
-  begin
-
-    if RST_I = '0' then                 -- asynchronous reset (active low)
-      depth <= 0;
-      empty_int <= '1';
-      full_int <= '0';
-      
-    elsif (W_CLK_I'event and W_CLK_I = '1') then
-      
-      if wren = '1' and rden = '1' then
-        null;
-      elsif wren = '1' and ( depth < DATA_DEPTH-1 ) then
-        depth <= depth+1;
-      elsif rden='1' and ( depth > 0 ) then
-        depth <= depth-1;
-      end if;
-      
-      if depth=0 then
-        empty_int <= '1';
-       else
-        empty_int <= '0';
-       end if;
-        
-       if depth=DATA_DEPTH-1 then
-         full_int <= '1';
-       else
-         full_int <= '0';
-       end if;
-          
-  end if;
-end process depth_control;
-         
--------------------------------------------------------------------------------
--- Read Address Controller
--------------------------------------------------------------------------------
-  
-  read_address: process (R_CLK_I, RST_I, clear_I, R_REQ_I, depth, start_pointer)
-  begin  -- process storage
-    if RST_I = '0' then                 -- asynchronous reset (active low)
-
-      start_pointer <= (others => '0');
-      
-    elsif R_CLK_I'event and R_CLK_I = '1' then  -- rising clock edge
- 
-
-      if clear_I = '1' then               -- Clear
-
-        start_pointer <= (others => '0');
-        
-      elsif r_req_I = '1' then          -- Read Request
-
-        if depth > 0 then
-
-          if start_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
-           start_pointer <= (others => '0');
-          else
-            start_pointer <= start_pointer + '1';
-          end if;                       -- pointer
-          
-        end if;                         -- depth
-        
-        else
-          
-          null;
-          
-      end if; -- r_req_I
-    end if;
-  end process read_address;
-  
--------------------------------------------------------------------------------
--- Write Address Controller
--------------------------------------------------------------------------------
-
-  write_address: process (W_CLK_I, RST_I, clear_I, W_REQ_I, depth, end_pointer)
-  begin  -- process storage
-
-      if RST_I = '0' then
-        
-        end_pointer <= (others => '0');
-        
-      elsif  W_CLK_I'event and W_CLK_I = '1' then  -- rising clock edge
-       
-       if clear_I = '1' then               -- Clear
-
-         end_pointer <= (others => '0');
-         
-       elsif w_req_I = '1' then -- Write Request
-         
-         if depth < DATA_DEPTH-1 then
-          
-          if end_pointer = conv_std_logic_vector(DATA_DEPTH-1, ADDR_WIDTH) then
-            end_pointer <= (others => '0');
-          else
-            end_pointer <= end_pointer + '1';
-          end if;                       -- pointer
-          
-         end if;
-         
-        end if;                         -- depth
-  end if;
-  end process write_address;
-
--------------------------------------------------------------------------------
--- Enable Controller
--------------------------------------------------------------------------------
-  
-  write_read_enable: process(w_req_I, r_req_I, full_int, empty_int, depth)
-   begin
- 
-     wren <= w_req_I;
-     rden <= r_req_I;
-
-     level_O <= conv_std_logic_vector(depth, ADDR_WIDTH);
-     full_O <= full_int;
-     empty_O <= empty_int;
-     
-   end process write_read_enable;
-
--------------------------------------------------------------------------------
--- Wiring to LPM_RAM
--------------------------------------------------------------------------------
-    
-    lpm_ram_inst: lpm_ram_dp
-      generic map (
-        LPM_WIDTH    => DATA_WIDTH,
-        LPM_WIDTHad  => ADDR_WIDTH,
-        LPM_NUMWORDS => DATA_DEPTH)
-      
-      port map (
-        RDCLOCK   => R_CLK_I,
-        RDADDRESS => start_pointer,
-        RDEN      => rden,
-        DATA      => DATA_I,
-        WREN      => wren,
-        WRADDRESS => end_pointer, 
-        WRCLOCK   => W_CLK_I,
-        Q         => DATA_O);
-
-end mixed;
-
--------------------------------------------------------------------------------
--- EOF
--------------------------------------------------------------------------------
