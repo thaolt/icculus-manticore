@@ -74,9 +74,9 @@ private:
   float P1X, P1Y, P1Z;
   float P2X, P2Y, P2Z;
   float P3X, P3Y, P3Z;
-  float P1screenX, P1screenY;
-  float P2screenX, P2screenY;
-  float P3screenX, P3screenY;
+  int P1screenX, P1screenY;
+  int P2screenX, P2screenY;
+  int P3screenX, P3screenY;
   float l, r;
   float dxleft, dxright, dxclose;
   bool degenerate;
