@@ -5,9 +5,9 @@
 //#include "SDL.h"
 
 
-const int MCORE_WIDTH = 640;
-const int MCORE_HEIGHT = 480;
-const int MCORE_BYTESPERPIXEL = 4;
+const int MCORE_WIDTH = 250;
+const int MCORE_HEIGHT = 250;
+const int MCORE_BYTESPERPIXEL = 2;//4;
 const float MCORE_FOCALLENGTH = 512;
 
 #endif

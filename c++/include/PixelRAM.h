@@ -71,3 +71,4 @@ private:
 //
 
 #endif  // _PixelRAM_h
+

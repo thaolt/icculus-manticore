@@ -27,7 +27,6 @@ PixelRAM::PixelRAM(const int& bppin)
   ZData = new int[MCORE_HEIGHT*MCORE_WIDTH];
 
   for(int i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*(bpp/8); i+=(bpp/8)){
-    int row = i/(MCORE_WIDTH*(bpp/8));
 
     PixelData[i]=255;  // This garbage is for loving memories
     PixelData[i+1]=255;
@@ -100,7 +99,7 @@ PixelRAM::WriteData(int x, int y, int col, int depth){
 void
 PixelRAM::Blank(){
   for(int i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*(bpp/8); i+=(bpp/8)){
-    int row = i/(MCORE_WIDTH*(bpp/8));
+
     PixelData[i]=10; 
 	PixelData[i+1]=10;
     if(bpp==32){
@@ -110,7 +109,7 @@ PixelRAM::Blank(){
 
 
   for(int j = 0 ; j < MCORE_HEIGHT*MCORE_WIDTH; j++){
-       ZData[j] = -2147483648;
+       ZData[j] = -2000000000;
   }
 }
 

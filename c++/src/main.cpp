@@ -94,11 +94,15 @@ int main(int argc,char * argv[])
        P8 = new Point3D(100, -200, -150, 31,  15,  5);
        P7 = new Point3D(150, -100, -120, 26, 60, 30);
  */
+         P1 = new Point3D(-100, -100, -120, 30,  2,  2);
+         P2 = new Point3D(100, 0, -120,  2, 62,  2);
+         P3 = new Point3D(-60, 100, -120,  2,  2, 30);
 
-       P1 = new Point3D( 100,  100, -120, 30,  2,  2);
+/*       P1 = new Point3D( 100,  100, -120, 30,  2,  2);
        P2 = new Point3D(-100,  100, -120,  2, 62,  2);
        P3 = new Point3D( 100, -100, -120,  2,  2, 30);
-       P4 = new Point3D(-100, -100, -120, 30, 62,  2);
+*/
+  P4 = new Point3D(-100, -100, -120, 30, 62,  2);
        P5 = new Point3D( 100,  100, -260,  2, 62, 30);
        P6 = new Point3D(-100,  100, -260, 15,  30, 15);
        P7 = new Point3D( 100, -100, -260, 30, 50, 30);
@@ -177,6 +181,7 @@ int main(int argc,char * argv[])
     tri8.SetPoints(*P1, *P3, *P7);
 
     RasterEngine->Rasterize(tri1);
+ /*
     RasterEngine->Rasterize(tri2);
 
     RasterEngine->Rasterize(tri3);
@@ -187,7 +192,8 @@ int main(int argc,char * argv[])
 
     RasterEngine->Rasterize(tri7);
     RasterEngine->Rasterize(tri8);   
- /*   
+ /*
+   /*   
     */
   
 /*

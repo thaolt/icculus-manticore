@@ -89,3 +89,4 @@ private:
 //
 
 #endif  // _Rasterizer_h
+
