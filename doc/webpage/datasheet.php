@@ -21,15 +21,14 @@
 <div id="title_bar"><image alt="Manticore"  src="images/manticore_title.gif"></div>
 
 
-<h1>Contributors</h1>
+<h1>Datasheet</h1>
 <div class="text_submenu"> 
 
 </div>
-
-<p>(Your name here)
+<p> The Manticore Specifications Data Sheet is available in PDF form <a href="manticore_specs.pdf">here</a>.
 </p>
+<p> The specs are constantly changing throughout development, as will the preceeding document.</p>
 
-<p>Check out the <a href="contributing.php">contributing</a> page for info on helping out.</p>
 <?php include("footer.inc"); ?>
 
 </body></html>
