@@ -52,8 +52,8 @@ entity manticore_fifo is
 
 generic (
   DATA_WIDTH : positive:= 8;                -- width
-  DATA_DEPTH : positive := 16;             --depth
-  ADDR_WIDTH : positive := 4
+  DATA_DEPTH : positive := 640;             --depth
+  ADDR_WIDTH : positive := 10
   );            
 
   port (
@@ -105,7 +105,7 @@ end component;
 
   signal start_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);        -- start pointer
   signal end_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);        -- end pointer
-  signal wren, rden, full_int : std_logic;  -- write enable and read enable
+  signal wren, rden, full_int, empty_int : std_logic;  -- write enable and read enable
   
 begin  -- behavioral
 
@@ -129,8 +129,10 @@ begin  -- behavioral
       
        if depth=0 then
             empty_O <= '1';
+            empty_int <= '1';
        else
             empty_O <= '0';
+            empty_int <= '0';
        end if;
 
        if depth=DATA_DEPTH-1 then
@@ -184,7 +186,7 @@ begin  -- behavioral
   write_read_enable: process(w_req_I, r_req_I, full_int)
    begin
      wren <= w_req_I AND (NOT full_int);
-     rden <= r_req_I;
+     rden <= r_req_I AND (NOT empty_int);
    end process write_read_enable;
 
     
