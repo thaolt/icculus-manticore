@@ -711,3 +711,4 @@ refresh_process: process (clock, reset) is
   end process refresh_process;
 
 end architecture behav;
+
