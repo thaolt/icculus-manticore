@@ -53,26 +53,26 @@ entity frame_buffer_test is
     inclock               : in  std_logic;
     reset                 : in  std_logic;
     outclock              : out std_logic;
-    
     -- VGA Output signals
     Red                   : out std_logic_vector(R_DEPTH-1 downto 0);
     Green                 : out std_logic_vector(G_DEPTH-1 downto 0);
     Blue                  : out std_logic_vector(B_DEPTH-1 downto 0);
-    Horiz_Sync, Vert_Sync : out std_logic;
-	BufferPick   : in std_logic;  -- DEBUG
+    Horiz_Sync            : out std_logic;
+    Vert_Sync             : out std_logic;
+    BufferPick            : in std_logic;  -- DEBUG
     -- Memory signals
-    WEbar          : out   std_logic;                     -- Write enable, Active Low
-    CKE            : out   std_logic_vector(1 downto 0);  -- clock enable
-    CSbar          : out   std_logic;
-    CS2bar         : out   std_logic;                     -- chip select, Active Low
-    Address_To_Ram : out std_logic_vector(12 downto 0);
-    Data           : inout std_logic_vector(DATA_WIDTH-1 downto 0);
-    RASbar, CASbar : out   std_logic;
-    DQM            : out   std_logic_vector(7 downto 0);
-    BA             : out   std_logic_vector(1 downto 0);
---    chip_select    : in    std_logic
-    SW1            : in std_logic;
-    SW2            : in std_logic
+    WE_n_O                : out   std_logic;  -- Write enable, Active Low
+    CKE_O                 : out   std_logic_vector(1 downto 0); -- clock enable
+    CS_n_O                : out   std_logic_vector(1 downto 0);
+    Address_To_Ram        : out   std_logic_vector(12 downto 0);
+    Data                  : inout std_logic_vector(DATA_WIDTH-1 downto 0);
+    RAS_n_O               : out   std_logic;
+    CAS_n_O               : out   std_logic;
+    DQM_O                 : out   std_logic_vector(7 downto 0);
+    BA_O                  : out   std_logic_vector(1 downto 0);
+
+    SW1                   : in std_logic;
+    SW2                   : in std_logic
     );
 
 end entity frame_buffer_test;
@@ -515,15 +515,14 @@ begin  -- architecture structural
       tx_data_O         => Tx_Data,
       rx_data_O         => Rx_Data,
       init_done_O       => Init_Done,
-      WE_n_O            => WEbar,
-      CKE_O             => CKE,
-      CS_n_O(0)         => CSbar,
-      CS_n_O(1)         => CS2bar,
+      WE_n_O            => WE_n_O,
+      CKE_O             => CKE_O,
+      CS_n_O            => CS_n_O,
       addr_O            => Address_To_Ram,
-      RAS_n_O           => RASbar,
-      CAS_n_O           => CASbar,
-      DQM_O             => DQM,
-      BA_O              => BA,
+      RAS_n_O           => RAS_n_O,
+      CAS_n_O           => CAS_n_O,
+      DQM_O             => DQM_O,
+      BA_O              => BA_O,
       Data_mask_I       => wf_Mask_to_Ram,
 --    chip_select => chip_select,
       r_ack_O           => r_ack,
