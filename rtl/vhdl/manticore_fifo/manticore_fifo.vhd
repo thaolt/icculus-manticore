@@ -42,24 +42,27 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_signed.all;
 
-package manticore_fifo is
+entity manticore_fifo is
+
 generic (
-  FIFO_WIDTH : unsigned:=8;                -- width
-  FIFO_DEPTH : unsigned:=32             --depth
+  DATA_WIDTH : positive:= 8;                -- width
+  DATA_DEPTH : positive := 32             --depth
   );               
 
   port (
   
   CLK_I   : in  std_logic;              -- clock
   RST_I   : in  std_logic;              -- asych reset
-  data_I  : in  std_logic_vector(FIFO_WIDTH-1 downto 0);  -- Input data
-  data_O  : out std_logic_vector(FIFO_WIDTH-1 downto 0);  -- Output data
+  data_I  : in  std_logic_vector(DATA_WIDTH-1 downto 0);  -- Input data
+  data_O  : out std_logic_vector(DATA_WIDTH-1 downto 0);  -- Output data
   full_O  : out std_logic;              -- high if fifo is full
   empty_O : out std_logic;              -- high if fifo is empty
   clear_I : in  std_logic;              -- empties the fifo
   w_req_I : in  std_logic;              -- write request
-  r_req_I : in  std_logic;              -- read request
+  r_req_I : in  std_logic              -- read request
   );
 
 end manticore_fifo;
@@ -69,6 +72,11 @@ architecture behavioral of manticore_fifo is
 
   type data_block_type is array (DATA_DEPTH-1 downto 0) of
        std_logic_vector(DATA_WIDTH-1 downto 0);
+  
+  signal depth : positive range 0 to DATA_DEPTH+1;                -- depth gauge
+  signal data_block : data_block_type;          -- storage
+  signal start_pointer : positive range 0 to DATA_DEPTH+1;        -- start pointer
+  signal end_pointer : positive range 0 to DATA_DEPTH+1;        -- end pointer
 
   
 begin  -- behavioral
@@ -77,11 +85,6 @@ begin  -- behavioral
   -- type   : sequential
   -- inputs : CLK_I, RST_I, Data_I
   -- outputs: Data_O
-  
-  signal depth : unsigned;                -- depth gauge
-  signal data : data_block_type;          -- storage
-  signal start_pointer : unsigned;        -- start pointer
-  signal end_pointer : unsigned;        -- end pointer
 
   storage: process (CLK_I, RST_I, data_I, clear_I, w_req_I, r_req_I)
   begin  -- process storage
@@ -94,10 +97,10 @@ begin  -- behavioral
       start_pointer <= 0;
       end_pointer <= DATA_DEPTH;
       
-    elsif CLK'event and CLK = '1' then  -- rising clock edge
+    elsif CLK_I'event and CLK_I = '1' then  -- rising clock edge
       
       
-      if clear = '1' then               -- Clear
+      if clear_I = '1' then               -- Clear
 
         depth <= 0;
         start_pointer <= 0;
