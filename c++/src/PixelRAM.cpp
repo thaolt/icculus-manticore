@@ -101,15 +101,15 @@ void
 PixelRAM::Blank(){
   for(int i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH*(bpp/8); i+=(bpp/8)){
     int row = i/(MCORE_WIDTH*(bpp/8));
-    PixelData[i]=80; 
-	PixelData[i+1]=80;
+    PixelData[i]=10; 
+	PixelData[i+1]=10;
     if(bpp==32){
-	    PixelData[i+2]=80;
+	    PixelData[i+2]=10;
     }
   }
 
 
-  for(int i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH; i++){
+  for( i = 0 ; i < MCORE_HEIGHT*MCORE_WIDTH; i++){
        ZData[i] = -2147483648;
   }
 }
