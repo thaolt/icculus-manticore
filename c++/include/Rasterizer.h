@@ -1,0 +1,77 @@
+/* -*- Mode: C++; tab-width: 3; indent-tabs-mode: t; c-basic-offset: 3 -*- */
+///////////////////////////////////////////////////////////////////////////
+// Name: Rasterizer 
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// Modifications:
+//
+//
+///////////////////////////////////////////////////////////////////////////
+#ifndef _Rasterizer_h_
+#define _Rasterizer_h_
+
+// System Includes
+//
+
+#include "SDL.h"
+
+// Project Includes
+//
+#include "Point3D.h"
+#include "Point2D.h"
+#include "Triangle2D.h"
+#include "Triangle3D.h"
+#include "PixelRAM.h"
+
+// Local Includes
+//
+
+// Forward References
+//
+
+/**   
+  *    @author 
+  *    @date 
+  */
+class Rasterizer
+{
+public:
+
+// Lifecycle
+
+   Rasterizer(SDL_Surface *, PixelRAM*);
+   Rasterizer(const Rasterizer&);            // copy constructor
+   ~Rasterizer();
+
+// Operator
+   
+   Rasterizer&   operator=(const Rasterizer&);     // assignment operator
+
+// Operations
+
+	void Rasterize(Triangle3D &);
+// Access
+
+// Inquiry
+
+protected:
+// Protected Methods
+private:
+// Private Methods
+
+	SDL_Surface* Screen;
+	PixelRAM* PixelData;
+
+	Point2D P2D_world1;
+   Point2D P2D_world2;
+   Point2D P2D_world3;
+
+//////////////////Removed
+};
+
+// Inline Methods
+//
+// External References
+//
+
+#endif  // _Rasterizer_h
