@@ -64,15 +64,15 @@ int main(int argc,char * argv[])
 
   Point3D P1(-120, 0, -120);
   Point3D P2(-300, -100, -120);
-  Point3D P3(-121, -160, -120);
+  Point3D P3(-170, -160, -120);
 
-  Point3D P4(250, 100, -120);
+  Point3D P6(250, 100, -120);
   Point3D P5(-100, 00, -120);
-  Point3D P6(80, 100, -120);
+  Point3D P4(80, 150, -120);
 
-  Point3D P7(180, -200, -80);
+  Point3D P9(180, -200, -80);
   Point3D P8(100, -200, -150);
-  Point3D P9(180, -100, -120);
+  Point3D P7(180, -100, -120);
 
   Triangle3D tri1(P1, P2, P3);
   Triangle3D tri2(P4, P5, P6);  
@@ -85,7 +85,7 @@ int main(int argc,char * argv[])
 #ifdef _MSC_VER
     Sleep(10);
 #endif
-
+/*
     TransformEngine -> Translate(P1,0,0,120 );
     TransformEngine -> Translate(P2,0,0,120 );
     TransformEngine -> Translate(P3,0,0,120 );
@@ -121,7 +121,7 @@ int main(int argc,char * argv[])
     TransformEngine -> Translate(P7,0,0,-280 );
     TransformEngine -> Translate(P8,0,0,-280 );
     TransformEngine -> Translate(P9,0,0,-280 );
-/*
+
     */
     tri1.SetPoints(P1,P2,P3);
     tri2.SetPoints(P4,P5,P6);
