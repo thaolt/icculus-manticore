@@ -20,11 +20,9 @@
 #include "Point3D.h"
 #include "Point2D.h"
 #include "Triangle3D.h"
-//#include "Triangle3Dx.h"
-//#include "PixelRAM.h"
 #include "mcore_defs.h"
 #include "mcore_types.h"
-
+#include "Transformer.h"
 
 
 // Local Includes
@@ -43,19 +41,21 @@ public:
 
 // Lifecycle
 
-   Rasterizer(oglContext* context);//PixelRAM*);
-   Rasterizer(const Rasterizer&);            // copy constructor
+   Rasterizer(oglContext* context);
+   Rasterizer(const Rasterizer&);    // copy constructor
    ~Rasterizer();
 
 // Operator
    
-   Rasterizer&   operator=(const Rasterizer&);     // assignment operator
-
+   Rasterizer&   operator=(const Rasterizer&);    
+   
 // Operations
-
+    void rasterizeArray();
+    void vertex3P(Point3D P1, Point3D P2, Point3D P3);
 	void Rasterize(Triangle3D &);
 	void blank();
-//	void Rasterizex(Triangle3Dx &);
+
+    Transformer* TransformEngine;
 // Access
 
 // Inquiry
@@ -69,8 +69,11 @@ private:
   void s3dGetZDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* z);
   void s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq);
 
-//  SDL_Surface* Screen;
-  // PixelRAM* PixelData;
+  float*         m_vertexArray;
+  unsigned char* m_colorArray;
+  unsigned int   m_vertexCount;
+  unsigned int   m_vertexSize;
+  
   unsigned char* m_pPixelData;
   int* m_pZData;
   int m_dx;
@@ -81,9 +84,9 @@ private:
   short *eq;
   int *zslopes;
   
-   Point2D P2D_world1;
-   Point2D P2D_world2;
-   Point2D P2D_world3;
+  Point2D P2D_world1;
+  Point2D P2D_world2;
+  Point2D P2D_world3;
 
   Point3D P3D1, P3D2, P3D3;
   float P1X, P1Y, P1Z;

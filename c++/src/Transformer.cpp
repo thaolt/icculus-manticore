@@ -121,18 +121,24 @@ Transformer::rotate3f(const float& angle, const float& x, const float& y, const 
   float sy, sx, sz;
   float c, s, t;
   
+#ifdef NORMALCALC
   mag = sqrt(x*x + y*y + z*z);
-  
-  ux = 0;
-  uy = 0;
-  uz = 0;
-  
+
   if(mag == 0.0f) return;
   
-  ux = x/mag;
-  uy = y/mag;
-  uz = z/mag;
-  
+  if(mag != 1.0f)
+  {
+     ux = x/mag;
+     uy = y/mag;
+     uz = z/mag;
+  }
+  else
+#endif
+  {
+     ux = x;
+     uy = y;
+     uz = z;
+  }
    
   c = cos(angle);  
   s = sin(angle);  

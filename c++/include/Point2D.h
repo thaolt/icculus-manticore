@@ -33,8 +33,11 @@ public:
 // Lifecycle
 
     Point2D();
-    Point2D(const int& x, const int& y, const int& z);
-    Point2D(const int& x, const int& y, const int& z, const int& r, const int& g, const int& b);
+    Point2D(const int & x, const int & y, const int & z);
+    Point2D(const int & x, const int & y, const int & z, 
+            const unsigned char & r,
+            const unsigned char & g, 
+            const unsigned char & b);
     Point2D(const Point2D&);            // copy constructor
    ~Point2D();
 
@@ -45,19 +48,19 @@ public:
 // Operations
 
 // Access
-    const int& GetX()const;
-    const int& GetY()const;
-    const int& GetZ()const;
-    const int& GetR()const;
-    const int& GetG()const;
-    const int& GetB()const;
+    const int & GetX()const;
+    const int & GetY()const;
+    const int & GetZ()const;
+    unsigned char GetR()const;
+    unsigned char GetG()const;
+    unsigned char GetB()const;
     
     void SetX(const int &);
     void SetY(const int &);
     void SetZ(const int &);
-    void SetR(const int &);
-    void SetG(const int &);
-    void SetB(const int &);
+    void SetR(const unsigned char &);
+    void SetG(const unsigned char &);
+    void SetB(const unsigned char &);
     // Inquiry
 
 protected:
@@ -68,9 +71,9 @@ private:
     int x;
     int y;
     int z;
-    int r;
-    int g;
-    int b;
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
 //////////////////Removed
 };
 
