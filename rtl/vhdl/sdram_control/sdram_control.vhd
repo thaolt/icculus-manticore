@@ -230,8 +230,8 @@ begin  -- architecture behav
       rx_data_O     <= '0';
       WE_n_O       <= '0';
       CKE_O         <= (others => '0');
-      CS_n_O(1)       <= '0';
-      CS_n_O(2)      <= '1';
+      CS_n_O(0)       <= '0';
+      CS_n_O(1)      <= '1';
       addr_O        <= (others => '0');
       RAS_n_O      <= '0';
       CAS_n_O      <= '0';
@@ -366,13 +366,13 @@ begin  -- architecture behav
             
           elsif delaycount < tRFC_CYCLES then
             
-            CS_n_O(1) <= '1'; -- Disable SDRAM
+            CS_n_O(0) <= '1'; -- Disable SDRAM
             delaycount <= delaycount + 1;
             state <= sdram_auto_refresh;
             
           else
             
-            CS_n_O(1) <= '1';
+            CS_n_O(0) <= '1';
             delaycount <= 0;
                        
             case command is
@@ -384,7 +384,7 @@ begin  -- architecture behav
                   count <= 0;
                   state <= sdram_MRS;
                 end if;
-                CS_n_O(1) <= '0'; -- Enable SDRAM
+                CS_n_O(0) <= '0'; -- Enable SDRAM
 		
               when read =>
                 command <= NOP;
@@ -425,7 +425,7 @@ begin  -- architecture behav
             RAS_n_O <= '0';
             CAS_n_O <= '1';
             WE_n_O  <= '1';
-            CS_n_O(1)  <= '0';	                    
+            CS_n_O(0)  <= '0';	                    
 
             -- Send row address
             addr_O(12) <= '0';
@@ -436,13 +436,13 @@ begin  -- architecture behav
 
           elsif delaycount < tRCD_CYCLES then
 
-	    CS_n_O(1) <= '1'; -- Disable SDRAM          
+	    CS_n_O(0) <= '1'; -- Disable SDRAM          
             delaycount <= delaycount + 1;
             state <= sdram_activ;
 
           else
       
-            CS_n_O(1) <= '1'; -- Disable SDRAM          
+            CS_n_O(0) <= '1'; -- Disable SDRAM          
        
             delaycount <= 0;
             count <= 0;
@@ -484,7 +484,7 @@ begin  -- architecture behav
         -- Read with auto precharge        
         -----------------------------------------------------------------------
         when sdram_read =>
-		  CS_n_O(1) <= '0'; -- Enable SDRAM
+		  CS_n_O(0) <= '0'; -- Enable SDRAM
           DQM_O <= (others => '0');
           r_ack_O <= '0';
           
@@ -523,7 +523,7 @@ begin  -- architecture behav
         -- Write
         -----------------------------------------------------------------------  
         when sdram_write =>
-          CS_n_O(1) <= '0'; -- Enable SDRAM
+          CS_n_O(0) <= '0'; -- Enable SDRAM
 
           case count is
             when 0 =>
@@ -575,14 +575,14 @@ begin  -- architecture behav
           rx_data_O <= '0';
           tx_data_O <= '0';
           count <= 0;    
-          CS_n_O(1) <= '1'; -- Disable SDRAM
+          CS_n_O(0) <= '1'; -- Disable SDRAM
 		
           if delaycount < tRP_CYCLES then
             delaycount <= delaycount + 1;
             state <= sdram_tRP_delay;
           else
             delaycount <= 0;
-            CS_n_O(1) <= '0'; -- Enable SDRAM
+            CS_n_O(0) <= '0'; -- Enable SDRAM
             state <= sdram_NOP;
             Command <= NOP;
           end if;
@@ -594,7 +594,7 @@ begin  -- architecture behav
           RAS_n_O <= '1';
           CAS_n_O <= '1';
           WE_n_O  <= '1';
-          CS_n_O(1) <= '0'; -- Enable SDRAM          
+          CS_n_O(0) <= '0'; -- Enable SDRAM          
 
           if command = startup then     -- Check if we're in the startup sequence
 			r_ack_O <= '0';

@@ -156,12 +156,12 @@ architecture structural of frame_buffer_test is
 
         DataIn      : in  std_logic_vector(DATA_WIDTH-1 downto 0);
         Line_Number : out std_logic_vector(9 downto 0);
-		Init_Done   : in std_logic;
-		Blank_done  : in std_logic;
+        Init_Done   : in std_logic;
+        Blank_done  : in std_logic;
         Horiz_Sync, Vert_Sync : out std_logic;
 
-      Blank_Now    : out std_logic;
-      Blank_Ack    : in std_logic;
+        Blank_Now    : out std_logic;
+        Blank_Ack    : in std_logic;
 
         -- Fifo interface signals
         Read_Line      : out std_logic;  -- Tell fifo to begin buffering an entire line
@@ -506,28 +506,28 @@ begin  -- architecture structural
     
   sdram_control_inst : sdram_control
     port map (
-      clock      => clock50,
-      reset      => reset,
-      R_Enable   => R_Enable,
-      W_Enable   => W_Enable,
-      RW_address => Address_Internal,
-      ready      => SDRAM_Ready,
-      tx_data    => Tx_Data,
-      rx_data    => Rx_Data,
-      init_done  => Init_Done,
-      WEbar      => WEbar,
-      CKE        => CKE,
-      CSbar      => CSbar,
-      CS2bar     => CS2bar,
-      addr       => Address_To_Ram,
-      RASbar     => RASbar,
-      CASbar     => CASbar,
-      DQM        => DQM,
-      BA         => BA,
-      Data_mask  => wf_Mask_to_Ram,
+      CLK_I             => clock50,
+      RST_I             => reset,
+      R_Enable_I        => R_Enable,
+      W_Enable_I        => W_Enable,
+      RW_address_I      => Address_Internal,
+      ready_O           => SDRAM_Ready,
+      tx_data_O         => Tx_Data,
+      rx_data_O         => Rx_Data,
+      init_done_O       => Init_Done,
+      WE_n_O            => WEbar,
+      CKE_O             => CKE,
+      CS_n_O(0)         => CSbar,
+      CS_n_O(1)         => CS2bar,
+      addr_O            => Address_To_Ram,
+      RAS_n_O           => RASbar,
+      CAS_n_O           => CASbar,
+      DQM_O             => DQM,
+      BA_O              => BA,
+      Data_mask_I       => wf_Mask_to_Ram,
 --    chip_select => chip_select,
-      r_ack     => r_ack,
-      w_ack     => w_ack
+      r_ack_O           => r_ack,
+      w_ack_O           => w_ack
       );
   
   vgafifo_inst : component vgafifo
