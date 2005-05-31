@@ -30,7 +30,7 @@ public:
 
 // Lifecycle
 
-   Rasterizer(oglContext* context);
+   Rasterizer(mcContext* context);
    Rasterizer(const Rasterizer&);    // copy constructor
    ~Rasterizer();
    
@@ -57,7 +57,7 @@ private:
   unsigned int   m_vertexCount;
   unsigned int   m_vertexSize;
 
-  oglContext*    m_pContext;  
+  mcContext*    m_pContext;  
   unsigned char* m_pPixelData;
   int*           m_pZData;
   

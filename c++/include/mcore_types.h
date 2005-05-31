@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#ifndef OGL_ATSANA_H
-
 typedef struct 
 {
    int      width;
@@ -28,18 +26,16 @@ typedef struct
    int      blueOffset;
    int      alphaBits;
    int      alphaOffset;
-} oglSurfaceDescriptor;
+} mcSurfaceDescriptor;
    
    
 typedef struct 
 {
 
-   oglSurfaceDescriptor* drawDesc;
-   oglSurfaceDescriptor* readDesc;
+   mcSurfaceDescriptor* drawDesc;
+   mcSurfaceDescriptor* readDesc;
    
-} oglContext;
-        
-#endif // OGL_ATSANA_H
+} mcContext;
 
 #if defined (__cplusplus)
 }

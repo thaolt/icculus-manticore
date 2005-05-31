@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <stdlib.h>
 
@@ -7,172 +6,147 @@
 #endif
 
 #include "SDL.h"
-
 #include "input.h"
 #include "VGAout.h"
 #include "mcore_defs.h"
 #include "Triangle3D.h"
-#include "Triangle3Dx.h"
+#include "Triangle3D.h"
 #include "Point3D.h"
-#include "Point3Dx.h"
+#include "Point3D.h"
 #include "Rasterizer.h"
 #include "Transformer.h"
+#include "mcore_types.h"
 
 using namespace std;
 
 int main(int argc,char * argv[])
 {
 
-  Uint32 width, height, bpp, die = 0;
-  SDL_Surface *Surface;
-  const SDL_VideoInfo* info = NULL;
-  bool fullscreen;
-  Uint32 *flags = new Uint32;
+    Uint32 width, height, bpp, die = 0;
+    SDL_Surface *Surface;
+    const SDL_VideoInfo* info = NULL;
+    bool fullscreen;
+    Uint32 *flags = new Uint32;
 
-  if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-    exit(1);
-  }
+    mcContext* pContext;
+    mcSurfaceDescriptor* pDescriptor;
+    int* pZ;
+    unsigned short* pColor;
+    Rasterizer* RasterEngine;
+    Transformer* TransformEngine;
 
-  // Defaults
-  fullscreen=false;
-  width = MCORE_WIDTH;
-  height = MCORE_HEIGHT;
+    float angle = 0.f ;
 
-  info = SDL_GetVideoInfo( );
-  long lasttime=0;
-  long thistime;
+    Point3D* point[8];
 
-  bpp=16;
-  atexit(SDL_Quit);
-  
-  SDL_ShowCursor(0);
-  *flags = SDL_SWSURFACE;
-  if(fullscreen){
-    *flags = SDL_FULLSCREEN;
-  }
+    if( SDL_Init(SDL_INIT_VIDEO) < 0 ) 
+    {
+	    exit(1);
+    }
 
-  Surface = SDL_SetVideoMode(width, height, bpp, *flags);
+    // Defaults
+    fullscreen=false;
+    width = MCORE_WIDTH;
+    height = MCORE_HEIGHT;
 
-  SDL_WM_SetCaption("Software Triangle", NULL);
+    info = SDL_GetVideoInfo( );
+    long lasttime=0;
+    long thistime;
 
+    bpp=16;
+    atexit(SDL_Quit);  
 
-  PixelRAM* PixelData = new PixelRAM(bpp);
-  Rasterizer* RasterEngine = new Rasterizer(PixelData);
-  Transformer* TransformEngine = new Transformer();
+    SDL_ShowCursor(0);
+    *flags = SDL_SWSURFACE;
 
-  VGAout Video(Surface, PixelData);
-  Video.ClearScreen();
+    if(fullscreen)
+    {
+        *flags |= SDL_FULLSCREEN;
+    }
 
-  Point3Dx *P1, *P2, *P3;
-  Point3Dx *P4, *P5, *P6;
-  Point3Dx *P8, *P7, *P9;
-  
+    Surface = SDL_SetVideoMode(width, height, bpp, *flags);
+    SDL_WM_SetCaption("Software Renderer", NULL);
 
- /*    P1 = new Point3D(-120,    0, -120, 31,   0, 0  );
-       P2 = new Point3D(-300, -100, -120,   0, 63, 0  );
-       P3 = new Point3D(-170, -160, -120,   0,   0, 31);
+    pColor = new unsigned short[MCORE_WIDTH*MCORE_HEIGHT];
+    pZ = new int[MCORE_WIDTH*MCORE_HEIGHT];
+   
+    pContext = new mcContext;
+    pDescriptor = new mcSurfaceDescriptor;
 
-       P6 = new Point3D( 150, 100, -120, 10,  63, 0  );
-       P5 = new Point3D(-100,  00, -120,   0, 20, 10);
-       P4 = new Point3D(  80, 150, -120, 5 ,  10, 31);
+    pContext->drawDesc = pDescriptor;
+    pDescriptor->colorBuffer = (void*) pColor;
+    pDescriptor->depthBuffer = (void*) pZ;
+    pDescriptor->width = MCORE_WIDTH;
+    pDescriptor->height = MCORE_HEIGHT;
+    pDescriptor->colorBytes = 2;
 
-       P9 = new Point3D(180, -200, -80,   5,  20,  15);
-       P8 = new Point3D(100, -200, -150, 31,  15,  5);
-       P7 = new Point3D(150, -100, -120, 26, 60, 30);
- */
-       P1 = new Point3Dx(-100<<16,-100<<16, -120<<16, 30,  2,  2);
-       P2 = new Point3Dx( 100<<16,   0<<16, -120<<16,  2, 62,  2);
-       P3 = new Point3Dx( -60<<16, 100<<16, -120<<16,  2,  2, 30);
+    RasterEngine = new Rasterizer(pContext);	
+    RasterEngine -> blank(); 
+    TransformEngine = new Transformer(); 
 
-/*     P1 = new Point3D( 100,  100, -120, 30,  2,  2);
-       P2 = new Point3D(-100,  100, -120,  2, 62,  2);
-       P3 = new Point3D( 100, -100, -120,  2,  2, 30);
-*/
-       P4 = new Point3Dx(-100, -100, -120, 30, 62,  2);
-       P5 = new Point3Dx( 100,  100, -260,  2, 62, 30);
-       P6 = new Point3Dx(-100,  100, -260, 15,  30, 15);
-       P7 = new Point3Dx( 100, -100, -260, 30, 50, 30);
-       P8 = new Point3Dx(-100, -100, -260,  2, 2, 2);
+    point[0] = new Point3D(-25, -25, -25, 31,  1,  1);
+    point[1] = new Point3D(-25,  25, -25,  1, 63,  1);
+    point[2] = new Point3D( 25,  25, -25,  1,  1,  31);
+    point[3] = new Point3D( 25, -25, -25, 31,  1,  31);
+    point[4] = new Point3D(-25, -25,  25,  1,  6,  31);
+    point[5] = new Point3D(-25,  25,  25,  1,  31, 15);
+    point[6] = new Point3D( 25,  25,  25,  1,  1,  10);
+    point[7] = new Point3D( 25, -25,  25,  1,  31, 15);
 
+    while(!die)
+    {
+        RasterEngine -> blank(); 
+        angle += 0.04f;
 
-  Triangle3Dx tri1(*P1, *P2, *P3);
-  Triangle3Dx tri2(*P2, *P4, *P3);  
-  Triangle3Dx tri3(*P5, *P6, *P7);
-  Triangle3Dx tri4(*P5, *P7, *P8);
-  Triangle3Dx tri5(*P2, *P6, *P8);
-  Triangle3Dx tri6(*P2, *P8, *P4);  
-  Triangle3Dx tri7(*P1, *P5, *P7);
-  Triangle3Dx tri8(*P1, *P3, *P7);
-  
-  while(!die){
-  
-   // 
-    PixelData->Blank();
+        RasterEngine->TransformEngine->loadIdentity();
+        RasterEngine->TransformEngine->rotate3f(angle, 0.f, 1.f, 0.f);
+        RasterEngine->TransformEngine->rotate3f(angle, 1.f, 0.f, 0.f);
+        RasterEngine->TransformEngine->translate3f(0.f, 0.f, -100.f);
 
-    TransformEngine -> Translatex(*P1,0,0,200<<16 );
-    TransformEngine -> Translatex(*P2,0,0,200<<16 );
-    TransformEngine -> Translatex(*P3,0,0,200<<16 );
-    TransformEngine -> Translatex(*P4,0,0,200<<16 );
-    TransformEngine -> Translatex(*P5,0,0,200<<16 );
-    TransformEngine -> Translatex(*P6,0,0,200<<16 );
-    TransformEngine -> Translatex(*P7,0,0,200<<16 );
-    TransformEngine -> Translatex(*P8,0,0,200<<16 );
+        RasterEngine->vertex3P(*point[0], *point[1], *point[2]);
+        RasterEngine->vertex3P(*point[0], *point[3], *point[2]);
+        RasterEngine->vertex3P(*point[4], *point[5], *point[6]);
+        RasterEngine->vertex3P(*point[4], *point[7], *point[6]);
 
-    TransformEngine -> RotateXx(*P1,0.06f);
-    TransformEngine -> RotateXx(*P2,0.06f);
-    TransformEngine -> RotateXx(*P3,0.06f);
-/*
-    TransformEngine -> RotateX(*P4,0.06f);
-    TransformEngine -> RotateX(*P5,0.06f);
-    TransformEngine -> RotateX(*P6,0.06f);
-    TransformEngine -> RotateX(*P7,0.06f);
-    TransformEngine -> RotateX(*P8,0.06f);
-*/
-    TransformEngine -> Translatex(*P1,0,0,-200<<16 );
-    TransformEngine -> Translatex(*P2,0,0,-200<<16 );
-    TransformEngine -> Translatex(*P3,0,0,-200<<16 );
-    TransformEngine -> Translatex(*P4,0,0,-200<<16 );
-    TransformEngine -> Translatex(*P5,0,0,-200<<16 );
-    TransformEngine -> Translatex(*P6,0,0,-200<<16 );
-    TransformEngine -> Translatex(*P7,0,0,-200<<16 );
-    TransformEngine -> Translatex(*P8,0,0,-200<<16 );
+        RasterEngine->vertex3P(*point[0], *point[1], *point[5]);
+        RasterEngine->vertex3P(*point[0], *point[5], *point[4]);
+        RasterEngine->vertex3P(*point[2], *point[3], *point[6]);
+        RasterEngine->vertex3P(*point[3], *point[6], *point[7]);
 
-    tri1.SetPoints(*P1,*P2,*P3);
-    tri2.SetPoints(*P2,*P4,*P3);
-    tri3.SetPoints(*P5,*P6,*P7);
-    tri4.SetPoints(*P6,*P7,*P8);
-    tri5.SetPoints(*P2, *P6, *P8);
-    tri6.SetPoints(*P2, *P8, *P4);  
-    tri7.SetPoints(*P1, *P5, *P7);
-    tri8.SetPoints(*P1, *P3, *P7);
+        RasterEngine->vertex3P(*point[1], *point[2], *point[5]);
+        RasterEngine->vertex3P(*point[2], *point[5], *point[6]);
+        RasterEngine->vertex3P(*point[0], *point[3], *point[4]);
+        RasterEngine->vertex3P(*point[3], *point[4], *point[7]);
 
-    RasterEngine->Rasterizex(tri1);
- /*
-    RasterEngine->Rasterize(tri2);
+        RasterEngine->rasterizeArray();
 
-    RasterEngine->Rasterize(tri3);
-    RasterEngine->Rasterize(tri4);
+        SDL_Delay(50);
+        /*
+        thistime = SDL_GetTicks();
+        cout << "FPS: " << 1.0f/(thistime-lasttime)*1000 << endl;
+        lasttime = thistime;
+        */
 
-    RasterEngine->Rasterize(tri5);
-    RasterEngine->Rasterize(tri6);
+        die = process_input();
 
-    RasterEngine->Rasterize(tri7);
-    RasterEngine->Rasterize(tri8);   
- /*
-   /*   
-    */
-  
-/*
-    thistime = SDL_GetTicks();
-    cout << "FPS: " << 1.0f/(thistime-lasttime)*1000 << endl;
-    lasttime = thistime;
-*/
-    die = process_input();
-    Video.DrawScreen();
-  }
+        if ( SDL_MUSTLOCK(Surface) ) 
+        {
+            SDL_LockSurface(Surface);
+        }
 
-  SDL_Quit();
-  return 0;
+        memcpy((void *)Surface->pixels, (void *)pColor, MCORE_WIDTH*MCORE_HEIGHT*MCORE_BYTESPERPIXEL);
+
+        if ( SDL_MUSTLOCK(Surface) ) 
+        {
+            SDL_UnlockSurface(Surface);
+        }
+          
+        SDL_UpdateRect(Surface, 0, 0, MCORE_WIDTH, MCORE_HEIGHT);
 
 
+    }
+
+    SDL_Quit();
+    return 0;
 }
+

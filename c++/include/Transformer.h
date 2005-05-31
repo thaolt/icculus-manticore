@@ -28,6 +28,8 @@
   *    @author 
   *    @date 
   */
+//#define NORMALCALC
+
 class Transformer
 {
 public:

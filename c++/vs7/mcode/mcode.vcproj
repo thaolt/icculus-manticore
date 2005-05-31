@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include"
+				AdditionalIncludeDirectories="../../include;C:\Development\builds\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,6 +35,7 @@
 				AdditionalDependencies="SDL.lib  SDLmain.lib"
 				OutputFile="$(OutDir)/mcode.exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="C:\Development\builds\lib"
 				IgnoreAllDefaultLibraries="FALSE"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/mcode.pdb"
@@ -125,9 +126,6 @@
 				RelativePath="..\..\src\main.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\PixelRAM.cpp">
-			</File>
-			<File
 				RelativePath="..\..\src\Point2D.cpp">
 			</File>
 			<File
@@ -145,9 +143,6 @@
 			<File
 				RelativePath="..\..\src\Triangle3D.cpp">
 			</File>
-			<File
-				RelativePath="..\..\src\VGAout.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -158,9 +153,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\mcore_defs.h">
-			</File>
-			<File
-				RelativePath="..\..\include\PixelRAM.h">
 			</File>
 			<File
 				RelativePath="..\..\include\Point2D.h">
@@ -179,9 +171,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Triangle3D.h">
-			</File>
-			<File
-				RelativePath="..\..\include\VGAout.h">
 			</File>
 		</Filter>
 		<Filter
