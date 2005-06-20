@@ -349,6 +349,8 @@ void
 Rasterizer::vertex3P(Point3D P1, Point3D P2, Point3D P3)
 {
 
+	unsigned int i;
+
     TransformEngine->applyTransform(P1);
     TransformEngine->applyTransform(P2);
     TransformEngine->applyTransform(P3);          
@@ -356,7 +358,7 @@ Rasterizer::vertex3P(Point3D P1, Point3D P2, Point3D P3)
     if(m_vertexSize - m_vertexCount < 9)
     {    
         float* tempArray = new float[m_vertexSize*2];
-        for(unsigned int i = 0; i <m_vertexCount; i++)
+        for(i = 0; i <m_vertexCount; i++)
         {
             tempArray[i] = m_pVertexArray[i];
         }
@@ -365,7 +367,7 @@ Rasterizer::vertex3P(Point3D P1, Point3D P2, Point3D P3)
         m_pVertexArray = tempArray;  
 
         unsigned char* tempcArray = new unsigned char[m_vertexSize*2];
-        for(unsigned int i = 0; i <m_vertexCount; i++)
+        for(i = 0; i <m_vertexCount; i++)
         {
             tempcArray[i] = m_pColorArray[i];
         } 
