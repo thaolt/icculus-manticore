@@ -129,10 +129,6 @@ SOURCE=..\..\include\mcore_defs.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\PixelRAM.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Point2D.h
 # End Source File
 # Begin Source File
