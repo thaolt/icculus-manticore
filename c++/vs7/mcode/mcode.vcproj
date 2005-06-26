@@ -137,12 +137,6 @@
 			<File
 				RelativePath="..\..\src\Transformer.cpp">
 			</File>
-			<File
-				RelativePath="..\..\src\Triangle2D.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\Triangle3D.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -165,12 +159,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Transformer.h">
-			</File>
-			<File
-				RelativePath="..\..\include\Triangle2D.h">
-			</File>
-			<File
-				RelativePath="..\..\include\Triangle3D.h">
 			</File>
 		</Filter>
 		<Filter

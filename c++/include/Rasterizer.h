@@ -19,7 +19,6 @@
 //
 #include "Point3D.h"
 #include "Point2D.h"
-#include "Triangle3D.h"
 #include "mcore_defs.h"
 #include "mcore.h"
 #include "Transformer.h"

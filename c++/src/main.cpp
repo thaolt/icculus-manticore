@@ -7,9 +7,6 @@
 
 #include "SDL.h"
 #include "input.h"
-#include "VGAout.h"
-#include "mcore_defs.h"
-#include "Triangle3D.h"
 #include "Point3D.h"
 #include "Rasterizer.h"
 #include "Transformer.h"
