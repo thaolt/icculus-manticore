@@ -25,7 +25,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
 			<Tool
@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="SDL.lib  SDLmain.lib"
-				OutputFile="$(OutDir)/mcode.exe"
+				OutputFile="$(OutDir)/mcode_debug.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="C:\Development\builds\lib"
 				IgnoreAllDefaultLibraries="FALSE"
@@ -71,7 +71,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../include"
+				AdditionalIncludeDirectories="../../include;C:\Development\builds\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -85,6 +85,7 @@
 				AdditionalDependencies="SDL.lib  SDLmain.lib"
 				OutputFile="$(OutDir)/mcode.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="C:\Development\builds\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -137,12 +138,6 @@
 			<File
 				RelativePath="..\..\src\Transformer.cpp">
 			</File>
-			<File
-				RelativePath="..\..\src\Triangle2D.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\Triangle3D.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -165,12 +160,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Transformer.h">
-			</File>
-			<File
-				RelativePath="..\..\include\Triangle2D.h">
-			</File>
-			<File
-				RelativePath="..\..\include\Triangle3D.h">
 			</File>
 		</Filter>
 		<Filter

@@ -118,13 +118,12 @@ Transformer::rotate3f(const float& angle, const float& x, const float& y, const 
     float txx, tyy, tzz;
     float sy, sx, sz;
     float c, s, t;
-    float mag;
+
       
 #ifdef NORMALCALC
+    float mag;
     mag = sqrt(x*x + y*y + z*z);
-
     if(mag == 0.0f) return;
-      
     if(mag != 1.0f)
     {
         ux = x/mag;
@@ -266,9 +265,8 @@ Transformer::Translatef(Point3D &pnt, float dx, float dy, float dz)
 void 
 Transformer::Scale(Point3D &pnt, float factor )
 {
-
-
-
+    factor = factor;
+    pnt = pnt;
 }
 
 

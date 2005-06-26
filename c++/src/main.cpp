@@ -61,6 +61,8 @@ MCint pCubeIndices[] =
 
 int main(int argc,char * argv[])
 {
+    argc = argc;
+    argv = argv;
 
     Uint32 width, height, bpp, die = 0;
     SDL_Surface *Surface;
