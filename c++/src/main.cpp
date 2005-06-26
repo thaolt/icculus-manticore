@@ -10,17 +10,59 @@
 #include "VGAout.h"
 #include "mcore_defs.h"
 #include "Triangle3D.h"
-#include "Triangle3D.h"
-#include "Point3D.h"
 #include "Point3D.h"
 #include "Rasterizer.h"
 #include "Transformer.h"
-#include "mcore_types.h"
+#include "mcore.h"
 
 using namespace std;
 
+MCfloat pVertexArray[] = 
+{
+    -25, -25, -25, 
+     25,  25, -25, 
+     25,  25, -25, 
+     25, -25, -25, 
+    -25, -25,  25, 
+    -25,  25,  25, 
+     25,  25,  25, 
+     25, -25,  25
+};
+
+MCuchar pColorArray[] = 
+{
+    31,   1,   1,
+     1,  63,   1,
+     1,   1,  31,
+    31,   1,  31,
+     1,   6,  31,
+     1,  31,  15,
+     1,   1,  10,
+     1,  31,  15
+};
+
+MCint pCubeIndices[] =
+{
+        0, 1, 2,
+        0, 3, 2,
+        4, 5, 6,
+        4, 7, 6,
+
+        0, 1, 5,
+        0, 5, 4,
+        2, 3, 6,
+        3, 6, 7,
+
+        1, 2, 5,
+        2, 5, 6,
+        0, 3, 4,
+        3, 4, 7 
+};
+
 int main(int argc,char * argv[])
 {
+    argc = argc;
+    argv = argv;
 
     Uint32 width, height, bpp, die = 0;
     SDL_Surface *Surface;
@@ -50,8 +92,8 @@ int main(int argc,char * argv[])
     height = MCORE_HEIGHT;
 
     info = SDL_GetVideoInfo( );
-    long lasttime=0;
-    long thistime;
+//    long lasttime=0;
+//    long thistime;
 
     bpp=16;
     atexit(SDL_Quit);  
@@ -98,6 +140,8 @@ int main(int argc,char * argv[])
         RasterEngine -> blank(); 
         angle += 0.04f;
 
+        //mcVertexArrayPointer(
+
         RasterEngine->TransformEngine->loadIdentity();
         RasterEngine->TransformEngine->rotate3f(angle, 0.f, 1.f, 0.f);
         RasterEngine->TransformEngine->rotate3f(angle, 1.f, 0.f, 0.f);
@@ -120,7 +164,7 @@ int main(int argc,char * argv[])
 
         RasterEngine->rasterizeArray();
 
-        SDL_Delay(50);
+        //SDL_Delay(50);
         /*
         thistime = SDL_GetTicks();
         cout << "FPS: " << 1.0f/(thistime-lasttime)*1000 << endl;

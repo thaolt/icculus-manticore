@@ -21,7 +21,7 @@
 #include "Point2D.h"
 #include "Triangle3D.h"
 #include "mcore_defs.h"
-#include "mcore_types.h"
+#include "mcore.h"
 #include "Transformer.h"
 
 class Rasterizer
@@ -48,12 +48,12 @@ protected:
 private:
 // Private Methods
 
-  void s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* colors);
+  void s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* colors);
   void s3dGetZDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* z);
-  void s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq);
+  void s3dGetLineEq(Point2D& P1, Point2D& P2, int* eq);
 
   float*         m_pVertexArray;
-  unsigned char* m_pColorArray;
+  unsigned int* m_pColorArray;
   unsigned int   m_vertexCount;
   unsigned int   m_vertexSize;
 
@@ -65,8 +65,8 @@ private:
   int            m_dy;
   int            m_bpp;
 
-  short*         m_colors;
-  short*         m_eq;
+  int*         m_colors;
+  int*         m_eq;
   int*           m_zslopes;
 
   float          m_P1X, m_P1Y, m_P1Z;
