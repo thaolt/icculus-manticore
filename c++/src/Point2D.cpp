@@ -41,7 +41,7 @@ Point2D::Point2D(const int & inx, const int & iny, const int & inz){
   b = 0;
 }
 
-Point2D::Point2D(const int & inx, const int & iny, const int & inz, const unsigned char & inr, const unsigned char & ing, const unsigned char & inb){
+Point2D::Point2D(const int & inx, const int & iny, const int & inz, const unsigned int & inr, const unsigned int & ing, const unsigned int & inb){
 
   x = inx;
   y = iny;
@@ -109,21 +109,21 @@ Point2D::GetZ()const{
 
 }
 
-unsigned char 
+unsigned int 
 Point2D::GetR()const{
 
   return r;
 
 }
 
-unsigned char 
+unsigned int 
 Point2D::GetG()const{
 
   return g;
 
 }
 
-unsigned char 
+unsigned int
 Point2D::GetB()const{
 
   return b;
@@ -150,19 +150,19 @@ Point2D::SetZ(const int &zin){
 
 
 void 
-Point2D::SetR(const unsigned char &rin){
+Point2D::SetR(const unsigned int &rin){
     r = rin;
 }
 
 
 void 
-Point2D::SetG(const unsigned char &gin){
+Point2D::SetG(const unsigned int &gin){
     g = gin;
 }
 
 
 void 
-Point2D::SetB(const unsigned char &bin){
+Point2D::SetB(const unsigned int &bin){
     b = bin;
 }
 

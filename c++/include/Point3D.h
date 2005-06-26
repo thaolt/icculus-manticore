@@ -39,9 +39,9 @@ public:
     Point3D(const float& x, 
             const float& cy, 
             const float& z,
-            const unsigned char& r,
-            const unsigned char& g, 
-            const unsigned char& b
+            const unsigned int& r,
+            const unsigned int& g, 
+            const unsigned int& b
             );
             
     Point3D(const Point3D&);            // copy constructor
@@ -57,16 +57,16 @@ public:
     const float& GetX()const;
     const float& GetY()const;
     const float& GetZ()const;
-    unsigned char GetR()const;
-    unsigned char GetG()const;
-    unsigned char GetB()const;
+    unsigned int GetR()const;
+    unsigned int GetG()const;
+    unsigned int GetB()const;
 
     void SetX(const float&);
     void SetY(const float&);
     void SetZ(const float&);
-    void SetR(const unsigned char&);
-    void SetG(const unsigned char&);
-    void SetB(const unsigned char&);
+    void SetR(const unsigned int&);
+    void SetG(const unsigned int&);
+    void SetB(const unsigned int&);
 
 protected:
 // Protected Methods
@@ -76,9 +76,9 @@ private:
     float x;
     float y;
     float z;
-    int r;
-    int g;
-    int b;
+    unsigned int r;
+    unsigned int g;
+    unsigned int b;
 //////////////////Removed
 };
 

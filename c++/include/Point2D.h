@@ -35,9 +35,9 @@ public:
     Point2D();
     Point2D(const int & x, const int & y, const int & z);
     Point2D(const int & x, const int & y, const int & z, 
-            const unsigned char & r,
-            const unsigned char & g, 
-            const unsigned char & b);
+            const unsigned int & r,
+            const unsigned int & g, 
+            const unsigned int & b);
     Point2D(const Point2D&);            // copy constructor
    ~Point2D();
 
@@ -51,16 +51,16 @@ public:
     const int & GetX()const;
     const int & GetY()const;
     const int & GetZ()const;
-    unsigned char GetR()const;
-    unsigned char GetG()const;
-    unsigned char GetB()const;
+    unsigned int GetR()const;
+    unsigned int GetG()const;
+    unsigned int GetB()const;
     
     void SetX(const int &);
     void SetY(const int &);
     void SetZ(const int &);
-    void SetR(const unsigned char &);
-    void SetG(const unsigned char &);
-    void SetB(const unsigned char &);
+    void SetR(const unsigned int &);
+    void SetG(const unsigned int &);
+    void SetB(const unsigned int &);
     // Inquiry
 
 protected:
@@ -71,9 +71,9 @@ private:
     int x;
     int y;
     int z;
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
+    unsigned int r;
+    unsigned int g;
+    unsigned int b;
 //////////////////Removed
 };
 

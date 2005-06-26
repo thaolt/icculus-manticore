@@ -17,7 +17,7 @@
 #include "Transformer.h"
 
 #include <math.h>
-#include "mcore_types.h"
+#include "mcore.h"
 
 #define BINARY_PLACES 10
 #define VERTEX_START_SIZE 256
@@ -52,14 +52,14 @@ Rasterizer::Rasterizer(mcContext* context)
     m_dy          = context->drawDesc->height;
     m_bpp         = 8*context->drawDesc->colorBytes;
       
-    m_colors      = new short[9];  // short arrays for SIMD array
-    m_eq          = new short[9];
+    m_colors      = new int[9];  // short arrays for SIMD array
+    m_eq          = new int[9];
     m_zslopes     = new int[3];
       
     m_vertexCount = 0;
     m_vertexSize  = VERTEX_START_SIZE;
     m_pVertexArray = new float[VERTEX_START_SIZE];
-    m_pColorArray  = new unsigned char[VERTEX_START_SIZE];
+    m_pColorArray  = new unsigned int[VERTEX_START_SIZE];
 
     TransformEngine = new Transformer();
 
@@ -162,7 +162,7 @@ Rasterizer::blank()
  **************************************************************************/
 
 void 
-Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* m_colors)
+Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* m_colors)
 {
     int drdx, drdy, dgdx, dgdy, dbdx, dbdy, area;
     int rstart, gstart, bstart;
@@ -203,15 +203,15 @@ Rasterizer::s3dGetColorDeltas(Point2D& P1, Point2D& P2, Point2D& P3, short* m_co
     gstart = (P1G<<BINARY_PLACES);
     bstart = (P1B<<BINARY_PLACES);
 
-    m_colors[0]=(short)drdx;
-    m_colors[1]=(short)drdy;
-    m_colors[2]=(short)dgdx;
-    m_colors[3]=(short)dgdy;
-    m_colors[4]=(short)dbdx;
-    m_colors[5]=(short)dbdy;
-    m_colors[6]=(short)rstart;
-    m_colors[7]=(short)gstart;
-    m_colors[8]=(short)bstart;
+    m_colors[0]=drdx;
+    m_colors[1]=drdy;
+    m_colors[2]=dgdx;
+    m_colors[3]=dgdy;
+    m_colors[4]=dbdx;
+    m_colors[5]=dbdy;
+    m_colors[6]=rstart;
+    m_colors[7]=gstart;
+    m_colors[8]=bstart;
 
 }
 
@@ -263,7 +263,7 @@ Rasterizer::s3dGetZDeltas(Point2D& P1, Point2D& P2, Point2D& P3, int* m_zslopes)
  **************************************************************************/
 
 void
-Rasterizer::s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq){
+Rasterizer::s3dGetLineEq(Point2D& P1, Point2D& P2, int* eq){
 
     int dx,dy;
     float m, i, a, b, c;
@@ -288,36 +288,40 @@ Rasterizer::s3dGetLineEq(Point2D& P1, Point2D& P2, short* eq){
 
     if(a>0)
     {    // Round for truncation
-        a+=0.5;
+        a+=0.5f;
     }
     else
     {
-        a-=0.5;
+        a-=0.5f;
     }
 
     if(b>0)
     {
-        b+=0.5;
+        b+=0.5f;
     }
     else
     {
-        b-=0.5;
+        b-=0.5f;
     }
     
     if(c>0)
     {
-        c+=0.5;
+        c+=0.5f;
     }
     else
     {
-        c-=0.5;
+        c-=0.5f;
     }
 
-    eq[0] = (short)a;  // A
-    eq[1] = (short)b;  // B
-    eq[2] = (short)c;  // C
+    eq[0] = (int)a;  // A
+    eq[1] = (int)b;  // B
+    eq[2] = (int)c;  // C
 }
 
+#define MAX(x,y) ((x) > (y) ? (x) : (y))
+#define MIN(x,y) ((x) < (y) ? (x) : (y))
+
+/*
 int max(int x, int y)
 {
     if (x >= y)
@@ -335,6 +339,7 @@ int min(int x, int y)
     }
     return y;
 }
+*/
 
 /***************************************************************************/
 /**
@@ -366,7 +371,7 @@ Rasterizer::vertex3P(Point3D P1, Point3D P2, Point3D P3)
         delete[] m_pVertexArray;
         m_pVertexArray = tempArray;  
 
-        unsigned char* tempcArray = new unsigned char[m_vertexSize*2];
+        unsigned int* tempcArray = new unsigned int[m_vertexSize*2];
         for(i = 0; i <m_vertexCount; i++)
         {
             tempcArray[i] = m_pColorArray[i];
@@ -423,9 +428,12 @@ Rasterizer::rasterizeArray()
 
     int z, yzstart;
 
-    short eq1result, eq1start;
-    short eq2result, eq2start;
-    short eq3result, eq3start;
+    int eq1result; 
+    int eq1start;
+    int eq2result; 
+    int eq2start;
+    int eq3result; 
+    int eq3start;
             
     int miny, minx, maxy, maxx;
 
@@ -446,12 +454,12 @@ Rasterizer::rasterizeArray()
         
         if((m_P1Z >= 0) || (m_P2Z >= 0) || (m_P3Z >= 0)) break;
         
-        m_P1screenX = (int)(((m_P1X/(-m_P1Z))*MCORE_FOCALLENGTH) +m_dx/2);  // camera projection
-        m_P1screenY = (int)(((m_P1Y/(-m_P1Z))*MCORE_FOCALLENGTH) +m_dy/2);
-        m_P2screenX = (int)(((m_P2X/(-m_P2Z))*MCORE_FOCALLENGTH) +m_dx/2);
-        m_P2screenY = (int)(((m_P2Y/(-m_P2Z))*MCORE_FOCALLENGTH) +m_dy/2);
-        m_P3screenX = (int)(((m_P3X/(-m_P3Z))*MCORE_FOCALLENGTH) +m_dx/2);
-        m_P3screenY = (int)(((m_P3Y/(-m_P3Z))*MCORE_FOCALLENGTH) +m_dy/2);
+        m_P1screenX = (int)(((m_P1X/(-m_P1Z))*MCORE_FOCALLENGTH) + (float)(m_dx>>1));  // camera projection
+        m_P1screenY = (int)(((m_P1Y/(-m_P1Z))*MCORE_FOCALLENGTH) + (float)(m_dy>>1));
+        m_P2screenX = (int)(((m_P2X/(-m_P2Z))*MCORE_FOCALLENGTH) + (float)(m_dx>>1));
+        m_P2screenY = (int)(((m_P2Y/(-m_P2Z))*MCORE_FOCALLENGTH) + (float)(m_dy>>1));
+        m_P3screenX = (int)(((m_P3X/(-m_P3Z))*MCORE_FOCALLENGTH) + (float)(m_dx>>1));
+        m_P3screenY = (int)(((m_P3Y/(-m_P3Z))*MCORE_FOCALLENGTH) + (float)(m_dy>>1));
 
         m_P1fixedZ = (int)(m_P1Z*Z_FLOAT_CONVERT); 
         m_P2fixedZ = (int)(m_P2Z*Z_FLOAT_CONVERT);
@@ -461,8 +469,7 @@ Rasterizer::rasterizeArray()
         Point2D P2(m_P2screenX, m_P2screenY, m_P2fixedZ, m_pColorArray[i+3], m_pColorArray[i+4], m_pColorArray[i+5]);
         Point2D P3(m_P3screenX, m_P3screenY, m_P3fixedZ, m_pColorArray[i+6], m_pColorArray[i+7], m_pColorArray[i+8]);
 
-        s3dGetColorDeltas(P1,P2,P3, m_colors);   // short array pointers are used to load the SIMD array
-                                                // kept here for consistency
+        s3dGetColorDeltas(P1,P2,P3, m_colors);  
         s3dGetZDeltas(P1,P2,P3, m_zslopes);
 
         Point2D *Sorted1, *Sorted2, *Sorted3;
@@ -486,15 +493,15 @@ Rasterizer::rasterizeArray()
         s3dGetLineEq( *Sorted3, *Sorted2, m_eq+3);
         s3dGetLineEq( *Sorted1, *Sorted3, m_eq+6);
 
-        miny = min(P1.GetY(),P2.GetY());
-        miny = min(miny,     P3.GetY());
-        minx = min(P1.GetX(),P2.GetX());
-        minx = min(minx,     P3.GetX());
+        miny = MIN(P1.GetY(),P2.GetY());
+        miny = MIN(miny,     P3.GetY());
+        minx = MIN(P1.GetX(),P2.GetX());
+        minx = MIN(minx,     P3.GetX());
 
-        maxy = max(P1.GetY(),P2.GetY());
-        maxy = max(maxy,     P3.GetY());
-        maxx = max(P1.GetX(),P2.GetX());
-        maxx = max(maxx,     P3.GetX());
+        maxy = MAX(P1.GetY(),P2.GetY());
+        maxy = MAX(maxy,     P3.GetY());
+        maxx = MAX(P1.GetX(),P2.GetX());
+        maxx = MAX(maxx,     P3.GetX());
 
         if(maxy >= m_dy) maxy = m_dy-1;
         if(miny < 0) miny = 0;
@@ -539,14 +546,14 @@ Rasterizer::rasterizeArray()
                             
                         m_pZData[yoffset+x]= ( z );
 
-                        ((unsigned short*)(m_pContext->drawDesc->colorBuffer))[(yoffset+x)] = color;
+                        ((unsigned short*)(m_pContext->drawDesc->colorBuffer))[(yoffset+x)] = (unsigned short)color;
                     
                     } // inclusion test
                 } // depth test
 
-                eq1result -= m_eq[0]; 
-                eq2result -= m_eq[3];
-                eq3result -= m_eq[6];
+                eq1result -= (int)m_eq[0]; 
+                eq2result -= (int)m_eq[3];
+                eq3result -= (int)m_eq[6];
                 
                 red   -= m_colors[0];
                 green -= m_colors[2];
