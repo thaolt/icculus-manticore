@@ -18,6 +18,7 @@
 
 #include <math.h>
 #include "mcore.h"
+#include <string.h>
 
 #define BINARY_PLACES 10
 #define VERTEX_START_SIZE 256
@@ -138,18 +139,10 @@ Rasterizer::operator=(const Rasterizer &rhs)
 void
 Rasterizer::blank()
 {
+         
+   memset(m_pZData, 0xfe, MCORE_WIDTH * MCORE_HEIGHT * 4);
+   memset(m_pPixelData, 0, MCORE_WIDTH * MCORE_HEIGHT * 2);
 
-   m_pPixelData  = (unsigned char*)(m_pContext->drawDesc->colorBuffer); 
-   unsigned short* p = (unsigned short *)m_pPixelData;
-
-   for(int x=0; x < m_dx; x++)
-   {
-      for(int y=0; y < m_dy; y++)
-      {
-         m_pZData[y*m_dx+x] = 0x80000001;
-         p[y*m_dx+x] = 0;      
-      }
-   }
 }
 
 /***************************************************************************/
@@ -571,7 +564,6 @@ Rasterizer::rasterizeArray()
             }
 
          } // x
-
       } // y
    } // vertex loop  
 
